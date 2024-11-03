@@ -5,7 +5,7 @@ I am planning to make here a website that will allow a user to create a game or 
 
 Here’s a revised 7-week plan to guide us toward implementing all the features I've outlined for the ASCII generative application. This plan organizes tasks by priority, with achievable milestones each week, ensuring a steady build-up to the complete functionality.
 
-##Week 1: Initial Setup and Core Structure
+## Week 1: Initial Setup and Core Structure
 
 Goals:
 	•	Set up the GitHub repository with project documentation.
@@ -16,7 +16,7 @@ Key Features:
 	•	Scalable/responsive container setup to allow embedding on other websites.
 Milestone: Successfully display a simple, centered ASCII scene that resizes based on the container dimensions.
 
-##Week 2: Scene and Object Management
+## Week 2: Scene and Object Management
 
 Goals:
 	•	Implement the framework for creating, saving, loading, and switching between scenes.
@@ -26,7 +26,7 @@ Key Features:
 	•	Ability to save and load scenes.
 Milestone: Ability to save a basic scene with objects and reload it on editor load.
 
-##Week 3: Interactive and Persistent Toolbars
+## Week 3: Interactive and Persistent Toolbars
 
 Goals:
 	•	Develop an editor toolbar for creating and adding items to scenes.
@@ -36,7 +36,7 @@ Key Features:
 	•	Drag-and-drop functionality for adding items from the editor toolbar into the scene.
 Milestone: Editor toolbar functions to add elements to scenes; in-game toolbar can display persistent data like money count.
 
-##Week 4: Clickable ASCII Objects with Configurable Actions
+## Week 4: Clickable ASCII Objects with Configurable Actions
 
 Goals:
 	•	Enable ASCII characters or groups to function as clickable objects with custom actions.
@@ -46,7 +46,7 @@ Key Features:
 	•	Scene navigation buttons.
 Milestone: Scene elements can be clicked, triggering basic actions like scene transitions or displaying a message.
 
-##Week 5: Custom Keyboard Inputs for In-Game Actions
+## Week 5: Custom Keyboard Inputs for In-Game Actions
 
 Goals:
 	•	Implement custom keyboard input bindings, allowing users to assign keys to specific actions (e.g., ‘e’ for an explosion).
@@ -56,7 +56,7 @@ Key Features:
 	•	Support for custom effects like “drop a bomb” or “shoot a fireball.”
 Milestone: Users can configure a key to trigger a specific action for selected objects in-game.
 
-##Week 6: Color Customization for ASCII Objects
+## Week 6: Color Customization for ASCII Objects
 
 Goals:
 	•	Implement color settings for individual ASCII characters and groups.
@@ -66,7 +66,7 @@ Key Features:
 	•	Preview of color changes in the render area.
 Milestone: Users can assign colors to ASCII objects, with colors changing on hover and click events.
 
-##Week 7: Final Integration, Testing, and Documentation
+## Week 7: Final Integration, Testing, and Documentation
 
 Goals:
 	•	Conduct thorough testing of all features to ensure smooth functionality.
