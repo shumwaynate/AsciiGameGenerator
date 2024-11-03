@@ -8,12 +8,19 @@ Here’s a revised 7-week plan to guide us toward implementing all the features 
 ## Week 1: Initial Setup and Core Structure
 
 Goals:
+
 	•	Set up the GitHub repository with project documentation.
+ 
 	•	Create the initial HTML, CSS, and JavaScript file structure.
+ 
 	•	Establish the main 2D render area (canvas or div) and build the persistent layout.
+ 
 Key Features:
+
 	•	Basic rendering of ASCII art in the main canvas.
+ 
 	•	Scalable/responsive container setup to allow embedding on other websites.
+ 
 Milestone: Successfully display a simple, centered ASCII scene that resizes based on the container dimensions.
 
 ## Week 2: Scene and Object Management
