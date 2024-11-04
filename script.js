@@ -35,11 +35,9 @@ function addAsciiArt(asciiArt) {
     artDiv.style.cursor = 'pointer';
     artDiv.style.position = 'absolute'; // Allow positioning
 
-    // Set initial position
-    const x = Math.random() * (window.innerWidth - 100); // Random position
-    const y = Math.random() * (window.innerHeight - 100); // Random position
-    artDiv.style.left = `${x}px`;
-    artDiv.style.top = `${y}px`;
+    // Set position at center of canvas
+    artDiv.style.left = `${(document.getElementById('ascii-container').clientWidth / 2) - (asciiArt.length / 2 * 8)}px`; // Adjust for ASCII width
+    artDiv.style.top = `calc(50% - 10px)`; // Center vertically
 
     artDiv.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent triggering document click
@@ -72,7 +70,11 @@ function addAsciiArt(asciiArt) {
 // Function to save the current scene
 function saveScene(sceneName) {
     const artItems = document.querySelectorAll('.ascii-art');
-    const artArray = Array.from(artItems).map(art => art.innerText);
+    const artArray = Array.from(artItems).map(art => ({
+        content: art.innerText,
+        left: art.style.left,
+        top: art.style.top
+    }));
     scenes[sceneName] = artArray; // Save the scene with its ASCII art
     alert(`Scene '${sceneName}' saved!`);
 }
@@ -82,7 +84,12 @@ function loadScene(sceneName) {
     if (scenes[sceneName]) {
         currentScene = sceneName; // Update current scene
         document.getElementById('ascii-display').innerHTML = ''; // Clear display
-        scenes[sceneName].forEach(art => addAsciiArt(art)); // Re-add ASCII art from the scene
+        scenes[sceneName].forEach(art => {
+            addAsciiArt(art.content); // Re-add ASCII art from the scene
+            const artDiv = document.querySelectorAll('.ascii-art:last-child')[0]; // Get the last added element
+            artDiv.style.left = art.left; // Set saved position
+            artDiv.style.top = art.top; // Set saved position
+        });
         alert(`Scene '${sceneName}' loaded!`);
     } else {
         alert(`Scene '${sceneName}' does not exist!`);
@@ -130,7 +137,7 @@ document.getElementById('context-menu').addEventListener('click', (event) => {
     }
 });
 
-// Function to change the color of the ASCII art (placeholder, you can define your color changing logic)
+// Function to change the color of the ASCII art
 function changeAsciiColor(asciiArt) {
     const color = prompt("Enter a color (name or hex):");
     const artItems = document.querySelectorAll('.ascii-art');
@@ -141,3 +148,7 @@ function changeAsciiColor(asciiArt) {
     });
 }
 
+// Hide context menu when clicking elsewhere
+document.addEventListener('click', () => {
+    document.getElementById('context-menu').style.display = 'none'; // Hide the context menu
+});
