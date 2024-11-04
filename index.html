@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Game Creator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="ascii-container">
+        <div id="ascii-display"></div>
+    </div>
+
+    <div class="scene-editor">
+        <label for="ascii-input">Enter ASCII Art:</label>
+        <textarea id="ascii-input" rows="5" placeholder="Type ASCII art here..."></textarea>
+        <button id="add-ascii-art">Add ASCII Art to Display</button>
+    </div>
+
+    <div class="scene-controls">
+        <label for="scene-name">Scene Name:</label>
+        <input type="text" id="scene-name" placeholder="Enter scene name">
+        <button id="save-scene">Save Scene</button>
+        <button id="load-scene">Load Scene</button>
+    </div>
+
+    <div id="status-message"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

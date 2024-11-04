@@ -121,3 +121,14 @@ Key Features:
  
 Milestone: Fully functional, documented application ready for embedding on any website.
 
+
+
+# Features And Questions
+
+## Features
+
+Currently scenes.json Is impenmented but meant to later be replaced with a user database. It currentely will be used to save scenes.
+
+
+
+## Questions
