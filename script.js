@@ -1,6 +1,6 @@
 // Global variables
 let selectedAsciiArt = null; // Track selected ASCII art for context menu
-const scenes = {}; // Object to hold scenes and their ASCII art
+const scenes = { default: [] }; // Initialize with default scene
 let currentScene = 'default'; // Default scene
 
 document.getElementById('add-ascii-art').addEventListener('click', () => {
@@ -17,6 +17,7 @@ document.getElementById('save-scene').addEventListener('click', () => {
     const sceneName = document.getElementById('scene-name').value;
     if (sceneName) {
         saveScene(sceneName);
+        currentScene = sceneName; // Update current scene
         document.getElementById('scene-name').value = ''; // Clear the scene name after saving
     } else {
         alert('Please enter a scene name!');
@@ -24,20 +25,35 @@ document.getElementById('save-scene').addEventListener('click', () => {
 });
 
 document.getElementById('load-scene').addEventListener('click', () => {
-    loadScene(currentScene); // Load the current scene
+    const sceneName = document.getElementById('scene-name').value;
+    if (sceneName) {
+        loadScene(sceneName); // Load the specified scene
+    } else {
+        alert('Please enter a scene name to load!');
+    }
 });
 
 // Function to add ASCII art to the display
-function addAsciiArt(asciiArt) {
+function addAsciiArt(asciiArt, left = null, top = null) {
     const artDiv = document.createElement('div');
     artDiv.classList.add('ascii-art');
     artDiv.innerText = asciiArt;
     artDiv.style.cursor = 'pointer';
     artDiv.style.position = 'absolute'; // Allow positioning
 
-    // Set position at center of canvas
-    artDiv.style.left = `${(document.getElementById('ascii-container').clientWidth / 2) - (asciiArt.length / 2 * 8)}px`; // Adjust for ASCII width
-    artDiv.style.top = `calc(50% - 10px)`; // Center vertically
+    const container = document.getElementById('ascii-display');
+    
+    // Position the art: if left/top provided (loading a scene), use those; otherwise, center it
+    if (left !== null && top !== null) {
+        artDiv.style.left = `${left}px`;
+        artDiv.style.top = `${top}px`;
+    } else {
+        const containerRect = container.getBoundingClientRect();
+        const centerX = (containerRect.width - 100) / 2; // Adjust based on ASCII width
+        const centerY = (containerRect.height - 50) / 2; // Adjust based on ASCII height
+        artDiv.style.left = `${centerX}px`;
+        artDiv.style.top = `${centerY}px`;
+    }
 
     artDiv.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent triggering document click
@@ -64,17 +80,21 @@ function addAsciiArt(asciiArt) {
         document.addEventListener('mouseup', mouseUpHandler);
     });
 
-    document.getElementById('ascii-display').appendChild(artDiv);
+    container.appendChild(artDiv);
 }
 
 // Function to save the current scene
 function saveScene(sceneName) {
     const artItems = document.querySelectorAll('.ascii-art');
-    const artArray = Array.from(artItems).map(art => ({
-        content: art.innerText,
-        left: art.style.left,
-        top: art.style.top
-    }));
+    const artArray = Array.from(artItems).map(art => {
+        const rect = art.getBoundingClientRect();
+        const containerRect = document.getElementById('ascii-display').getBoundingClientRect();
+        return {
+            ascii: art.innerText,
+            left: rect.left - containerRect.left,
+            top: rect.top - containerRect.top
+        };
+    });
     scenes[sceneName] = artArray; // Save the scene with its ASCII art
     alert(`Scene '${sceneName}' saved!`);
 }
@@ -82,25 +102,17 @@ function saveScene(sceneName) {
 // Function to load a specific scene
 function loadScene(sceneName) {
     if (scenes[sceneName]) {
-        currentScene = sceneName; // Update current scene
         document.getElementById('ascii-display').innerHTML = ''; // Clear display
-        scenes[sceneName].forEach(art => {
-            addAsciiArt(art.content); // Re-add ASCII art from the scene
-            const artDiv = document.querySelectorAll('.ascii-art:last-child')[0]; // Get the last added element
-            artDiv.style.left = art.left; // Set saved position
-            artDiv.style.top = art.top; // Set saved position
+
+        // Load each art object with its saved left/top positions
+        scenes[sceneName].forEach(({ ascii, left, top }) => {
+            addAsciiArt(ascii, left, top);
         });
+        
+        currentScene = sceneName; // Update current scene after loading
         alert(`Scene '${sceneName}' loaded!`);
     } else {
         alert(`Scene '${sceneName}' does not exist!`);
-    }
-}
-
-// Function to change scene
-function changeScene() {
-    const sceneName = prompt("Enter the name of the scene you want to change to:");
-    if (sceneName) {
-        loadScene(sceneName); // Load the selected scene
     }
 }
 
@@ -148,7 +160,7 @@ function changeAsciiColor(asciiArt) {
     });
 }
 
-// Hide context menu when clicking elsewhere
-document.addEventListener('click', () => {
-    document.getElementById('context-menu').style.display = 'none'; // Hide the context menu
+// Event listener to hide the context menu on canvas click
+document.getElementById('ascii-display').addEventListener('click', () => {
+    document.getElementById('context-menu').style.display = 'none'; // Hide context menu
 });
