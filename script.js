@@ -1,14 +1,49 @@
-// Full `script.js`
-
 // Global variables
 let selectedAsciiArt = null; // Track selected ASCII art for context menu
-const scenes = {}; // Object to hold scenes and their ASCII art
+const scenes = {}; // Object to hold scenes and their ASCII art, including color and position
 let currentScene = 'default'; // Default scene
-let asciiObjects = []; // Array to hold ASCII art objects
-let initialWidth = null;
-let initialHeight = null;
+let asciiContainer = document.getElementById('ascii-display');
 
-// Event listeners
+// Function to add ASCII art to the display
+function addAsciiArt(asciiArt, x = null, y = null, color = 'black') {
+    const artDiv = document.createElement('div');
+    artDiv.classList.add('ascii-art');
+    artDiv.innerText = asciiArt;
+    artDiv.style.cursor = 'pointer';
+    artDiv.style.position = 'absolute'; // Allow positioning
+    artDiv.style.color = color; // Set color of ASCII art
+    artDiv.style.left = x ? `${x}px` : `${asciiContainer.clientWidth / 2}px`;
+    artDiv.style.top = y ? `${y}px` : `${asciiContainer.clientHeight / 2}px`;
+
+    // Mouse events for dragging
+    artDiv.addEventListener('mousedown', (e) => {
+        const offsetX = e.clientX - artDiv.getBoundingClientRect().left;
+        const offsetY = e.clientY - artDiv.getBoundingClientRect().top;
+
+        const mouseMoveHandler = (event) => {
+            artDiv.style.left = `${event.clientX - offsetX}px`;
+            artDiv.style.top = `${event.clientY - offsetY}px`;
+        };
+
+        const mouseUpHandler = () => {
+            document.removeEventListener('mousemove', mouseMoveHandler);
+            document.removeEventListener('mouseup', mouseUpHandler);
+        };
+
+        document.addEventListener('mousemove', mouseMoveHandler);
+        document.addEventListener('mouseup', mouseUpHandler);
+    });
+
+    artDiv.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showContextMenu(e.clientX, e.clientY, artDiv); 
+        selectedAsciiArt = artDiv;
+    });
+
+    document.getElementById('ascii-display').appendChild(artDiv);
+}
+
+// Event listeners for scene functions
 document.getElementById('add-ascii-art').addEventListener('click', () => {
     const asciiArt = document.getElementById('ascii-input').value;
     if (asciiArt) {
@@ -30,84 +65,35 @@ document.getElementById('save-scene').addEventListener('click', () => {
 });
 
 document.getElementById('load-scene').addEventListener('click', () => {
-    loadScene(currentScene); // Load the current scene
+    const sceneName = document.getElementById('scene-name').value;
+    if (sceneName) {
+        loadScene(sceneName);
+    } else {
+        alert('Please enter a scene name to load!');
+    }
 });
-
-// Function to add ASCII art to the display
-function addAsciiArt(asciiArt) {
-    const artDiv = document.createElement('div');
-    artDiv.classList.add('ascii-art');
-    artDiv.innerText = asciiArt;
-    artDiv.style.cursor = 'pointer';
-    artDiv.style.position = 'absolute'; // Allow positioning
-
-    // Set initial position at the center
-    const displayRect = document.getElementById('ascii-display').getBoundingClientRect();
-    const x = (displayRect.width / 2) - (artDiv.offsetWidth / 2);
-    const y = (displayRect.height / 2) - (artDiv.offsetHeight / 2);
-    artDiv.style.left = `${x}px`;
-    artDiv.style.top = `${y}px`;
-
-    // Store object details for later scaling
-    asciiObjects.push({
-        artDiv: artDiv,
-        originalLeft: x,
-        originalTop: y,
-        color: 'black' // Default color
-    });
-
-    artDiv.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent triggering document click
-        showContextMenu(e.clientX, e.clientY, asciiArt); // Show context menu
-        selectedAsciiArt = asciiArt; // Track the selected art
-    });
-
-    // Mouse events for dragging
-    artDiv.addEventListener('mousedown', (e) => {
-        const offsetX = e.clientX - artDiv.getBoundingClientRect().left;
-        const offsetY = e.clientY - artDiv.getBoundingClientRect().top;
-
-        const mouseMoveHandler = (event) => {
-            artDiv.style.left = `${event.clientX - offsetX}px`;
-            artDiv.style.top = `${event.clientY - offsetY}px`;
-        };
-
-        const mouseUpHandler = () => {
-            document.removeEventListener('mousemove', mouseMoveHandler);
-            document.removeEventListener('mouseup', mouseUpHandler);
-        };
-
-        document.addEventListener('mousemove', mouseMoveHandler);
-        document.addEventListener('mouseup', mouseUpHandler);
-    });
-
-    document.getElementById('ascii-display').appendChild(artDiv);
-}
 
 // Function to save the current scene
 function saveScene(sceneName) {
-    const artArray = asciiObjects.map(obj => ({
-        asciiArt: obj.artDiv.innerText,
-        left: obj.originalLeft,
-        top: obj.originalTop,
-        color: obj.color // Save the color as well
+    const artItems = document.querySelectorAll('.ascii-art');
+    const artArray = Array.from(artItems).map(art => ({
+        text: art.innerText,
+        x: parseFloat(art.style.left),
+        y: parseFloat(art.style.top),
+        color: art.style.color
     }));
-    scenes[sceneName] = artArray; // Save the scene with its ASCII art
+    scenes[sceneName] = artArray; // Save scene with ASCII art, positions, and colors
     alert(`Scene '${sceneName}' saved!`);
 }
 
 // Function to load a specific scene
 function loadScene(sceneName) {
     if (scenes[sceneName]) {
-        currentScene = sceneName; // Update current scene
+        currentScene = sceneName;
         document.getElementById('ascii-display').innerHTML = ''; // Clear display
-        asciiObjects = []; // Reset asciiObjects array
-        scenes[sceneName].forEach(objData => {
-            addAsciiArt(objData.asciiArt);
-            const lastAddedArtDiv = document.querySelector('.ascii-art:last-child'); // Get the last added element
-            lastAddedArtDiv.style.left = objData.left; // Set left position
-            lastAddedArtDiv.style.top = objData.top; // Set top position
-            lastAddedArtDiv.style.color = objData.color; // Set color
+
+        scenes[sceneName].forEach(art => {
+            addAsciiArt(art.text, art.x, art.y, art.color); // Re-add ASCII art with saved position and color
         });
         alert(`Scene '${sceneName}' loaded!`);
     } else {
@@ -115,88 +101,38 @@ function loadScene(sceneName) {
     }
 }
 
-// Function to change scene
-function changeScene() {
-    const sceneName = prompt("Enter the name of the scene you want to change to:");
-    if (sceneName) {
-        loadScene(sceneName); // Load the selected scene
-    }
-}
-
-// Function to show context menu
-function showContextMenu(x, y, asciiArt) {
+// Context menu functions
+function showContextMenu(x, y, artDiv) {
     const contextMenu = document.getElementById('context-menu');
     contextMenu.style.display = 'block';
     contextMenu.style.left = `${x}px`;
     contextMenu.style.top = `${y}px`;
-}
 
-// Function to delete ASCII art
-function deleteAsciiArt(asciiArt) {
-    const artItems = document.querySelectorAll('.ascii-art');
-    artItems.forEach(item => {
-        if (item.innerText === asciiArt) {
-            item.remove(); // Remove the ASCII art from display
+    // Hide context menu when clicking outside
+    document.addEventListener('click', hideContextMenu, { once: true });
+
+    // Context menu options
+    document.getElementById('delete-item').onclick = () => {
+        artDiv.remove();
+        hideContextMenu();
+    };
+    document.getElementById('change-color').onclick = () => {
+        const color = prompt("Enter a color (name or hex):");
+        if (color) {
+            artDiv.style.color = color;
         }
-    });
-}
-
-// Add event listener for context menu options
-document.getElementById('context-menu').addEventListener('click', (event) => {
-    const targetId = event.target.id;
-    if (targetId === 'delete-item') {
-        deleteAsciiArt(selectedAsciiArt); // Assuming you have selectedAsciiArt tracked
-        document.getElementById('context-menu').style.display = 'none'; // Hide the context menu after action
-    } else if (targetId === 'change-color') {
-        changeAsciiColor(selectedAsciiArt); // Assuming you have selectedAsciiArt tracked
-        document.getElementById('context-menu').style.display = 'none'; // Hide the context menu after action
-    } else if (targetId === 'change-scene') {
-        changeScene(); // Change the scene based on user selection
-        document.getElementById('context-menu').style.display = 'none'; // Hide the context menu after action
-    }
-});
-
-// Function to change the color of the ASCII art
-function changeAsciiColor(asciiArt) {
-    const color = prompt("Enter a color (name or hex):");
-    const artItems = document.querySelectorAll('.ascii-art');
-    artItems.forEach(item => {
-        if (item.innerText === asciiArt) {
-            item.style.color = color; // Change the color of the ASCII art
-            const obj = asciiObjects.find(o => o.artDiv === item);
-            if (obj) obj.color = color; // Update the object's color
+        hideContextMenu();
+    };
+    document.getElementById('change-scene').onclick = () => {
+        const sceneName = prompt("Enter the name of the scene to change to:");
+        if (sceneName) {
+            loadScene(sceneName);
         }
-    });
+        hideContextMenu();
+    };
 }
 
-// Scaling function to keep ASCII objects positioned correctly
-function scaleAsciiObjects() {
-    const displayRect = document.getElementById('ascii-display').getBoundingClientRect();
-
-    // Initialize initialWidth and initialHeight only once
-    if (!initialWidth || !initialHeight) {
-        initialWidth = displayRect.width;
-        initialHeight = displayRect.height;
-    }
-
-    // Calculate scale factors based on the initial size of the display
-    const scaleX = displayRect.width / initialWidth;
-    const scaleY = displayRect.height / initialHeight;
-
-    // Scale each object based on its original position and scaling factors
-    asciiObjects.forEach(obj => {
-        const newLeft = obj.originalLeft * scaleX;
-        const newTop = obj.originalTop * scaleY;
-
-        // Apply the calculated position to each object
-        obj.artDiv.style.left = `${newLeft}px`;
-        obj.artDiv.style.top = `${newTop}px`;
-    });
-
-    // Update initial width and height for future scaling
-    initialWidth = displayRect.width;
-    initialHeight = displayRect.height;
+function hideContextMenu() {
+    const contextMenu = document.getElementById('context-menu');
+    contextMenu.style.display = 'none';
 }
-
-// Call this function on window resize
-window.addEventListener('resize', scaleAsciiObjects);

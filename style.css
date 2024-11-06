@@ -7,16 +7,15 @@
 }
 
 #ascii-display {
+    width: 100%;
+    height: 100%;
     position: relative;
-    width: 100%; /* Adjusts width based on container */
-    aspect-ratio: 4 / 3; /* Adjust the ratio to your preference, e.g., 4:3 */
-    max-width: 800px; /* Set a maximum width for the display area */
-    height: auto; /* Let height adjust based on the aspect ratio */
-    overflow: hidden; /* Prevents objects from displaying outside the render area */
-    background-color: #f0f0f0; /* Optional: Set background color */
-    border: 1px solid #ccc; /* Optional: Add border */
+    font-family: monospace;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-
 
 .draggable {
     position: absolute;
