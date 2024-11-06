@@ -1,71 +1,70 @@
-/* Container for the ASCII art display */
-#ascii-container {
-    width: 650px;
-    height: 400px;
-    border: 1px solid #000;
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0; /* Prevents shrinking when resizing the browser */
-}
-
-/* Display area for the ASCII art */
-#ascii-display {
-    width: 650px;
-    height: 400px;
-    font-family: monospace;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-}
-
-/* Draggable ASCII art items */
-.draggable {
-    position: absolute;
-    cursor: move;
-    white-space: pre; /* Ensures ASCII art doesn't wrap */
-}
-
-/* Context menu for interacting with ASCII art */
-#context-menu {
-    background: white;
-    border: 1px solid #000;
-    padding: 5px;
-    z-index: 10; /* Ensure it's on top of other elements */
-}
-
-/* Scene editor and controls styling */
-.scene-editor, .scene-controls {
-    margin-top: 10px;
-    text-align: center;
-}
-
-/* Status message styling */
-#status-message {
-    color: green;
-    text-align: center;
-}
-
-/* Input field and button styling */
-button, input, textarea {
-    margin: 5px;
-    padding: 8px;
-    font-size: 14px;
-}
-
-/* ASCII input box styling */
-#ascii-input {
-    width: 90%;
-    font-family: monospace;
-    font-size: 16px;
-    white-space: pre;
-}
-
-/* Ensuring input elements stay centered */
+/* General Styles */
 body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+h3 {
+    margin-top: 0;
+}
+
+/* Properties Panel (Positioned at bottom-right) */
+#property-box {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f0f0f0;
+    padding: 20px;
+    border: 1px solid #ccc;
+    width: 200px;
+    z-index: 20; /* Ensure it sits on top of everything else */
+}
+
+/* Flashing outline for selected object */
+.flashing-border {
+    animation: flash-border 1s infinite;
+    border: 2px solid red;
+}
+
+/* Flash animation */
+@keyframes flash-border {
+    0% { border-color: red; }
+    50% { border-color: transparent; }
+    100% { border-color: red; }
+}
+
+/* Input and Button Styles */
+textarea {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 5px 15px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+/* Render Area */
+#ascii-display {
+    position: relative;
+    width: 650px;
+    height: 400px;
+    background-color: #f5f5f5;
+    border: 2px solid #ccc;
+    overflow: hidden;
+}
+
+/* ASCII Art Object Styles */
+.ascii-art {
+    position: absolute;
+    cursor: pointer;
+    white-space: pre;
+    color: black;
 }
