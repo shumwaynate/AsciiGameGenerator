@@ -125,10 +125,20 @@ function loadScene(sceneName) {
 // Function to show context menu
 function showContextMenu(x, y, asciiArt) {
     const contextMenu = document.getElementById('context-menu');
+    const container = document.getElementById('ascii-display');
+    
+    // Get container's position relative to the viewport
+    const containerRect = container.getBoundingClientRect();
+
+    // Adjust position so menu appears where clicked inside the container
+    const adjustedX = x - containerRect.left;
+    const adjustedY = y - containerRect.top;
+
     contextMenu.style.display = 'block';
-    contextMenu.style.left = `${x}px`;
-    contextMenu.style.top = `${y}px`;
+    contextMenu.style.left = `${adjustedX}px`;
+    contextMenu.style.top = `${adjustedY}px`;
 }
+
 
 // Function to delete ASCII art
 function deleteAsciiArt(asciiArt) {
