@@ -159,9 +159,6 @@ document.getElementById('context-menu').addEventListener('click', (event) => {
     } else if (targetId === 'change-color') {
         changeAsciiColor(selectedAsciiArt); // Assuming you have selectedAsciiArt tracked
         document.getElementById('context-menu').style.display = 'none'; // Hide the context menu after action
-    } else if (targetId === 'change-scene') {
-        changeScene(); // Change the scene based on user selection
-        document.getElementById('context-menu').style.display = 'none'; // Hide the context menu after action
     }
 });
 
