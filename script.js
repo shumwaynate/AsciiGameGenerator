@@ -34,12 +34,14 @@ document.getElementById('load-scene').addEventListener('click', () => {
 });
 
 // Function to add ASCII art to the display
-function addAsciiArt(asciiArt, left = null, top = null) {
+function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     const artDiv = document.createElement('div');
     artDiv.classList.add('ascii-art');
     artDiv.innerText = asciiArt;
     artDiv.style.cursor = 'pointer';
     artDiv.style.position = 'absolute'; // Allow positioning
+    artDiv.style.whiteSpace = 'pre';
+    artDiv.style.color = color || 'black';
 
     const container = document.getElementById('ascii-display');
     
@@ -63,12 +65,15 @@ function addAsciiArt(asciiArt, left = null, top = null) {
 
     // Mouse events for dragging
     artDiv.addEventListener('mousedown', (e) => {
-        const offsetX = e.clientX - artDiv.getBoundingClientRect().left;
-        const offsetY = e.clientY - artDiv.getBoundingClientRect().top;
+        // Calculate initial offsets
+        const rect = artDiv.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
 
         const mouseMoveHandler = (event) => {
-            artDiv.style.left = `${event.clientX - offsetX}px`;
-            artDiv.style.top = `${event.clientY - offsetY}px`;
+            artDiv.style.left = `${event.clientX - containerRect.left - offsetX}px`;
+            artDiv.style.top = `${event.clientY - containerRect.top - offsetY}px`;
         };
 
         const mouseUpHandler = () => {
@@ -92,7 +97,8 @@ function saveScene(sceneName) {
         return {
             ascii: art.innerText,
             left: rect.left - containerRect.left,
-            top: rect.top - containerRect.top
+            top: rect.top - containerRect.top,
+            color: art.style.color // Save color of the ASCII art
         };
     });
     scenes[sceneName] = artArray; // Save the scene with its ASCII art
@@ -104,9 +110,9 @@ function loadScene(sceneName) {
     if (scenes[sceneName]) {
         document.getElementById('ascii-display').innerHTML = ''; // Clear display
 
-        // Load each art object with its saved left/top positions
-        scenes[sceneName].forEach(({ ascii, left, top }) => {
-            addAsciiArt(ascii, left, top);
+        // Load each art object with its saved left/top positions and color
+        scenes[sceneName].forEach(({ ascii, left, top, color }) => {
+            addAsciiArt(ascii, left, top, color);
         });
         
         currentScene = sceneName; // Update current scene after loading
