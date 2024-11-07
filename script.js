@@ -1,16 +1,19 @@
 console.log("script.js loaded successfully");
 
 // Global variables
-let selectedAsciiArt = null; // Track selected ASCII art for context menu
-const scenes = { default: [] }; // Initialize with default scene
-let currentScene = 'default'; // Default scene
-let asciiObjects = []; // Track individual ASCII objects with their properties
+let selectedAsciiArt = null;
+let isDragging = false;
+const scenes = { default: [] };
+let currentScene = 'default';
+let asciiObjects = [];
+let offsetX, offsetY;
 
+// Event listeners for adding ASCII art and scene management
 document.getElementById('add-ascii-art').addEventListener('click', () => {
     const asciiArt = document.getElementById('ascii-input').value;
     if (asciiArt) {
         addAsciiArt(asciiArt);
-        document.getElementById('ascii-input').value = ''; // Clear the input after adding
+        document.getElementById('ascii-input').value = ''; // Clear input after adding
     } else {
         alert('Please enter some ASCII art!');
     }
@@ -21,7 +24,7 @@ document.getElementById('save-scene').addEventListener('click', () => {
     if (sceneName) {
         saveScene(sceneName);
         currentScene = sceneName; // Update current scene
-        document.getElementById('scene-name').value = ''; // Clear the scene name after saving
+        document.getElementById('scene-name').value = ''; // Clear scene name
     } else {
         alert('Please enter a scene name!');
     }
@@ -30,222 +33,152 @@ document.getElementById('save-scene').addEventListener('click', () => {
 document.getElementById('load-scene').addEventListener('click', () => {
     const sceneName = document.getElementById('scene-name').value;
     if (sceneName) {
-        loadScene(sceneName); // Load the specified scene
+        loadScene(sceneName); // Load specified scene
     } else {
         alert('Please enter a scene name to load!');
     }
 });
 
 // Function to add ASCII art to the display
-function addAsciiArt(asciiArt, left = null, top = null, color = null) {
+function addAsciiArt(asciiArt, left = null, top = null, color = 'black') {
     const artDiv = document.createElement('div');
     artDiv.classList.add('ascii-art');
     artDiv.innerText = asciiArt;
-    artDiv.style.cursor = 'pointer';
-    artDiv.style.position = 'absolute'; // Allow positioning
+    artDiv.style.position = 'absolute';
     artDiv.style.whiteSpace = 'pre';
-    artDiv.style.color = color || 'black';
+    artDiv.style.color = color;
 
+    // Center new ASCII art by default if no position provided
     const container = document.getElementById('ascii-display');
-    
-    // Position the art: if left/top provided (loading a scene), use those; otherwise, center it
-    if (left !== null && top !== null) {
-        artDiv.style.left = `${left}px`;
-        artDiv.style.top = `${top}px`;
-    } else {
-        const containerRect = container.getBoundingClientRect();
-        const centerX = (containerRect.width - 100) / 2; // Adjust based on ASCII width
-        const centerY = (containerRect.height - 50) / 2; // Adjust based on ASCII height
-        artDiv.style.left = `${centerX}px`;
-        artDiv.style.top = `${centerY}px`;
-    }
+    const containerRect = container.getBoundingClientRect();
+    artDiv.style.left = left !== null ? `${left}px` : `${(containerRect.width - 100) / 2}px`;
+    artDiv.style.top = top !== null ? `${top}px` : `${(containerRect.height - 50) / 2}px`;
 
-    // Save the ASCII art object
+    // Add to `asciiObjects` array
     const asciiObject = {
         element: artDiv,
         ascii: asciiArt,
         left: artDiv.style.left,
         top: artDiv.style.top,
-        color: color || 'black',
+        color: color,
         clickable: false,
-        giveCurrency: false,
-        switchScene: false,
-        giveObject: false,
-        persistent: true // Add persistent property
     };
     asciiObjects.push(asciiObject);
 
-    artDiv.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent triggering document click
-        selectAsciiArt(asciiObject); // Select ASCII art for properties
-    });
-
-    // Mouse events for dragging
+    // Click event to select ASCII art
     artDiv.addEventListener('mousedown', (e) => {
-        const rect = artDiv.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const offsetY = e.clientY - rect.top;
-
-        const mouseMoveHandler = (event) => {
-            // Handle mouse move for dragging
-            artDiv.style.left = `${event.clientX - containerRect.left - offsetX}px`;
-            artDiv.style.top = `${event.clientY - containerRect.top - offsetY}px`;
-        };
-
-        const mouseUpHandler = () => {
-            document.removeEventListener('mousemove', mouseMoveHandler);
-            document.removeEventListener('mouseup', mouseUpHandler);
-        };
-
-        document.addEventListener('mousemove', mouseMoveHandler);
-        document.addEventListener('mouseup', mouseUpHandler);
+        e.stopPropagation(); // Prevent triggering document click
+        selectAsciiArt(asciiObject);
+        startDragging(e, artDiv);
     });
 
+    // Append to display container
     container.appendChild(artDiv);
 }
 
-// Function to save the current scene
-function saveScene(sceneName) {
-    const artArray = asciiObjects.map(art => {
-        if (art.persistent) {
-            return {
-                ascii: art.ascii,
-                left: art.element.style.left,
-                top: art.element.style.top,
-                color: art.element.style.color,
-                clickable: art.clickable,
-                giveCurrency: art.giveCurrency,
-                switchScene: art.switchScene,
-                giveObject: art.giveObject,
-                persistent: art.persistent // Keep persistent status for persistent objects
-            };
-        } else {
-            return JSON.parse(JSON.stringify({
-                ascii: art.ascii,
-                left: art.element.style.left,
-                top: art.element.style.top,
-                color: art.element.style.color,
-                clickable: art.clickable,
-                giveCurrency: art.giveCurrency,
-                switchScene: art.switchScene,
-                giveObject: art.giveObject,
-                persistent: art.persistent
-            })); // Deep clone non-persistent objects
-        }
-    });
-
-    scenes[sceneName] = artArray; // Save the scene with its ASCII art
-    alert(`Scene '${sceneName}' saved!`);
-}
-
-// Function to load a specific scene
-function loadScene(sceneName) {
-    if (scenes[sceneName]) {
-        document.getElementById('ascii-display').innerHTML = ''; // Clear display
-
-        // Load each art object with its saved left/top positions and color
-        scenes[sceneName].forEach(({ ascii, left, top, color, clickable, giveCurrency, switchScene, giveObject, persistent }) => {
-            addAsciiArt(ascii, parseInt(left), parseInt(top), color);
-            const artObject = asciiObjects[asciiObjects.length - 1];
-            artObject.clickable = clickable;
-            artObject.giveCurrency = giveCurrency;
-            artObject.switchScene = switchScene;
-            artObject.giveObject = giveObject;
-            artObject.persistent = persistent; // Set persistent status from loaded scene
-        });
-
-        currentScene = sceneName; // Update current scene after loading
-        alert(`Scene '${sceneName}' loaded!`);
-    } else {
-        alert(`Scene '${sceneName}' does not exist!`);
-    }
-}
-
-// Function to highlight selected ASCII art and update properties panel
+// Function to select ASCII art and update properties panel
 function selectAsciiArt(asciiObject) {
-    if (selectedAsciiArt) {
-        selectedAsciiArt.element.classList.remove('highlight');
-    }
+    if (selectedAsciiArt) selectedAsciiArt.element.classList.remove('highlight');
     selectedAsciiArt = asciiObject;
     selectedAsciiArt.element.classList.add('highlight');
-
-    // Update properties panel with selected ASCII object's properties
-    document.getElementById('clickable').checked = selectedAsciiArt.clickable;
-    document.getElementById('give-currency').checked = selectedAsciiArt.giveCurrency;
-    document.getElementById('switch-scene').checked = selectedAsciiArt.switchScene;
-    document.getElementById('give-object').checked = selectedAsciiArt.giveObject;
-    document.getElementById('persistent').checked = selectedAsciiArt.persistent; // Add persistent checkbox
-
-    // Set color dropdown to the selected ASCII object's color
-    document.getElementById('color-select').value = selectedAsciiArt.color || 'black';
+    
+    // Update properties panel
+    document.getElementById('clickable').checked = asciiObject.clickable;
+    document.getElementById('color-select').value = asciiObject.color;
 }
 
-document.getElementById('delete-item').addEventListener('click', (e) => {
-    e.stopPropagation();  // Prevent other listeners from blocking the click event
-
-    console.log("Delete button clicked!");  // Check if button is clicked
+// Delete selected ASCII art
+document.getElementById('delete-item').addEventListener('click', () => {
     if (selectedAsciiArt) {
-        console.log("Selected ASCII Art to delete:", selectedAsciiArt);
-
-        // Check if selectedAsciiArt.element exists and is a valid DOM element
-        if (selectedAsciiArt.element) {
-            console.log("Selected element:", selectedAsciiArt.element);
-            selectedAsciiArt.element.remove();
-            console.log("Removed from display");
-
-            // Remove from the asciiObjects array
-            const index = asciiObjects.indexOf(selectedAsciiArt);
-            if (index !== -1) {
-                asciiObjects.splice(index, 1);
-                console.log("Removed from array");
-            } else {
-                console.log("Object not found in array");
-            }
-
-            // Clear the selection and reset highlight
-            selectedAsciiArt = null;
-            const highlightedElements = document.querySelectorAll('.ascii-art.highlight');
-            highlightedElements.forEach((element) => {
-                element.classList.remove('highlight');
-            });
-            console.log("Removed highlight");
-
-            // Reset properties panel
-            resetPropertiesPanel();
-        } else {
-            console.log("No element associated with the selected ASCII art");
-        }
+        selectedAsciiArt.element.remove();
+        asciiObjects = asciiObjects.filter(obj => obj !== selectedAsciiArt);
+        selectedAsciiArt = null;
+        resetPropertiesPanel();
     } else {
-        console.log("No ASCII Art selected");
+        alert("No ASCII art selected for deletion!");
     }
 });
 
-
-
-// Function to reset properties panel when no object is selected
+// Reset the properties panel
 function resetPropertiesPanel() {
     document.getElementById('clickable').checked = false;
-    document.getElementById('give-currency').checked = false;
-    document.getElementById('switch-scene').checked = false;
-    document.getElementById('give-object').checked = false;
-    document.getElementById('persistent').checked = true; // Reset persistent checkbox
     document.getElementById('color-select').value = 'black';
 }
 
-// Function to change color of selected ASCII art
+// Save the current scene
+function saveScene(sceneName) {
+    scenes[sceneName] = asciiObjects.map(art => ({
+        ascii: art.ascii,
+        left: art.element.style.left,
+        top: art.element.style.top,
+        color: art.color,
+        clickable: art.clickable
+    }));
+    alert(`Scene '${sceneName}' saved!`);
+}
+
+// Load a specific scene
+function loadScene(sceneName) {
+    if (!scenes[sceneName]) {
+        alert(`Scene '${sceneName}' does not exist!`);
+        return;
+    }
+    
+    document.getElementById('ascii-display').innerHTML = ''; // Clear display
+    asciiObjects = []; // Clear current objects
+
+    scenes[sceneName].forEach(({ ascii, left, top, color, clickable }) => {
+        addAsciiArt(ascii, parseInt(left), parseInt(top), color);
+        const artObject = asciiObjects[asciiObjects.length - 1];
+        artObject.clickable = clickable;
+    });
+
+    currentScene = sceneName;
+    alert(`Scene '${sceneName}' loaded!`);
+}
+
+// Update properties for selected ASCII art
+document.getElementById('clickable').addEventListener('change', (e) => {
+    if (selectedAsciiArt) selectedAsciiArt.clickable = e.target.checked;
+});
+
 document.getElementById('color-select').addEventListener('change', (e) => {
     if (selectedAsciiArt) {
-        const newColor = e.target.value;
-        selectedAsciiArt.color = newColor;
-        selectedAsciiArt.element.style.color = newColor;
+        selectedAsciiArt.color = e.target.value;
+        selectedAsciiArt.element.style.color = e.target.value;
     }
 });
 
-// Function to handle context menu showing
-document.getElementById('ascii-display').addEventListener('click', () => {
-    if (selectedAsciiArt) {
-        resetPropertiesPanel();
-        selectedAsciiArt.element.classList.remove('highlight');
+// Dragging functionality
+function startDragging(e, element) {
+    isDragging = true;
+    offsetX = e.clientX - element.getBoundingClientRect().left;
+    offsetY = e.clientY - element.getBoundingClientRect().top;
+    
+    // Add move event listener to the document
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDragging);
+}
+
+function drag(e) {
+    if (!isDragging) return;
+    selectedAsciiArt.element.style.left = `${e.clientX - offsetX}px`;
+    selectedAsciiArt.element.style.top = `${e.clientY - offsetY}px`;
+}
+
+function stopDragging() {
+    if (isDragging) {
+        isDragging = false;
+        selectedAsciiArt.left = selectedAsciiArt.element.style.left;
+        selectedAsciiArt.top = selectedAsciiArt.element.style.top;
+        
+        // Remove move event listeners
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', stopDragging);
     }
+}
+
+// Log when page loads
+window.addEventListener('load', () => {
+    console.log("Page loaded, all functionality is now active.");
 });
