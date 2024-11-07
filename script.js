@@ -1,5 +1,3 @@
-console.log("script.js loaded successfully");
-
 // Global variables
 let selectedAsciiArt = null; // Track selected ASCII art for context menu
 const scenes = { default: [] }; // Initialize with default scene
@@ -70,8 +68,7 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
         clickable: false,
         giveCurrency: false,
         switchScene: false,
-        giveObject: false,
-        persistent: true // Add persistent property
+        giveObject: false
     };
     asciiObjects.push(asciiObject);
 
@@ -88,7 +85,6 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
         const offsetY = e.clientY - rect.top;
 
         const mouseMoveHandler = (event) => {
-            // Handle mouse move for dragging
             artDiv.style.left = `${event.clientX - containerRect.left - offsetX}px`;
             artDiv.style.top = `${event.clientY - containerRect.top - offsetY}px`;
         };
@@ -107,34 +103,16 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
 
 // Function to save the current scene
 function saveScene(sceneName) {
-    const artArray = asciiObjects.map(art => {
-        if (art.persistent) {
-            return {
-                ascii: art.ascii,
-                left: art.element.style.left,
-                top: art.element.style.top,
-                color: art.element.style.color,
-                clickable: art.clickable,
-                giveCurrency: art.giveCurrency,
-                switchScene: art.switchScene,
-                giveObject: art.giveObject,
-                persistent: art.persistent // Keep persistent status for persistent objects
-            };
-        } else {
-            return JSON.parse(JSON.stringify({
-                ascii: art.ascii,
-                left: art.element.style.left,
-                top: art.element.style.top,
-                color: art.element.style.color,
-                clickable: art.clickable,
-                giveCurrency: art.giveCurrency,
-                switchScene: art.switchScene,
-                giveObject: art.giveObject,
-                persistent: art.persistent
-            })); // Deep clone non-persistent objects
-        }
-    });
-
+    const artArray = asciiObjects.map(art => ({
+        ascii: art.ascii,
+        left: art.element.style.left,
+        top: art.element.style.top,
+        color: art.element.style.color,
+        clickable: art.clickable,
+        giveCurrency: art.giveCurrency,
+        switchScene: art.switchScene,
+        giveObject: art.giveObject
+    }));
     scenes[sceneName] = artArray; // Save the scene with its ASCII art
     alert(`Scene '${sceneName}' saved!`);
 }
@@ -145,14 +123,13 @@ function loadScene(sceneName) {
         document.getElementById('ascii-display').innerHTML = ''; // Clear display
 
         // Load each art object with its saved left/top positions and color
-        scenes[sceneName].forEach(({ ascii, left, top, color, clickable, giveCurrency, switchScene, giveObject, persistent }) => {
+        scenes[sceneName].forEach(({ ascii, left, top, color, clickable, giveCurrency, switchScene, giveObject }) => {
             addAsciiArt(ascii, parseInt(left), parseInt(top), color);
             const artObject = asciiObjects[asciiObjects.length - 1];
             artObject.clickable = clickable;
             artObject.giveCurrency = giveCurrency;
             artObject.switchScene = switchScene;
             artObject.giveObject = giveObject;
-            artObject.persistent = persistent; // Set persistent status from loaded scene
         });
 
         currentScene = sceneName; // Update current scene after loading
@@ -175,77 +152,46 @@ function selectAsciiArt(asciiObject) {
     document.getElementById('give-currency').checked = selectedAsciiArt.giveCurrency;
     document.getElementById('switch-scene').checked = selectedAsciiArt.switchScene;
     document.getElementById('give-object').checked = selectedAsciiArt.giveObject;
-    document.getElementById('persistent').checked = selectedAsciiArt.persistent; // Add persistent checkbox
 
     // Set color dropdown to the selected ASCII object's color
     document.getElementById('color-select').value = selectedAsciiArt.color || 'black';
 }
 
-document.getElementById('delete-item').addEventListener('click', (e) => {
-    e.stopPropagation();  // Prevent other listeners from blocking the click event
-
-    console.log("Delete button clicked!");  // Check if button is clicked
+// Function to delete selected ASCII art
+document.getElementById('delete-item').addEventListener('click', () => {
     if (selectedAsciiArt) {
-        console.log("Selected ASCII Art to delete:", selectedAsciiArt);
-
-        // Check if selectedAsciiArt.element exists and is a valid DOM element
-        if (selectedAsciiArt.element) {
-            console.log("Selected element:", selectedAsciiArt.element);
-            selectedAsciiArt.element.remove();
-            console.log("Removed from display");
-
-            // Remove from the asciiObjects array
-            const index = asciiObjects.indexOf(selectedAsciiArt);
-            if (index !== -1) {
-                asciiObjects.splice(index, 1);
-                console.log("Removed from array");
-            } else {
-                console.log("Object not found in array");
-            }
-
-            // Clear the selection and reset highlight
-            selectedAsciiArt = null;
-            const highlightedElements = document.querySelectorAll('.ascii-art.highlight');
-            highlightedElements.forEach((element) => {
-                element.classList.remove('highlight');
-            });
-            console.log("Removed highlight");
-
-            // Reset properties panel
-            resetPropertiesPanel();
-        } else {
-            console.log("No element associated with the selected ASCII art");
+        const index = asciiObjects.indexOf(selectedAsciiArt);
+        if (index !== -1) {
+            asciiObjects.splice(index, 1); // Remove from array
+            selectedAsciiArt.element.remove(); // Remove from display
+            selectedAsciiArt = null; // Clear selection
         }
-    } else {
-        console.log("No ASCII Art selected");
     }
 });
-
-
-
-// Function to reset properties panel when no object is selected
-function resetPropertiesPanel() {
-    document.getElementById('clickable').checked = false;
-    document.getElementById('give-currency').checked = false;
-    document.getElementById('switch-scene').checked = false;
-    document.getElementById('give-object').checked = false;
-    document.getElementById('persistent').checked = true; // Reset persistent checkbox
-    document.getElementById('color-select').value = 'black';
-}
 
 // Function to change color of selected ASCII art
-document.getElementById('color-select').addEventListener('change', (e) => {
+document.getElementById('color-select').addEventListener('change', (event) => {
     if (selectedAsciiArt) {
-        const newColor = e.target.value;
-        selectedAsciiArt.color = newColor;
+        const newColor = event.target.value;
         selectedAsciiArt.element.style.color = newColor;
+        selectedAsciiArt.color = newColor; // Update color in the object
     }
 });
 
-// Function to handle context menu showing
-document.getElementById('ascii-display').addEventListener('click', () => {
+// Save properties button
+document.getElementById('save-properties').addEventListener('click', () => {
     if (selectedAsciiArt) {
-        resetPropertiesPanel();
-        selectedAsciiArt.element.classList.remove('highlight');
+        selectedAsciiArt.clickable = document.getElementById('clickable').checked;
+        selectedAsciiArt.giveCurrency = document.getElementById('give-currency').checked;
+        selectedAsciiArt.switchScene = document.getElementById('switch-scene').checked;
+        selectedAsciiArt.giveObject = document.getElementById('give-object').checked;
+        alert('Properties saved!');
+    } else {
+        alert('No ASCII art selected!');
     }
+});
+
+// Event listener for document click to close the context menu
+document.addEventListener('click', () => {
+    document.getElementById('context-menu').style.display = 'none';
 });
