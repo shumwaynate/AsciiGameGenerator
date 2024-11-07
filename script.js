@@ -45,7 +45,7 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     artDiv.style.color = color || 'black';
 
     const container = document.getElementById('ascii-display');
-    
+
     // Position the art: if left/top provided (loading a scene), use those; otherwise, center it
     if (left !== null && top !== null) {
         artDiv.style.left = `${left}px`;
@@ -75,7 +75,7 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     artDiv.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent triggering document click
         showContextMenu(e.clientX, e.clientY, asciiObject); // Show context menu
-        selectedAsciiArt = asciiObject; // Track the selected art
+        selectAsciiObject(asciiObject); // Track the selected art
     });
 
     // Mouse events for dragging
@@ -122,7 +122,9 @@ function saveScene(sceneName) {
 // Function to load a specific scene
 function loadScene(sceneName) {
     if (scenes[sceneName]) {
+        // Clear existing elements in display and in asciiObjects array
         document.getElementById('ascii-display').innerHTML = ''; // Clear display
+        asciiObjects = []; // Clear array to avoid duplicates
 
         // Load each art object with its saved left/top positions and color
         scenes[sceneName].forEach(({ ascii, left, top, color, clickable, giveCurrency, switchScene, giveObject }) => {
@@ -145,19 +147,19 @@ function loadScene(sceneName) {
 function showContextMenu(x, y, asciiObject) {
     const contextMenu = document.getElementById('context-menu');
     const container = document.getElementById('ascii-display');
-    
-    // Get container's position relative to the viewport
+
+    // Position context menu relative to container
     const containerRect = container.getBoundingClientRect();
     contextMenu.style.left = `${x - containerRect.left}px`;
     contextMenu.style.top = `${y - containerRect.top}px`;
     contextMenu.style.display = 'block';
-    
+
     // Set up event listeners for the buttons
     document.getElementById('delete-item').onclick = () => {
         deleteAsciiArt(asciiObject);
         contextMenu.style.display = 'none';
     };
-    
+
     document.getElementById('change-color').onclick = () => {
         changeAsciiColor(asciiObject);
         contextMenu.style.display = 'none';
@@ -182,10 +184,29 @@ function changeAsciiColor(asciiObject) {
     }
 }
 
+// Function to handle ASCII object selection and apply highlight
+function selectAsciiObject(asciiObject) {
+    // Remove highlight from previous selection
+    if (selectedAsciiArt) {
+        selectedAsciiArt.element.classList.remove('flashing-border');
+    }
+    selectedAsciiArt = asciiObject;
+    selectedAsciiArt.element.classList.add('flashing-border');
+    updatePropertyBox(asciiObject);
+}
+
 // Event listener for document click to close the context menu
 document.addEventListener('click', () => {
     document.getElementById('context-menu').style.display = 'none';
 });
+
+// Update the property box with selected object's properties
+function updatePropertyBox(asciiObject) {
+    document.getElementById('clickable').checked = asciiObject.clickable;
+    document.getElementById('give-currency').checked = asciiObject.giveCurrency;
+    document.getElementById('switch-scene').checked = asciiObject.switchScene;
+    document.getElementById('give-object').checked = asciiObject.giveObject;
+}
 
 // Save properties
 document.getElementById('save-properties').addEventListener('click', () => {
@@ -200,9 +221,5 @@ document.getElementById('save-properties').addEventListener('click', () => {
         selectedAsciiArt.giveCurrency = giveCurrency;
         selectedAsciiArt.switchScene = switchScene;
         selectedAsciiArt.giveObject = giveObject;
-
-        alert('Properties saved!');
-    } else {
-        alert('No ASCII art selected!');
     }
 });

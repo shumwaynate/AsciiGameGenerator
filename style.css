@@ -68,3 +68,9 @@ button {
     white-space: pre;
     color: black;
 }
+
+/* Selection Highlight */
+.selected {
+    border: 2px solid blue; /* Customize color for selected outline */
+    outline-offset: 2px;
+}
