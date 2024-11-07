@@ -30,23 +30,41 @@
 
     <div id="status-message"></div>
 
-    <!-- Property Box (Added) -->
-    <div id="property-box">
+    <div id="properties-panel">
         <h3>Properties</h3>
         <label>
             <input type="checkbox" id="clickable"> Clickable
-        </label><br>
+        </label>
         <label>
             <input type="checkbox" id="give-currency"> Give Currency
-        </label><br>
+        </label>
         <label>
             <input type="checkbox" id="switch-scene"> Switch Scene
-        </label><br>
+        </label>
         <label>
             <input type="checkbox" id="give-object"> Give Object
-        </label><br>
-        <button id="save-properties">Save</button>
+        </label>
+        
+        <!-- Color Select Dropdown -->
+        <label>Color:
+            <select id="color-select">
+                <option value="black">Black</option>
+                <option value="red">Red</option>
+                <option value="yellow">Yellow</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="purple">Purple</option>
+                <option value="orange">Orange</option>
+                <option value="pink">Pink</option>
+                <option value="brown">Brown</option>
+                <option value="gray">Gray</option>
+            </select>
+        </label>
+    
+        <button id="save-properties">Save Properties</button>
+        <button id="delete-item">Delete ASCII Art</button>
     </div>
+    
 
     <script src="script.js"></script>
 </body>
