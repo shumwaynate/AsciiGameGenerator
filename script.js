@@ -74,11 +74,13 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
 
     artDiv.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent triggering document click
-        selectAsciiArt(asciiObject); // Select ASCII art for properties
+        showContextMenu(e.clientX, e.clientY, asciiObject); // Show context menu
+        selectedAsciiArt = asciiObject; // Track the selected art
     });
 
     // Mouse events for dragging
     artDiv.addEventListener('mousedown', (e) => {
+        // Calculate initial offsets
         const rect = artDiv.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
@@ -139,59 +141,68 @@ function loadScene(sceneName) {
     }
 }
 
-// Function to highlight selected ASCII art and update properties panel
-function selectAsciiArt(asciiObject) {
-    if (selectedAsciiArt) {
-        selectedAsciiArt.element.classList.remove('highlight');
-    }
-    selectedAsciiArt = asciiObject;
-    selectedAsciiArt.element.classList.add('highlight');
-
-    // Update properties panel with selected ASCII object's properties
-    document.getElementById('clickable').checked = selectedAsciiArt.clickable;
-    document.getElementById('give-currency').checked = selectedAsciiArt.giveCurrency;
-    document.getElementById('switch-scene').checked = selectedAsciiArt.switchScene;
-    document.getElementById('give-object').checked = selectedAsciiArt.giveObject;
-
-    // Set color dropdown to the selected ASCII object's color
-    document.getElementById('color-select').value = selectedAsciiArt.color || 'black';
+// Function to show context menu
+function showContextMenu(x, y, asciiObject) {
+    const contextMenu = document.getElementById('context-menu');
+    const container = document.getElementById('ascii-display');
+    
+    // Get container's position relative to the viewport
+    const containerRect = container.getBoundingClientRect();
+    contextMenu.style.left = `${x - containerRect.left}px`;
+    contextMenu.style.top = `${y - containerRect.top}px`;
+    contextMenu.style.display = 'block';
+    
+    // Set up event listeners for the buttons
+    document.getElementById('delete-item').onclick = () => {
+        deleteAsciiArt(asciiObject);
+        contextMenu.style.display = 'none';
+    };
+    
+    document.getElementById('change-color').onclick = () => {
+        changeAsciiColor(asciiObject);
+        contextMenu.style.display = 'none';
+    };
 }
 
-// Function to delete selected ASCII art
-document.getElementById('delete-item').addEventListener('click', () => {
-    if (selectedAsciiArt) {
-        const index = asciiObjects.indexOf(selectedAsciiArt);
-        if (index !== -1) {
-            asciiObjects.splice(index, 1); // Remove from array
-            selectedAsciiArt.element.remove(); // Remove from display
-            selectedAsciiArt = null; // Clear selection
-        }
+// Function to delete ASCII art
+function deleteAsciiArt(asciiObject) {
+    const index = asciiObjects.indexOf(asciiObject);
+    if (index !== -1) {
+        asciiObjects.splice(index, 1); // Remove from array
+        asciiObject.element.remove(); // Remove from display
     }
-});
+}
 
-// Function to change color of selected ASCII art
-document.getElementById('color-select').addEventListener('change', (event) => {
-    if (selectedAsciiArt) {
-        const newColor = event.target.value;
-        selectedAsciiArt.element.style.color = newColor;
-        selectedAsciiArt.color = newColor; // Update color in the object
+// Function to change ASCII art color
+function changeAsciiColor(asciiObject) {
+    const newColor = prompt("Enter a new color for the ASCII art:");
+    if (newColor) {
+        asciiObject.element.style.color = newColor;
+        asciiObject.color = newColor; // Update color in the object
     }
-});
-
-// Save properties button
-document.getElementById('save-properties').addEventListener('click', () => {
-    if (selectedAsciiArt) {
-        selectedAsciiArt.clickable = document.getElementById('clickable').checked;
-        selectedAsciiArt.giveCurrency = document.getElementById('give-currency').checked;
-        selectedAsciiArt.switchScene = document.getElementById('switch-scene').checked;
-        selectedAsciiArt.giveObject = document.getElementById('give-object').checked;
-        alert('Properties saved!');
-    } else {
-        alert('No ASCII art selected!');
-    }
-});
+}
 
 // Event listener for document click to close the context menu
 document.addEventListener('click', () => {
     document.getElementById('context-menu').style.display = 'none';
+});
+
+// Save properties
+document.getElementById('save-properties').addEventListener('click', () => {
+    if (selectedAsciiArt) {
+        const clickable = document.getElementById('clickable').checked;
+        const giveCurrency = document.getElementById('give-currency').checked;
+        const switchScene = document.getElementById('switch-scene').checked;
+        const giveObject = document.getElementById('give-object').checked;
+
+        // Save properties to the selected ASCII object
+        selectedAsciiArt.clickable = clickable;
+        selectedAsciiArt.giveCurrency = giveCurrency;
+        selectedAsciiArt.switchScene = switchScene;
+        selectedAsciiArt.giveObject = giveObject;
+
+        alert('Properties saved!');
+    } else {
+        alert('No ASCII art selected!');
+    }
 });
