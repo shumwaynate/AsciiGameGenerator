@@ -6,6 +6,7 @@ const scenes = { default: [] }; // Initialize with default scene
 let currentScene = 'default'; // Default scene
 let asciiObjects = []; // Track individual ASCII objects with their properties
 let gameCurrency = 0; // Initialize game currency for reward actions
+let keyBindings = {};// Store keybindings in an object
 
 // Add ASCII Art to Display
 document.getElementById('add-ascii-art').addEventListener('click', () => {
@@ -142,12 +143,19 @@ function loadScene(sceneName) {
 // Show context menu for ASCII object
 function showContextMenu(x, y, asciiObject) {
     const contextMenu = document.getElementById('context-menu');
-    const container = document.getElementById('ascii-display');
-    const containerRect = container.getBoundingClientRect();
-    contextMenu.style.left = `${x - containerRect.left}px`;
-    contextMenu.style.top = `${y - containerRect.top}px`;
+    const artDiv = asciiObject.element; // Reference to the clicked object
+    const artRect = artDiv.getBoundingClientRect(); // Get the position of the clicked object
+
+    // Adjust the menu position relative to the object
+    const offsetX = 10; // Optional offset to prevent overlap
+    const offsetY = 10; // Optional offset to prevent overlap
+
+    // Set the position of the context menu relative to the clicked object
+    contextMenu.style.left = `${artRect.left + offsetX}px`;
+    contextMenu.style.top = `${artRect.top + offsetY}px`;
     contextMenu.style.display = 'block';
 
+    // Add event listeners for context menu actions
     document.getElementById('delete-item').onclick = () => {
         deleteAsciiArt(asciiObject);
         contextMenu.style.display = 'none';
@@ -158,7 +166,6 @@ function showContextMenu(x, y, asciiObject) {
         contextMenu.style.display = 'none';
     };
 }
-
 // Delete ASCII art
 function deleteAsciiArt(asciiObject) {
     const index = asciiObjects.indexOf(asciiObject);
@@ -255,3 +262,57 @@ document.getElementById('clickable').addEventListener('change', function() {
     document.getElementById('switch-scene').disabled = !isChecked;
     document.getElementById('give-object').disabled = !isChecked;
 });
+
+// Event listener for adding custom keybindings
+document.getElementById('add-key-binding').addEventListener('click', () => {
+    const key = document.getElementById('key-input').value;
+    const action = document.getElementById('action-select').value;
+    if (key && action) {
+        keyBindings[key] = action;  // Store the keybinding
+        alert(`Keybinding for '${key}' added with action: ${action}`);
+    } else {
+        alert('Please enter a valid key and action.');
+    }
+});
+
+
+
+// Listen for keydown events globally to trigger actions
+document.addEventListener('keydown', (event) => {
+    const key = event.key;  // Get the key that was pressed
+    if (keyBindings[key]) {
+        const action = keyBindings[key];
+        alert(`Action triggered for '${key}': ${action}`);
+        performAction(action); // Trigger the action associated with the keybinding
+    }
+});
+
+// Function to perform actions based on the keybinding
+function performAction(action) {
+    switch (action) {
+        case 'toggleInventory':
+            toggleInventory();
+            break;
+        case 'openMap':
+            openMap();
+            break;
+        case 'customAction':
+            customAction();
+            break;
+        default:
+            alert(`No defined action for ${action}`);
+    }
+}
+
+// Example actions for testing
+function toggleInventory() {
+    alert("Inventory toggled!");
+}
+
+function openMap() {
+    alert("Map opened!");
+}
+
+function customAction() {
+    alert("Custom action triggered!");
+}
