@@ -45,7 +45,32 @@
         <label>
             <input type="checkbox" id="give-object"> Give Object
         </label><br>
+        <h3>Color Management</h3>
+            <label for="default-color">Default Color:</label>
+            <input type="color" id="default-color">
+
+            <label for="hover-color">Hover Color:</label>
+            <input type="color" id="hover-color">
+
+            <label for="click-color">Click Color:</label>
+            <input type="color" id="click-color">
+            
+            <button id="save-colors">Save Colors</button>
+
         <button id="save-properties">Save</button>
+
+        <div id="key-bindings">
+            <h3>Custom Key Bindings</h3>
+            <label for="key-input">Key:</label>
+            <input type="text" id="key-input" placeholder="e.g., 'i' for inventory">
+            <label for="action-select">Action:</label>
+            <select id="action-select">
+                <option value="toggleInventory">Toggle Inventory</option>
+                <option value="openMap">Open Map</option>
+                <option value="customAction">Custom Action</option>
+            </select>
+            <button id="add-key-binding">Add Key Binding</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
