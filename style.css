@@ -14,16 +14,62 @@ h3 {
     margin-top: 0;
 }
 
-/* Properties Panel (Positioned at bottom-right) */
+/* Properties Panel (Positioned at bottom-left) */
 #property-box {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
+    bottom: 20px;   /* Keep it 20px from the bottom */
+    left: 20px;     /* Position it 20px from the left edge */
     background-color: #f0f0f0;
     padding: 20px;
     border: 1px solid #ccc;
     width: 200px;
-    z-index: 20; /* Ensure it sits on top of everything else */
+    z-index: 20;    /* Ensure it sits on top of everything else */
+}
+
+/* Items in Scene Panel (Positioned at bottom-right) */
+#items-in-scene-box {
+    position: absolute;
+    bottom: 20px;   /* Keep it 20px from the bottom */
+    right: 20px;    /* Position it 20px from the right edge */
+    background-color: #f0f0f0;
+    padding: 20px;
+    border: 1px solid #ccc;
+    width: 200px;
+    z-index: 20;    /* Ensure it sits on top of everything else */
+}
+
+#items-in-scene-box h3, #items-in-scene-box h4 {
+    margin-top: 0;
+}
+
+/* Objects List Section */
+#objects-list {
+    margin-bottom: 20px;
+}
+
+#object-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#object-list li {
+    cursor: pointer;
+}
+
+/* Keybindings List Section */
+#keybindings-list {
+    margin-top: 20px;
+}
+
+#keybindings-ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#keybindings-ul li {
+    margin-bottom: 5px;
+    font-size: 14px;
+    cursor: pointer;
 }
 
 /* Flashing outline for selected object */

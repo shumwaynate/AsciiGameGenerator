@@ -278,6 +278,8 @@ function updatePropertyBox(asciiObject) {
     document.getElementById('click-color').value = asciiObject.clickColor || '#000000';
 
     // Event listeners to dynamically update color properties
+
+
     // Example: Binding to the color input changes
     document.getElementById('default-color').addEventListener('input', function () {
         if (selectedAsciiArt) {
@@ -285,7 +287,7 @@ function updatePropertyBox(asciiObject) {
             selectedAsciiArt.element.style.color = newColor; // Update the element's color
             selectedAsciiArt.color = newColor; // Save the color to the object's properties
         }
-});
+    });
 
 
     document.getElementById('hover-color').addEventListener('input', function () {
@@ -295,7 +297,36 @@ function updatePropertyBox(asciiObject) {
     document.getElementById('click-color').addEventListener('input', function () {
         asciiObject.clickColor = this.value;
     });
+
+    // Trigger enabling the "clickable" property
+    document.getElementById('clickable').addEventListener('change', () => {
+        if (document.getElementById('clickable').checked) {
+            enableClickable(asciiObject); // Call the function to enable "clickable"
+        }
+    });
 }
+
+// New function to handle enabling the "clickable" property and prompting the user
+// function enableClickable(asciiObject) {
+//     // If the targetObjectName already exists, don't prompt the user again
+//     if (asciiObject.targetObjectName) {
+//         alert(`Clickability already set for target: ${asciiObject.targetObjectName}`);
+//         return; // Skip the prompt if targetObjectName already exists
+//     }
+
+//     // Alert user and prompt for target object name when the "clickable" property is enabled
+//     const targetObjectName = prompt('Enter the target object name to enable clickability');
+//     if (targetObjectName) {
+//         asciiObject.targetObjectName = targetObjectName; // Save target object name to the ASCII object
+//         //set item-name here for better readability if possible to targetObjectName
+//         alert(`Clickability enabled for target: ${targetObjectName}`);
+//     } else {
+//         // If user cancels or enters nothing, disable clickable again
+//         asciiObject.clickable = false;
+//         document.getElementById('clickable').checked = false;
+//         alert('Clickability was not enabled.');
+//     }
+// }
 
 // Save properties
 document.getElementById('save-properties').addEventListener('click', () => {
