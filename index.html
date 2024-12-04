@@ -30,32 +30,37 @@
 
     <div id="status-message"></div>
 
-    <!-- Property Box (Added) -->
+    <!-- Property Box (Updated) -->
     <div id="property-box">
         <h3>Properties</h3>
+        <label for="item-name">Item Name:</label>
+        <input type="text" id="item-name" placeholder="Enter item name"><br><br>
+
         <label>
             <input type="checkbox" id="clickable"> Clickable
         </label><br>
         <label>
-            <input type="checkbox" id="give-currency"> Give Currency
+            <input type="checkbox" id="give-currency" disabled> Give Currency
         </label><br>
         <label>
-            <input type="checkbox" id="switch-scene"> Switch Scene
+            <input type="checkbox" id="switch-scene" disabled> Switch Scene
         </label><br>
         <label>
-            <input type="checkbox" id="give-object"> Give Object
+            <input type="checkbox" id="give-object" disabled> Give Object
         </label><br>
+        <button id="delete-selected-item">Delete Selected</button>
+
         <h3>Color Management</h3>
-            <label for="default-color">Default Color:</label>
-            <input type="color" id="default-color">
+        <label for="default-color">Default Color:</label>
+        <input type="color" id="default-color">
 
-            <label for="hover-color">Hover Color:</label>
-            <input type="color" id="hover-color">
+        <label for="hover-color">Hover Color:</label>
+        <input type="color" id="hover-color">
 
-            <label for="click-color">Click Color:</label>
-            <input type="color" id="click-color">
-            
-            <button id="save-colors">Save Colors</button>
+        <label for="click-color">Click Color:</label>
+        <input type="color" id="click-color">
+
+        <button id="save-colors">Save Colors</button>
 
         <button id="save-properties">Save</button>
 
