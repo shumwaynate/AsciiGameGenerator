@@ -13,10 +13,13 @@ document.getElementById('add-ascii-art').addEventListener('click', () => {
     const asciiArt = document.getElementById('ascii-input').value;
     if (asciiArt) {
         addAsciiArt(asciiArt);
+        refreshItemsInSceneBox(); // Update the list of objects in the scene
         document.getElementById('ascii-input').value = ''; // Clear the input after adding
+
     } else {
         alert('Please enter some ASCII art!');
     }
+    
 });
 
 // Save Scene
@@ -26,6 +29,7 @@ document.getElementById('save-scene').addEventListener('click', () => {
         saveScene(sceneName);
         currentScene = sceneName; // Update current scene
         document.getElementById('scene-name').value = ''; // Clear the scene name after saving
+        refreshItemsInSceneBox(); // Update the list of objects in the scene
     } else {
         alert('Please enter a scene name!');
     }
@@ -36,6 +40,7 @@ document.getElementById('load-scene').addEventListener('click', () => {
     const sceneName = document.getElementById('scene-name').value;
     if (sceneName) {
         loadScene(sceneName); // Load the specified scene
+        refreshItemsInSceneBox(); // Update the list of objects in the scene
     } else {
         alert('Please enter a scene name to load!');
     }
@@ -125,55 +130,55 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
 }
 
 
-// Save the current scene
 function saveScene(sceneName) {
     const artArray = asciiObjects.map(art => ({
         ascii: art.ascii,
-        left: art.element.style.left,
-        top: art.element.style.top,
+        left: parseFloat(art.element.style.left), // Save as a number
+        top: parseFloat(art.element.style.top), // Save as a number
         color: art.color,
         hoverColor: art.hoverColor || null,
         clickColor: art.clickColor || null,
-        clickable: art.clickable,
-        giveCurrency: art.giveCurrency,
-        switchScene: art.switchScene,
-        giveObject: art.giveObject,
-        targetScene: art.targetScene,
-        targetObjectName: art.targetObjectName
+        clickable: art.clickable || false,
+        giveCurrency: art.giveCurrency || false,
+        switchScene: art.switchScene || false,
+        giveObject: art.giveObject || false,
+        targetScene: art.targetScene || null,
+        targetObjectName: art.targetObjectName || null
     }));
     scenes[sceneName] = artArray;
     alert(`Scene '${sceneName}' saved!`);
 }
 
-// Load a specific scene
 function loadScene(sceneName) {
     if (scenes[sceneName]) {
         document.getElementById('ascii-display').innerHTML = '';
-        asciiObjects = [];
+        asciiObjects = []; // Clear existing objects
         scenes[sceneName].forEach(({ ascii, left, top, color, hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, targetScene, targetObjectName }) => {
-            addAsciiArt(ascii, parseInt(left), parseInt(top), color);
+            // Add ASCII art to the scene
+            addAsciiArt(ascii, left, top, color);
             const artObject = asciiObjects[asciiObjects.length - 1];
+            
+            // Assign additional properties
             Object.assign(artObject, { hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, targetScene, targetObjectName });
-
+            
             const artDiv = artObject.element;
+            artDiv.style.color = color;
 
-            // Apply hover and click color styles dynamically
-            if (hoverColor) {
-                artDiv.addEventListener('mouseenter', () => artDiv.style.color = hoverColor);
-                artDiv.addEventListener('mouseleave', () => artDiv.style.color = artObject.color); // Reset to original color
-            }
+            // Apply hover and click events (clearing previous ones if necessary)
+            artDiv.onmouseenter = hoverColor ? () => { artDiv.style.color = hoverColor; } : null;
+            artDiv.onmouseleave = hoverColor ? () => { artDiv.style.color = artObject.color; } : null;
 
-            if (clickColor) {
-                artDiv.addEventListener('mousedown', () => artDiv.style.color = clickColor);
-                artDiv.addEventListener('mouseup', () => artDiv.style.color = artObject.color); // Reset to original color
-            }
+            artDiv.onmousedown = clickColor ? () => { artDiv.style.color = clickColor; } : null;
+            artDiv.onmouseup = clickColor ? () => { artDiv.style.color = artObject.color; } : null;
         });
+
         currentScene = sceneName;
         alert(`Scene '${sceneName}' loaded!`);
     } else {
         alert(`Scene '${sceneName}' does not exist!`);
     }
 }
+
 
 
 
@@ -204,18 +209,21 @@ function showContextMenu(x, y, asciiObject) {
             deleteAsciiArt(selectedAsciiArt);
             selectedAsciiArt = null; // Clear the selection after deletion
             clearPropertyBox();
+            refreshItemsInSceneBox();
         } else {
             alert('No ASCII art selected to delete!');
         }
     });
 
+    // Update items box after deleting an object
     document.getElementById('delete-selected-item').addEventListener('click', () => {
         if (selectedAsciiArt) {
-            deleteAsciiArt(selectedAsciiArt);
-            selectedAsciiArt = null; // Clear the selection after deletion
-            clearPropertyBox();
+            asciiObjects = asciiObjects.filter(obj => obj !== selectedAsciiArt);
+            selectedAsciiArt.element.remove();
+            selectedAsciiArt = null;
+            refreshItemsInSceneBox();
         } else {
-            alert('No ASCII art selected to delete!');
+            alert('No object selected to delete.');
         }
     });
 
@@ -252,13 +260,38 @@ function changeAsciiColor(asciiObject, specificColor = null) {
 
 // Handle ASCII object selection and apply highlight
 function selectAsciiObject(asciiObject) {
+    // Remove highlight from previously selected object
     if (selectedAsciiArt) {
         selectedAsciiArt.element.classList.remove('flashing-border');
     }
+
+    // Update selected object
     selectedAsciiArt = asciiObject;
+
+    // Add highlight to the currently selected object
     selectedAsciiArt.element.classList.add('flashing-border');
-    updatePropertyBox(asciiObject);
+
+    // Ensure the property box only updates for the selected object
+    updatePropertyBox(selectedAsciiArt);
+
+    // Update the highlight in the "Items in Scene" panel
+    updateScenePanelHighlight(asciiObject);
 }
+
+// Update the highlight in the "Items in Scene" panel
+function updateScenePanelHighlight(asciiObject) {
+    const sceneItems = document.querySelectorAll('.scene-item');
+    sceneItems.forEach(item => {
+        item.classList.remove('selected-panel-item'); // Remove highlight from all items
+    });
+
+    // Find the corresponding item for the selected object
+    const targetItem = Array.from(sceneItems).find(item => item.dataset.id === asciiObject.id);
+    if (targetItem) {
+        targetItem.classList.add('selected-panel-item'); // Highlight the corresponding item
+    }
+}
+
 
 // Event listener for document click to close the context menu
 document.addEventListener('click', () => {
@@ -267,21 +300,38 @@ document.addEventListener('click', () => {
 
 // Update the property box with selected object's properties
 function updatePropertyBox(asciiObject) {
+    // Update checkbox states
     document.getElementById('clickable').checked = asciiObject.clickable;
     document.getElementById('give-currency').checked = asciiObject.giveCurrency;
     document.getElementById('switch-scene').checked = asciiObject.switchScene;
     document.getElementById('give-object').checked = asciiObject.giveObject;
 
-    // Update color inputs dynamically
-    document.getElementById('default-color').value = asciiObject.color || '#000000';
-    document.getElementById('hover-color').value = asciiObject.hoverColor || '#000000';
-    document.getElementById('click-color').value = asciiObject.clickColor || '#000000';
+    // Update color inputs
+    const defaultColorInput = document.getElementById('default-color');
+    const hoverColorInput = document.getElementById('hover-color');
+    const clickColorInput = document.getElementById('click-color');
 
-    // Event listeners to dynamically update color properties
+    // Remove existing event listeners by cloning inputs
+    const clonedDefaultColorInput = defaultColorInput.cloneNode(true);
+    const clonedHoverColorInput = hoverColorInput.cloneNode(true);
+    const clonedClickColorInput = clickColorInput.cloneNode(true);
 
+    defaultColorInput.replaceWith(clonedDefaultColorInput);
+    hoverColorInput.replaceWith(clonedHoverColorInput);
+    clickColorInput.replaceWith(clonedClickColorInput);
 
-    // Example: Binding to the color input changes
-    document.getElementById('default-color').addEventListener('input', function () {
+    // Re-assign the updated inputs
+    const updatedDefaultColorInput = document.getElementById('default-color');
+    const updatedHoverColorInput = document.getElementById('hover-color');
+    const updatedClickColorInput = document.getElementById('click-color');
+
+    // Set the current color values for the selected object
+    updatedDefaultColorInput.value = asciiObject.color || '#000000';
+    updatedHoverColorInput.value = asciiObject.hoverColor || '#000000';
+    updatedClickColorInput.value = asciiObject.clickColor || '#000000';
+
+    // Event listeners for color inputs to update properties dynamically
+    updatedDefaultColorInput.addEventListener('input', function () {
         if (selectedAsciiArt) {
             const newColor = this.value; // Get the selected color value
             selectedAsciiArt.element.style.color = newColor; // Update the element's color
@@ -289,22 +339,25 @@ function updatePropertyBox(asciiObject) {
         }
     });
 
-
-    document.getElementById('hover-color').addEventListener('input', function () {
+    updatedHoverColorInput.addEventListener('input', function () {
         asciiObject.hoverColor = this.value;
     });
 
-    document.getElementById('click-color').addEventListener('input', function () {
+    updatedClickColorInput.addEventListener('input', function () {
         asciiObject.clickColor = this.value;
     });
 
-    // Trigger enabling the "clickable" property
-    document.getElementById('clickable').addEventListener('change', () => {
-        if (document.getElementById('clickable').checked) {
+    // Event listener for "clickable" checkbox
+    const clickableCheckbox = document.getElementById('clickable');
+    clickableCheckbox.addEventListener('change', () => {
+        if (clickableCheckbox.checked) {
             enableClickable(asciiObject); // Call the function to enable "clickable"
+        } else {
+            disableClickable(asciiObject); // Call the function to disable "clickable" (if implemented)
         }
     });
 }
+
 
 // New function to handle enabling the "clickable" property and prompting the user
 // function enableClickable(asciiObject) {
@@ -385,17 +438,67 @@ document.getElementById('clickable').addEventListener('change', function() {
 });
 
 // Event listener for adding custom keybindings
+// Add a new keybinding
 document.getElementById('add-key-binding').addEventListener('click', () => {
     const key = document.getElementById('key-input').value;
     const action = document.getElementById('action-select').value;
+
     if (key && action) {
-        keyBindings[key] = action;  // Store the keybinding
-        alert(`Keybinding for '${key}' added with action: ${action}`);
+        keyBindings[key] = action; // Add to keyBindings object
+        updateKeyBindingsList(); // Refresh the keybindings list
+        document.getElementById('key-input').value = ''; // Clear input field
     } else {
-        alert('Please enter a valid key and action.');
+        alert('Please enter a key and select an action.');
     }
 });
 
+//Updating items in scene box
+
+// Update the list of objects in the scene
+function updateItemsInSceneBox() {
+    const objectList = document.getElementById('object-list');
+    objectList.innerHTML = ''; // Clear the current list
+
+    asciiObjects.forEach((asciiObject, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = asciiObject.itemName || `Object ${index + 1}`;
+        listItem.dataset.index = index;
+
+        // Select the object when clicked
+        listItem.addEventListener('click', () => {
+            selectAsciiObject(asciiObject);
+            highlightSelectedListItem(listItem);
+        });
+
+        objectList.appendChild(listItem);
+    });
+}
+
+// Highlight the selected object in the list
+function highlightSelectedListItem(selectedItem) {
+    const listItems = document.querySelectorAll('#object-list li');
+    listItems.forEach(item => item.classList.remove('selected'));
+    selectedItem.classList.add('selected');
+}
+
+
+// Update the list of keybindings
+function updateKeyBindingsList() {
+    const keyBindingsList = document.getElementById('keybindings-ul');
+    keyBindingsList.innerHTML = ''; // Clear the current list
+
+    Object.entries(keyBindings).forEach(([key, action]) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${key} for ${action}`;
+        keyBindingsList.appendChild(listItem);
+    });
+}
+
+// Call this function whenever an object is added, removed, or updated
+function refreshItemsInSceneBox() {
+    updateItemsInSceneBox();
+    updateKeyBindingsList();
+}
 
 
 // Listen for keydown events globally to trigger actions
@@ -437,3 +540,7 @@ function openMap() {
 function customAction() {
     alert("Custom action triggered!");
 }
+
+
+// Refresh items in scene box when the page loads
+refreshItemsInSceneBox();

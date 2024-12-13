@@ -120,3 +120,8 @@ button {
     border: 2px solid blue; /* Customize color for selected outline */
     outline-offset: 2px;
 }
+
+.highlight {
+    background-color: #ffd700; /* Highlight color */
+    font-weight: bold; /* Optional: Makes the highlighted item more visible */
+}
