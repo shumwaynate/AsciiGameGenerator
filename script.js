@@ -196,6 +196,20 @@ function showContextMenu(x, y, asciiObject) {
     contextMenu.style.top = `${artRect.top + offsetY}px`;
     contextMenu.style.display = 'block';
 
+    // Hide the delete and change color buttons when objects are clicked
+    document.getElementById('delete-item').style.display = 'none';
+    // document.getElementById('delete-selected-item').style.display = 'none';
+    document.getElementById('change-color').style.display = 'none';
+
+    // Example: Make buttons reappear later (if needed for future functionality)
+    // You can add a flag here to toggle this based on your requirements.
+    // For example:
+    // if (!hideContextMenuButtons) {
+    //     document.getElementById('delete-item').style.display = 'block';
+    //     document.getElementById('delete-selected-item').style.display = 'block';
+    //     document.getElementById('change-color').style.display = 'block';
+    // }
+
     // Remove previous listeners to prevent duplication
     const deleteItemButton = document.getElementById('delete-item');
     const deleteSelectedButton = document.getElementById('delete-selected-item');
@@ -281,15 +295,23 @@ function selectAsciiObject(asciiObject) {
 // Update the highlight in the "Items in Scene" panel
 function updateScenePanelHighlight(asciiObject) {
     const sceneItems = document.querySelectorAll('.scene-item');
+    console.log('Update done, items found:', sceneItems.length);
     sceneItems.forEach(item => {
         item.classList.remove('selected-panel-item'); // Remove highlight from all items
+        console.log('Checking item:', item.dataset.asciiId, 'against', asciiObject.element.dataset.asciiId);
+        
+        // Highlight the corresponding panel item
+        if (item.dataset.asciiId === asciiObject.element.dataset.asciiId) {
+            console.log('Match found:', item);
+            item.classList.add('selected-panel-item');
+        }
     });
 
     // Find the corresponding item for the selected object
-    const targetItem = Array.from(sceneItems).find(item => item.dataset.id === asciiObject.id);
-    if (targetItem) {
-        targetItem.classList.add('selected-panel-item'); // Highlight the corresponding item
-    }
+    // const targetItem = Array.from(sceneItems).find(item => item.dataset.id === asciiObject.id);
+    // if (targetItem) {
+    //     targetItem.classList.add('selected-panel-item'); // Highlight the corresponding item
+    // }
 }
 
 
