@@ -66,6 +66,7 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     }
 
     const asciiObject = {
+        id: Date.now(),  // Add a unique ID using timestamp
         element: artDiv,
         ascii: asciiArt,
         left: artDiv.style.left,
@@ -96,14 +97,15 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     // Handle clicks to open context menu and select the object
     artDiv.addEventListener('click', (e) => {
         e.stopPropagation();
-        showContextMenu(e.clientX, e.clientY, asciiObject);
+        // showContextMenu(e.clientX, e.clientY, asciiObject); // For the context menu
         selectAsciiObject(asciiObject);
 
         // Change color on click if a clickColor is set
         if (asciiObject.clickColor) {
             artDiv.style.color = asciiObject.clickColor;
         }
-    });
+    }
+);
 
     // Draggable functionality
     artDiv.addEventListener('mousedown', (e) => {
@@ -127,6 +129,8 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     });
 
     container.appendChild(artDiv);
+
+    refreshItemsInSceneBox(); // Update the panel
 }
 
 
@@ -143,7 +147,8 @@ function saveScene(sceneName) {
         switchScene: art.switchScene || false,
         giveObject: art.giveObject || false,
         targetScene: art.targetScene || null,
-        targetObjectName: art.targetObjectName || null
+        targetObjectName: art.targetObjectName || null,
+        itemName: art.itemName || '' // Save the item's name
     }));
     scenes[sceneName] = artArray;
     alert(`Scene '${sceneName}' saved!`);
@@ -153,13 +158,13 @@ function loadScene(sceneName) {
     if (scenes[sceneName]) {
         document.getElementById('ascii-display').innerHTML = '';
         asciiObjects = []; // Clear existing objects
-        scenes[sceneName].forEach(({ ascii, left, top, color, hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, targetScene, targetObjectName }) => {
+        scenes[sceneName].forEach(({ ascii, left, top, color, hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, itemName, targetScene, targetObjectName }) => {
             // Add ASCII art to the scene
             addAsciiArt(ascii, left, top, color);
             const artObject = asciiObjects[asciiObjects.length - 1];
             
             // Assign additional properties
-            Object.assign(artObject, { hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, targetScene, targetObjectName });
+            Object.assign(artObject, { hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, itemName, targetScene, targetObjectName });
             
             const artDiv = artObject.element;
             artDiv.style.color = color;
@@ -268,6 +273,8 @@ function selectAsciiObject(asciiObject) {
     // Update selected object
     selectedAsciiArt = asciiObject;
 
+    
+
     // Add highlight to the currently selected object
     selectedAsciiArt.element.classList.add('flashing-border');
 
@@ -276,6 +283,8 @@ function selectAsciiObject(asciiObject) {
 
     // Update the highlight in the "Items in Scene" panel
     updateScenePanelHighlight(asciiObject);
+
+    // highlightSelectedListItem(asciiObject);  //Uncommenting removes highlight on panel box but causes error
 }
 
 // Update the highlight in the "Items in Scene" panel
@@ -306,29 +315,42 @@ function updatePropertyBox(asciiObject) {
     document.getElementById('switch-scene').checked = asciiObject.switchScene;
     document.getElementById('give-object').checked = asciiObject.giveObject;
 
+    // Update Name Text Box
+    document.getElementById('item-name').value = asciiObject.itemName;
+
     // Update color inputs
     const defaultColorInput = document.getElementById('default-color');
     const hoverColorInput = document.getElementById('hover-color');
     const clickColorInput = document.getElementById('click-color');
+
+    let itemNameInput1 = document.getElementById('item-name');
 
     // Remove existing event listeners by cloning inputs
     const clonedDefaultColorInput = defaultColorInput.cloneNode(true);
     const clonedHoverColorInput = hoverColorInput.cloneNode(true);
     const clonedClickColorInput = clickColorInput.cloneNode(true);
 
+    let clonedItemNameInput = itemNameInput1.cloneNode(true);
+
     defaultColorInput.replaceWith(clonedDefaultColorInput);
     hoverColorInput.replaceWith(clonedHoverColorInput);
     clickColorInput.replaceWith(clonedClickColorInput);
+
+    itemNameInput1.replaceWith(clonedItemNameInput);
 
     // Re-assign the updated inputs
     const updatedDefaultColorInput = document.getElementById('default-color');
     const updatedHoverColorInput = document.getElementById('hover-color');
     const updatedClickColorInput = document.getElementById('click-color');
 
+    let updatedNameInput = document.getElementById('item-name');
+
     // Set the current color values for the selected object
     updatedDefaultColorInput.value = asciiObject.color || '#000000';
     updatedHoverColorInput.value = asciiObject.hoverColor || '#000000';
     updatedClickColorInput.value = asciiObject.clickColor || '#000000';
+
+    updatedNameInput.value = asciiObject.itemName || '';
 
     // Event listeners for color inputs to update properties dynamically
     updatedDefaultColorInput.addEventListener('input', function () {
@@ -355,6 +377,15 @@ function updatePropertyBox(asciiObject) {
         } else {
             disableClickable(asciiObject); // Call the function to disable "clickable" (if implemented)
         }
+    });
+
+    // Listen for changes in the item name input box
+    updatedNameInput.addEventListener('input', function() {
+        // Dynamically update the object's name as you type
+        asciiObject.itemName = updatedNameInput.value;
+
+        refreshItemsInSceneBox();
+        
     });
 }
 
@@ -401,6 +432,13 @@ document.getElementById('save-properties').addEventListener('click', () => {
         if (giveObject) {
             selectedAsciiArt.targetObjectName = prompt("Enter the target object name to enable clickability:");
         }
+
+        // Ensure the property box only updates for the selected object
+        updatePropertyBox(selectedAsciiArt);
+
+        // Update the highlight in the "Items in Scene" panel
+        updateScenePanelHighlight(asciiObject);
+        
     }
 });
 
@@ -478,7 +516,7 @@ function updateItemsInSceneBox() {
 function highlightSelectedListItem(selectedItem) {
     const listItems = document.querySelectorAll('#object-list li');
     listItems.forEach(item => item.classList.remove('selected'));
-    selectedItem.classList.add('selected');
+    // selectedItem.classList.add('selected'); // for highlighting object in objects in scene
 }
 
 
@@ -509,6 +547,11 @@ document.addEventListener('keydown', (event) => {
         alert(`Action triggered for '${key}': ${action}`);
         performAction(action); // Trigger the action associated with the keybinding
     }
+});
+
+// used to swap to settings page
+document.getElementById('settings-button').addEventListener('click', () => {
+    window.location.href = 'settings.html';
 });
 
 // Function to perform actions based on the keybinding
