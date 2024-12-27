@@ -7,6 +7,23 @@ document.getElementById('saveExportSettings').addEventListener('click', () => {
     // You can add logic here to save export settings to local storage or send them to a server.
 });
 
+document.getElementById('exportProject').addEventListener('click', () => {
+    const savedState = localStorage.getItem('gameState');
+
+    if (savedState) {
+        const blob = new Blob([savedState], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'gameProject.json';
+        link.click();
+    } else {
+        alert('No project data available to export.');
+    }
+});
+
+
+
+
 // Event listener for importing a project
 document.getElementById('importProject').addEventListener('click', () => {
     const fileInput = document.getElementById('importFile');
@@ -31,12 +48,30 @@ document.getElementById('saveScreenSize').addEventListener('click', () => {
     const screenHeight = document.getElementById('screenHeight').value;
 
     if (screenWidth && screenHeight) {
-        console.log(`Screen size saved as: ${screenWidth}x${screenHeight}`);
-        // Add logic to validate and save the screen size settings
+        const settings = {
+            screenWidth,
+            screenHeight,
+        };
+
+        localStorage.setItem('editorSettings', JSON.stringify(settings));
+        alert('Screen size settings saved!');
     } else {
-        alert('Please enter both width and height.');
+        alert('Please enter valid screen dimensions.');
     }
 });
+
+// Used to reload settings on reload
+window.addEventListener('load', () => {
+    const savedSettings = localStorage.getItem('editorSettings');
+
+    if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+
+        document.getElementById('screenWidth').value = settings.screenWidth || '';
+        document.getElementById('screenHeight').value = settings.screenHeight || '';
+    }
+});
+
 
 // Event listener for navigating back to the editor
 document.getElementById('home-button').addEventListener('click', () => {

@@ -551,8 +551,36 @@ document.addEventListener('keydown', (event) => {
 
 // used to swap to settings page
 document.getElementById('settings-button').addEventListener('click', () => {
+    // Serialize and save the current scenes and game state
+    const gameState = {
+        scenes: sceneManager.getAllScenes(), // Assuming you have a `sceneManager` handling scenes
+        currentScene: currentScene,         // Save which scene is currently active
+        playerSettings: playerSettings,     // Save any other global settings if necessary
+    };
+
+    localStorage.setItem('gameState', JSON.stringify(gameState));
+
+    // Navigate to settings.html
     window.location.href = 'settings.html';
 });
+
+// used to load where left off when returning
+window.addEventListener('load', () => {
+    const savedState = localStorage.getItem('gameState');
+
+    if (savedState) {
+        const gameState = JSON.parse(savedState);
+
+        // Restore scenes and settings
+        sceneManager.loadScenes(gameState.scenes); // Assuming `sceneManager.loadScenes` restores all scenes
+        currentScene = gameState.currentScene;    // Restore the current active scene
+        playerSettings = gameState.playerSettings || {}; // Restore player settings, if any
+
+        // Redraw or refresh the render area
+        renderScene(currentScene);
+    }
+});
+
 
 // Function to perform actions based on the keybinding
 function performAction(action) {
