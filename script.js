@@ -45,6 +45,37 @@ document.getElementById('load-scene').addEventListener('click', () => {
         alert('Please enter a scene name to load!');
     }
 });
+
+// Using this to handle scene changes
+const sceneManager = {
+    currentScene: 'default', // Keep track of the current scene
+
+    switchToScene(sceneName) {
+        // Hide all scenes
+        document.querySelectorAll('.scene').forEach(scene => {
+            scene.style.display = 'none';
+        });
+
+        // Show the target scene
+        const targetScene = document.getElementById(sceneName);
+        if (targetScene) {
+            targetScene.style.display = 'block';
+            this.currentScene = sceneName;
+        } else {
+            console.error(`Scene "${sceneName}" does not exist.`);
+        }
+    },
+
+    getAllScenes() {
+        // Collect scene data (you can customize this further)
+        return [...document.querySelectorAll('.scene')].map(scene => ({
+            id: scene.id,
+            content: scene.innerHTML,
+            style: scene.style.cssText,
+        }));
+    },
+};
+
 // Add ASCII Art Object to the Display
 function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     const artDiv = document.createElement('div');
@@ -555,7 +586,7 @@ document.getElementById('settings-button').addEventListener('click', () => {
     const gameState = {
         scenes: sceneManager.getAllScenes(), // Assuming you have a `sceneManager` handling scenes
         currentScene: currentScene,         // Save which scene is currently active
-        playerSettings: playerSettings,     // Save any other global settings if necessary
+        // playerSettings: playerSettings,     // Save any other global settings if necessary
     };
 
     localStorage.setItem('gameState', JSON.stringify(gameState));
