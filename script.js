@@ -28,7 +28,9 @@ document.getElementById('save-scene').addEventListener('click', () => {
     if (sceneName) {
         saveScene(sceneName);
         currentScene = sceneName; // Update current scene
-        document.getElementById('scene-name').value = ''; // Clear the scene name after saving
+        //save sceneName and asciiObjects to scenes object
+        scenes[sceneName] = asciiObjects;
+
         refreshItemsInSceneBox(); // Update the list of objects in the scene
     } else {
         alert('Please enter a scene name!');
@@ -51,6 +53,8 @@ const sceneManager = {
     currentScene: 'default', // Keep track of the current scene
 
     switchToScene(sceneName) {
+        // Switch to the target scene alerting the user which scene they are loading into
+        alert(`Switching to scene: ${sceneName}`);
         // Hide all scenes
         document.querySelectorAll('.scene').forEach(scene => {
             scene.style.display = 'none';
@@ -68,12 +72,32 @@ const sceneManager = {
 
     getAllScenes() {
         // Collect scene data (you can customize this further)
+        // detect if there are no scenes return empty array
+        if (!document.querySelectorAll('.scene').length) { 
+            console.log('No scenes detected');
+            return [];
+        }
+        log('Scenes detected');
+
         return [...document.querySelectorAll('.scene')].map(scene => ({
             id: scene.id,
             content: scene.innerHTML,
             style: scene.style.cssText,
-        }));
+        })); // Return an array of scene objects
     },
+
+    loadScenes(scenes) {
+        // Load scene data (you can customize this further)
+        scenes.forEach(({ id, content, style }) => {
+            const scene = document.getElementById(id);
+            if (scene) {
+                scene.innerHTML = content;
+                scene.style.cssText = style;
+            }
+        });
+    }
+
+
 };
 
 // Add ASCII Art Object to the Display
@@ -128,7 +152,7 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     // Handle clicks to open context menu and select the object
     artDiv.addEventListener('click', (e) => {
         e.stopPropagation();
-        // showContextMenu(e.clientX, e.clientY, asciiObject); // For the context menu
+        showContextMenu(e.clientX, e.clientY, asciiObject); // For the context menu
         selectAsciiObject(asciiObject);
 
         // Change color on click if a clickColor is set
@@ -251,15 +275,14 @@ function showContextMenu(x, y, asciiObject) {
         }
     });
 
-    // Update items box after deleting an object
     document.getElementById('delete-selected-item').addEventListener('click', () => {
         if (selectedAsciiArt) {
-            asciiObjects = asciiObjects.filter(obj => obj !== selectedAsciiArt);
-            selectedAsciiArt.element.remove();
-            selectedAsciiArt = null;
+            deleteAsciiArt(selectedAsciiArt);
+            selectedAsciiArt = null; // Clear the selection after deletion
+            clearPropertyBox();
             refreshItemsInSceneBox();
         } else {
-            alert('No object selected to delete.');
+            alert('No ASCII art selected to delete!');
         }
     });
 
@@ -585,30 +608,51 @@ document.getElementById('settings-button').addEventListener('click', () => {
     // Serialize and save the current scenes and game state
     const gameState = {
         scenes: sceneManager.getAllScenes(), // Assuming you have a `sceneManager` handling scenes
+        
         currentScene: currentScene,         // Save which scene is currently active
         // playerSettings: playerSettings,     // Save any other global settings if necessary
     };
-
+    //give localStorage a key of gameState and save the gameState object as a string
     localStorage.setItem('gameState', JSON.stringify(gameState));
 
+    //console log the scenes
+    console.log(sceneManager.getAllScenes());
+    //console log the gameState object
+    console.log(gameState);
+    //I just created 2 scenes with items in and this log gave {scenes: Array(0), currentScene: '2'} so it's not saving the scenes still after adjusting saveScene function
+    //I don't see the scenes being saved in the gameState object
+    //I see the scene name being saved but not the asciiObjects
+    //The problem is caused in the function sceneManager.getAllScenes() which is not returning the scenes
+    //the sceneManager.getAllScenes() function is not returning the scenes
+    
+
+
+    //wait 5 seconds before navigating to settings.html
+    setTimeout(() => {
+        window.location.href = 'settings.html';
+    }, 5000);
     // Navigate to settings.html
-    window.location.href = 'settings.html';
+    // window.location.href = 'settings.html';
 });
 
 // used to load where left off when returning
 window.addEventListener('load', () => {
-    const savedState = localStorage.getItem('gameState');
-
-    if (savedState) {
-        const gameState = JSON.parse(savedState);
-
-        // Restore scenes and settings
-        sceneManager.loadScenes(gameState.scenes); // Assuming `sceneManager.loadScenes` restores all scenes
-        currentScene = gameState.currentScene;    // Restore the current active scene
-        playerSettings = gameState.playerSettings || {}; // Restore player settings, if any
-
-        // Redraw or refresh the render area
-        renderScene(currentScene);
+    // Load the saved game state from localStorage
+    const savedGameState = localStorage.getItem('gameState');
+    //make it so scenemanager.getAllScenes() returns an empty array if no scenes are detected, otherwise save the scenes
+    if (savedGameState) {
+        const gameState = JSON.parse(savedGameState);
+        sceneManager.loadScenes(gameState.scenes);
+        currentScene = gameState.currentScene;
+        sceneManager.switchToScene(currentScene);
+        // playerSettings = gameState.playerSettings; // Load any other global settings if necessary
+        alert('Game state loaded successfully!');
+        //alert user which scene they are in and what scenes are available
+        alert(`Current Scene: ${currentScene}\nAvailable Scenes: ${Object.keys(scenes).join(', ')}`);
+        //this alert displays we are in a scene that was previously saved but the scene doesn't display or load items from it
+        
+    } else {
+        alert('No saved game state found.');
     }
 });
 
