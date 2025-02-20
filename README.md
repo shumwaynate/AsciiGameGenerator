@@ -174,4 +174,9 @@ For testing and refining the standalone export, a separate game running window w
 
  Synopsis: I am thinking of possible using a new set of 3 temporary files, a .html for the window/game loop to be in, a .css for the css, and a .js that runs standalone for the game. Also I am thinking of also adding one more seperate .js file specifically for converting everything from my editor to the 3 standalone files.
 
+Next steps: 
+	Step 1: Implement game_window.html and test basic rendering – Start by creating a minimal version of game_window.html that simply loads and displays ASCII content using hardcoded values.
+	Step 2: Implement game_script.js logic for Play, Pause, Reset – Add functionality for handling the game loop, stopping interactions, and resetting the game state.
+	Step 3: Ensure game interactions work properly – Gradually implement scene transitions, keybinds, and object interactions within the standalone window.
+	Step 4: Build export_converter.js – Once we confirm that game_window.html runs the game properly, we move on to writing the script that extracts data from the editor and formats it into final exportable files.
 
