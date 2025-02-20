@@ -2,7 +2,7 @@
 
 // Global variables
 let selectedAsciiArt = null; // Track selected ASCII art for context menu
-const scenes = { default: [] }; // Initialize with default scene
+let scenes = { default: [] }; // Initialize with default scene
 let currentScene = 'default'; // Default scene
 let asciiObjects = []; // Track individual ASCII objects with their properties
 let gameCurrency = 0; // Initialize game currency for reward actions
@@ -26,11 +26,15 @@ document.getElementById('add-ascii-art').addEventListener('click', () => {
 document.getElementById('save-scene').addEventListener('click', () => {
     const sceneName = document.getElementById('scene-name').value;
     if (sceneName) {
-        saveScene(sceneName);
-        currentScene = sceneName; // Update current scene
-        //save sceneName and asciiObjects to scenes object
-        scenes[sceneName] = asciiObjects;
+        saveScene(sceneName); // Save the current scene
+        currentScene = sceneName; // Update current scene name global variable
+       
+        //may need this later to just copy the objects and not the references
+        // let asciiObjectsCopy = JSON.parse(JSON.stringify(asciiObjects));
 
+        //set textbox input with id scene-name to empty string
+        document.getElementById('scene-name').value = '';
+        
         refreshItemsInSceneBox(); // Update the list of objects in the scene
     } else {
         alert('Please enter a scene name!');
@@ -42,6 +46,7 @@ document.getElementById('load-scene').addEventListener('click', () => {
     const sceneName = document.getElementById('scene-name').value;
     if (sceneName) {
         loadScene(sceneName); // Load the specified scene
+        document.getElementById('scene-name').value = ''; // Clear the input after loading
         refreshItemsInSceneBox(); // Update the list of objects in the scene
     } else {
         alert('Please enter a scene name to load!');
@@ -53,21 +58,7 @@ const sceneManager = {
     currentScene: 'default', // Keep track of the current scene
 
     switchToScene(sceneName) {
-        // Switch to the target scene alerting the user which scene they are loading into
-        alert(`Switching to scene: ${sceneName}`);
-        // Hide all scenes
-        document.querySelectorAll('.scene').forEach(scene => {
-            scene.style.display = 'none';
-        });
-
-        // Show the target scene
-        const targetScene = document.getElementById(sceneName);
-        if (targetScene) {
-            targetScene.style.display = 'block';
-            this.currentScene = sceneName;
-        } else {
-            console.error(`Scene "${sceneName}" does not exist.`);
-        }
+        loadScene(sceneName); // Load the specified scene
     },
 
     getAllScenes() {
@@ -75,26 +66,34 @@ const sceneManager = {
         // detect if there are no scenes return empty array
         if (!document.querySelectorAll('.scene').length) { 
             console.log('No scenes detected');
-            return [];
+            return {};
         }
         log('Scenes detected');
 
-        return [...document.querySelectorAll('.scene')].map(scene => ({
-            id: scene.id,
-            content: scene.innerHTML,
-            style: scene.style.cssText,
-        })); // Return an array of scene objects
+        //return a dictionary of scenes {"sceneName": [list of asciiObjects]}
+        return Object.fromEntries(
+            Array.from(document.querySelectorAll('.scene')).map(scene => {
+                return [scene.id, Array.from(scene.querySelectorAll('.ascii-art')).map(art => {
+                    return {
+                        id: art.id,
+                        content: art.innerText,
+                        style: art.style.cssText
+                    };
+                })];
+            })
+        );
     },
 
-    loadScenes(scenes) {
-        // Load scene data (you can customize this further)
-        scenes.forEach(({ id, content, style }) => {
-            const scene = document.getElementById(id);
-            if (scene) {
-                scene.innerHTML = content;
-                scene.style.cssText = style;
-            }
-        });
+    loadScenes(scenesInput) {
+        // Load scene data it is in the form of a dictionary of scenes, the layout is scenesInput: {"sceneName": [list of asciiObjects], "sceneName2": [list of asciiObjects], etc}
+        // Loop through the scenes and load them into the document adding them to global scenes object
+        //only save the scenes to the global scenes, do not actually load a specific scene here, we will call switchToScene to load the scene not in this function
+        //gets scenes from scenesInput from the local Storage and saves them to global scenes object
+        // the variable is layed out scenesInput: {"sceneName": [list of asciiObjects], "sceneName2": [list of asciiObjects], etc}
+        for (const [sceneName, asciiArtList] of Object.entries(scenesInput)) {
+            scenes[sceneName] = asciiArtList;
+        }
+        
     }
 
 
@@ -111,10 +110,10 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     artDiv.style.color = color || 'black';
 
     const container = document.getElementById('ascii-display');
-    if (left !== null && top !== null) {
-        artDiv.style.left = `${left}px`;
+    if (left !== null && top !== null) { // If left and top are provided
+        artDiv.style.left = `${left}px`; 
         artDiv.style.top = `${top}px`;
-    } else {
+    } else { // Center the object if no position is provided
         const containerRect = container.getBoundingClientRect();
         artDiv.style.left = `${(containerRect.width - 100) / 2}px`;
         artDiv.style.top = `${(containerRect.height - 50) / 2}px`;
@@ -122,10 +121,10 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
 
     const asciiObject = {
         id: Date.now(),  // Add a unique ID using timestamp
-        element: artDiv,
-        ascii: asciiArt,
-        left: artDiv.style.left,
-        top: artDiv.style.top,
+        element: artDiv, // Reference to the DOM element
+        ascii: asciiArt, // ASCII art content string
+        left: artDiv.style.left , // Save the initial position from the left
+        top: artDiv.style.top, // Save the initial position from the top
         color: color || 'black',
         hoverColor: null,
         clickColor: null,
@@ -137,7 +136,8 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
         targetObjectName: null,
         itemName: '' // Initialize item name as empty string
     };
-    asciiObjects.push(asciiObject);
+
+    asciiObjects.push(asciiObject); // Add the object to the global array of objects in current scene
 
     // Hover effect (Change color on hover)
     artDiv.addEventListener('mouseenter', () => {
@@ -145,6 +145,7 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
             artDiv.style.color = asciiObject.hoverColor;
         }
     });
+    // Reset color on mouse leave
     artDiv.addEventListener('mouseleave', () => {
         artDiv.style.color = asciiObject.color; // Reset to original color
     });
@@ -152,7 +153,7 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     // Handle clicks to open context menu and select the object
     artDiv.addEventListener('click', (e) => {
         e.stopPropagation();
-        showContextMenu(e.clientX, e.clientY, asciiObject); // For the context menu
+        // showContextMenu(e.clientX, e.clientY, asciiObject); // For the context menu
         selectAsciiObject(asciiObject);
 
         // Change color on click if a clickColor is set
@@ -204,7 +205,7 @@ function saveScene(sceneName) {
         targetScene: art.targetScene || null,
         targetObjectName: art.targetObjectName || null,
         itemName: art.itemName || '' // Save the item's name
-    }));
+    })); // this is in the form artArray = [{ascii: "asciiArt", left: 0, top: 0, color: "black", etc}, {ascii: "asciiArt2", left: 0, top: 0, color: "black", etc}]
     scenes[sceneName] = artArray;
     alert(`Scene '${sceneName}' saved!`);
 }
@@ -213,16 +214,16 @@ function loadScene(sceneName) {
     if (scenes[sceneName]) {
         document.getElementById('ascii-display').innerHTML = '';
         asciiObjects = []; // Clear existing objects
-        scenes[sceneName].forEach(({ ascii, left, top, color, hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, itemName, targetScene, targetObjectName }) => {
+        scenes[sceneName].forEach(({ ascii, left, top, color, hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, itemName, targetScene, targetObjectName }) => {   
             // Add ASCII art to the scene
             addAsciiArt(ascii, left, top, color);
-            const artObject = asciiObjects[asciiObjects.length - 1];
+            const artObject = asciiObjects[asciiObjects.length - 1]; //this 
             
-            // Assign additional properties
+            // // Assign additional properties
             Object.assign(artObject, { hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, itemName, targetScene, targetObjectName });
             
             const artDiv = artObject.element;
-            artDiv.style.color = color;
+            artDiv.style.color = color; // Set the color of the ASCII art
 
             // Apply hover and click events (clearing previous ones if necessary)
             artDiv.onmouseenter = hoverColor ? () => { artDiv.style.color = hoverColor; } : null;
@@ -232,17 +233,28 @@ function loadScene(sceneName) {
             artDiv.onmouseup = clickColor ? () => { artDiv.style.color = artObject.color; } : null;
         });
 
-        currentScene = sceneName;
-        alert(`Scene '${sceneName}' loaded!`);
+        currentScene = sceneName; // Update the current scene in global variable
+
+        // alert(`Scene '${sceneName}' loaded!`); // Alert the user that the scene was loaded
     } else {
         alert(`Scene '${sceneName}' does not exist!`);
     }
 }
 
+document.getElementById('delete-selected-item').addEventListener('click', () => {
+    if (selectedAsciiArt) {
+        deleteAsciiArt(selectedAsciiArt);
+        selectedAsciiArt = null; // Clear the selection after deletion
+        clearPropertyBox();
+        refreshItemsInSceneBox();
+    } else {
+        alert('No ASCII art selected to delete!');
+    }
+});
 
-
-
-function showContextMenu(x, y, asciiObject) {
+// This is a context menu function that is not used in this project currently
+// pops up a box with options like delete at the object clicked, but it doesn't work now
+function showContextMenu(x, y, asciiObject) { 
     const contextMenu = document.getElementById('context-menu');
     const artDiv = asciiObject.element; // Reference to the clicked object
     const artRect = artDiv.getBoundingClientRect(); // Get the position of the clicked object
@@ -252,9 +264,9 @@ function showContextMenu(x, y, asciiObject) {
     const offsetY = 10; // Optional offset to prevent overlap
 
     // Set the position of the context menu relative to the clicked object
-    contextMenu.style.left = `${artRect.left + offsetX}px`;
-    contextMenu.style.top = `${artRect.top + offsetY}px`;
-    contextMenu.style.display = 'block';
+    contextMenu.style.left = `${artRect.left + offsetX}px`; // Adjust the position from the left
+    contextMenu.style.top = `${artRect.top + offsetY}px`; // Adjust the position from the top
+    contextMenu.style.display = 'block';  
 
     // Remove previous listeners to prevent duplication
     const deleteItemButton = document.getElementById('delete-item');
@@ -297,7 +309,6 @@ function clearPropertyBox() {
     document.getElementById('property-box').querySelectorAll('input[type="checkbox"]').forEach(input => input.checked = false);
 }
 
-
 // Delete ASCII art
 function deleteAsciiArt(asciiObject) {
     const index = asciiObjects.indexOf(asciiObject);
@@ -316,7 +327,6 @@ function changeAsciiColor(asciiObject, specificColor = null) {
     }
 }
 
-
 // Handle ASCII object selection and apply highlight
 function selectAsciiObject(asciiObject) {
     // Remove highlight from previously selected object
@@ -326,8 +336,6 @@ function selectAsciiObject(asciiObject) {
 
     // Update selected object
     selectedAsciiArt = asciiObject;
-
-    
 
     // Add highlight to the currently selected object
     selectedAsciiArt.element.classList.add('flashing-border');
@@ -354,7 +362,6 @@ function updateScenePanelHighlight(asciiObject) {
         targetItem.classList.add('selected-panel-item'); // Highlight the corresponding item
     }
 }
-
 
 // Event listener for document click to close the context menu
 document.addEventListener('click', () => {
@@ -442,7 +449,6 @@ function updatePropertyBox(asciiObject) {
         
     });
 }
-
 
 // New function to handle enabling the "clickable" property and prompting the user
 // function enableClickable(asciiObject) {
@@ -605,46 +611,55 @@ document.addEventListener('keydown', (event) => {
 
 // used to swap to settings page
 document.getElementById('settings-button').addEventListener('click', () => {
-    // Serialize and save the current scenes and game state
-    const gameState = {
-        scenes: sceneManager.getAllScenes(), // Assuming you have a `sceneManager` handling scenes
-        
-        currentScene: currentScene,         // Save which scene is currently active
-        // playerSettings: playerSettings,     // Save any other global settings if necessary
-    };
-    //give localStorage a key of gameState and save the gameState object as a string
-    localStorage.setItem('gameState', JSON.stringify(gameState));
-
-    //console log the scenes
-    console.log(sceneManager.getAllScenes());
-    //console log the gameState object
-    console.log(gameState);
-    //I just created 2 scenes with items in and this log gave {scenes: Array(0), currentScene: '2'} so it's not saving the scenes still after adjusting saveScene function
-    //I don't see the scenes being saved in the gameState object
-    //I see the scene name being saved but not the asciiObjects
-    //The problem is caused in the function sceneManager.getAllScenes() which is not returning the scenes
-    //the sceneManager.getAllScenes() function is not returning the scenes
+    saveGameState() // Serialize and save the current scenes and game state
     
-
-
     //wait 5 seconds before navigating to settings.html
     setTimeout(() => {
         window.location.href = 'settings.html';
     }, 5000);
     // Navigate to settings.html
-    // window.location.href = 'settings.html';
+    window.location.href = 'settings.html';
 });
 
-// used to load where left off when returning
+// used to load where left off when returning/loading site
 window.addEventListener('load', () => {
+    loadGameState() // Load the saved game state from localStorage
+    refreshItemsInSceneBox(); // Refresh the items in the scene box
+
+});
+
+// function for clearing local storage using button with id clear-storage
+document.getElementById('clear-storage').addEventListener('click', () => {
+    localStorage.clear();
+    alert('Local storage cleared!');
+});
+
+// function that can be callable to save the game state from anywere, likely will me added when saving a scene.
+function saveGameState() {
+    const gameState = {
+        sceneList: scenes, // Save all scenes as a dictionary sceneList = {"sceneName": [list of asciiObjects], "sceneName2": [list of asciiObjects], etc}
+        saveCurrentScene: currentScene,         // Save which scene is currently active
+        // playerSettings: playerSettings,     // Save any other global settings if necessary
+        saveCustomKeyBindings: keyBindings // Save the custom keybindings
+    };
+    //give localStorage a key of gameState and save the gameState object as a string
+    localStorage.setItem('gameState', JSON.stringify(gameState));
+    // alert the user how many scenes are saved
+    alert(`Saved ${Object.keys(scenes).length} scenes to local storage!`);
+}
+
+// Function to load the game state from local storage
+function loadGameState() {
     // Load the saved game state from localStorage
     const savedGameState = localStorage.getItem('gameState');
     //make it so scenemanager.getAllScenes() returns an empty array if no scenes are detected, otherwise save the scenes
     if (savedGameState) {
         const gameState = JSON.parse(savedGameState);
-        sceneManager.loadScenes(gameState.scenes);
-        currentScene = gameState.currentScene;
-        sceneManager.switchToScene(currentScene);
+        sceneManager.loadScenes(gameState.sceneList);
+        currentScene = gameState.saveCurrentScene;
+        loadScene(currentScene);
+        keyBindings = gameState.saveCustomKeyBindings;
+
         // playerSettings = gameState.playerSettings; // Load any other global settings if necessary
         alert('Game state loaded successfully!');
         //alert user which scene they are in and what scenes are available
@@ -654,8 +669,7 @@ window.addEventListener('load', () => {
     } else {
         alert('No saved game state found.');
     }
-});
-
+}
 
 // Function to perform actions based on the keybinding
 function performAction(action) {

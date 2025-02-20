@@ -132,3 +132,36 @@ Currently scenes.json Is impenmented but meant to later be replaced with a user 
 
 
 ## Questions
+
+
+
+# Update: 2-19-2025
+I have implemented most of the previous and got basics laid out. I have not added in the persistent and not toolbars for games, however there are property box and items in scene boxes as well as creation and reaction to programmable keyboard inputs. 
+
+Other things implemented (This list quickly made using co-pilot help):
+I have implemented the following:
+- A scene editor that allows users to create and edit scenes with ASCII objects using text entry.
+- State-based color changes for ASCII objects.
+- Clickable ASCII objects with configurable actions.
+- Custom keyboard inputs for in-game actions.
+- The ability to save and load scenes using local storage.
+- A basic rendering engine that displays ASCII scenes in a resizable container.
+- A simple toolbar for adding objects to scenes.
+- Clickable ASCII objects with configurable actions.
+- Custom keyboard inputs for in-game actions.
+- Color customization for ASCII objects.
+- A basic documentation file outlining the project's features and working plan.
+- A Game State/ scenes saved reset button that clears the current scenes saved in local storage
+
+
+I have not implemented the following:
+- A persistent toolbar for in-game actions.
+- Scene navigation buttons outside of the game, such as a main menu or level select.
+- Custom effects like "drop a bomb" or "shoot a fireball."
+
+
+As far as what I am working on next, I will describe my goals for the next phase of development. I plan to focus on the Exporting and importing functionality as described below.
+- Part 1: this will be done in the end with 2 parts. The first being that I want the site to provide the game state and all settings as a downloadable file that an editor can download then import into the website on a different device/browser and from there be able to open back up the project like they never left. This is part 1.          
+- Part 2: for part 2, as you know this will hopefully be an exportable file or files that allow the game/thing created to be put in any website anywhere, so these exportables will need to be a file or possibly folder with files in it that can be added straight into any html code and css files on any website. I will expound more on part 2 later, but right now I would like to see how I would incorporate part 1.
+
+
