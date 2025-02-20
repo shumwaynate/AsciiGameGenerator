@@ -1,0 +1,13 @@
+{
+  "editorSettings": {
+    "screenWidth": null,
+    "screenHeight": null
+  },
+  "gameState": {
+    "sceneList": {
+      "default": []
+    },
+    "saveCurrentScene": "default",
+    "saveCustomKeyBindings": {}
+  }
+}

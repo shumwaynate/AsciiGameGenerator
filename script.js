@@ -47,6 +47,7 @@ document.getElementById('load-scene').addEventListener('click', () => {
     if (sceneName) {
         loadScene(sceneName); // Load the specified scene
         document.getElementById('scene-name').value = ''; // Clear the input after loading
+        saveGameState() // Serialize and save the current scenes and game state
         refreshItemsInSceneBox(); // Update the list of objects in the scene
     } else {
         alert('Please enter a scene name to load!');
@@ -632,6 +633,10 @@ window.addEventListener('load', () => {
 document.getElementById('clear-storage').addEventListener('click', () => {
     localStorage.clear();
     alert('Local storage cleared!');
+    loadScene('default'); // Load the default scene after clearing local storage
+    keyBindings = {}; // Clear keybindings
+    window.location.reload();
+    refreshItemsInSceneBox(); // Refresh the items in the scene box
 });
 
 // function that can be callable to save the game state from anywere, likely will me added when saving a scene.

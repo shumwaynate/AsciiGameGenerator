@@ -1,0 +1,127 @@
+{
+  "editorSettings": {
+    "screenWidth": 60,
+    "screenHeight": 20
+  },
+  "gameState": {
+    "sceneList": {
+      "1": [
+        {
+          "ascii": "wow",
+          "left": 511,
+          "top": 61,
+          "color": "#ff0000",
+          "hoverColor": "#1e00ff",
+          "clickColor": "#00ff91",
+          "clickable": true,
+          "giveCurrency": false,
+          "switchScene": false,
+          "giveObject": false,
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "wow"
+        },
+        {
+          "ascii": "lol",
+          "left": 519,
+          "top": 200,
+          "color": "#00ff33",
+          "hoverColor": "#3700ff",
+          "clickColor": "#ff0000",
+          "clickable": false,
+          "giveCurrency": false,
+          "switchScene": false,
+          "giveObject": false,
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "lol"
+        }
+      ],
+      "2": [
+        {
+          "ascii": "wow",
+          "left": 343,
+          "top": 192,
+          "color": "#ff0000",
+          "hoverColor": "#1e00ff",
+          "clickColor": "#00ff91",
+          "clickable": true,
+          "giveCurrency": false,
+          "switchScene": false,
+          "giveObject": false,
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "wow"
+        },
+        {
+          "ascii": "lol",
+          "left": 319,
+          "top": 67,
+          "color": "#00ff33",
+          "hoverColor": "#3700ff",
+          "clickColor": "#ff0000",
+          "clickable": false,
+          "giveCurrency": false,
+          "switchScene": false,
+          "giveObject": false,
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "lol"
+        }
+      ],
+      "3": [
+        {
+          "ascii": "wow",
+          "left": 263,
+          "top": 131,
+          "color": "#ff0000",
+          "hoverColor": "#1e00ff",
+          "clickColor": "#00ff91",
+          "clickable": true,
+          "giveCurrency": false,
+          "switchScene": false,
+          "giveObject": false,
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "wow"
+        },
+        {
+          "ascii": "lol",
+          "left": 388,
+          "top": 130,
+          "color": "#00ff33",
+          "hoverColor": "#3700ff",
+          "clickColor": "#ff0000",
+          "clickable": false,
+          "giveCurrency": false,
+          "switchScene": false,
+          "giveObject": false,
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "lol"
+        },
+        {
+          "ascii": "dang",
+          "left": 312,
+          "top": 119,
+          "color": "#eeff00",
+          "hoverColor": "#00ff11",
+          "clickColor": "#c2bfe8",
+          "clickable": false,
+          "giveCurrency": false,
+          "switchScene": false,
+          "giveObject": false,
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "dang"
+        }
+      ],
+      "default": []
+    },
+    "saveCurrentScene": "2",
+    "saveCustomKeyBindings": {
+      "i": "toggleInventory",
+      "d": "openMap"
+    }
+  }
+}
