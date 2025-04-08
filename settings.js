@@ -97,3 +97,9 @@ document.getElementById('home-button')?.addEventListener('click', () => {
     console.log("Navigating back to index.html");
     window.location.href = 'index.html'; 
 });
+
+// test scene button navigation
+document.getElementById('test-button')?.addEventListener('click', () => {
+    console.log("Navigating back to game_window.html");
+    window.location.href = '/game_window/game_window.html'; 
+});

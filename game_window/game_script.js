@@ -163,3 +163,15 @@ document.addEventListener("DOMContentLoaded", () => {
         switchScene(startingScene);
     });
 });
+
+
+// used to swap to settings page
+document.getElementById('settings-button').addEventListener('click', () => {
+    
+    //wait 5 seconds before navigating to settings.html
+    setTimeout(() => {
+        window.location.href = '/settings.html';
+    }, 5000);
+    // Navigate to settings.html
+    window.location.href = '/settings.html';
+});
