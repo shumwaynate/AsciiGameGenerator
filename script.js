@@ -19,7 +19,6 @@ document.getElementById('add-ascii-art').addEventListener('click', () => {
     } else {
         alert('Please enter some ASCII art!');
     }
-    
 });
 
 // Save Scene
@@ -93,11 +92,8 @@ const sceneManager = {
         // the variable is layed out scenesInput: {"sceneName": [list of asciiObjects], "sceneName2": [list of asciiObjects], etc}
         for (const [sceneName, asciiArtList] of Object.entries(scenesInput)) {
             scenes[sceneName] = asciiArtList;
-        }
-        
+        }   
     }
-
-
 };
 
 // Add ASCII Art Object to the Display
@@ -151,16 +147,47 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
         artDiv.style.color = asciiObject.color; // Reset to original color
     });
 
-    // Handle clicks to open context menu and select the object
+    // Handle clicks to open context menu and select the object also delete objects
     artDiv.addEventListener('click', (e) => {
         e.stopPropagation();
-        // showContextMenu(e.clientX, e.clientY, asciiObject); // For the context menu
         selectAsciiObject(asciiObject);
+        showContextMenu(e.clientX, e.clientY, asciiObject); // For the context menu
+        
 
         // Change color on click if a clickColor is set
         if (asciiObject.clickColor) {
             artDiv.style.color = asciiObject.clickColor;
         }
+
+        // Remove previous listeners to prevent duplication
+        const deleteItemButton = document.getElementById('delete-item');
+        const deleteSelectedButton = document.getElementById('delete-selected-item');
+
+        deleteItemButton.replaceWith(deleteItemButton.cloneNode(true));
+        deleteSelectedButton.replaceWith(deleteSelectedButton.cloneNode(true));
+
+        // Reattach event listeners to new cloned buttons
+        document.getElementById('delete-item').addEventListener('click', () => { //this uses the context menu's delete
+            if (selectedAsciiArt) {
+                deleteAsciiArt(selectedAsciiArt);
+                selectedAsciiArt = null; // Clear the selection after deletion
+                clearPropertyBox();
+                refreshItemsInSceneBox();
+            } else {
+                alert('No ASCII art selected to delete!');
+            }
+        });
+
+        document.getElementById('delete-selected-item').addEventListener('click', () => { //this uses the property box delete
+            if (selectedAsciiArt) {
+                deleteAsciiArt(selectedAsciiArt);
+                selectedAsciiArt = null; // Clear the selection after deletion
+                clearPropertyBox();
+                refreshItemsInSceneBox();
+            } else {
+                alert('No ASCII art selected to delete!');
+            }
+        });
     }
 );
 
@@ -254,7 +281,7 @@ document.getElementById('delete-selected-item').addEventListener('click', () => 
 });
 
 // This is a context menu function that is not used in this project currently
-// pops up a box with options like delete at the object clicked, but it doesn't work now
+// pops up a box with options like delete at the object clicked
 function showContextMenu(x, y, asciiObject) { 
     const contextMenu = document.getElementById('context-menu');
     const artDiv = asciiObject.element; // Reference to the clicked object
@@ -269,41 +296,13 @@ function showContextMenu(x, y, asciiObject) {
     contextMenu.style.top = `${artRect.top + offsetY}px`; // Adjust the position from the top
     contextMenu.style.display = 'block';  
 
-    // Remove previous listeners to prevent duplication
-    const deleteItemButton = document.getElementById('delete-item');
-    const deleteSelectedButton = document.getElementById('delete-selected-item');
-
-    deleteItemButton.replaceWith(deleteItemButton.cloneNode(true));
-    deleteSelectedButton.replaceWith(deleteSelectedButton.cloneNode(true));
-
-    // Reattach event listeners to new cloned buttons
-    document.getElementById('delete-item').addEventListener('click', () => {
-        if (selectedAsciiArt) {
-            deleteAsciiArt(selectedAsciiArt);
-            selectedAsciiArt = null; // Clear the selection after deletion
-            clearPropertyBox();
-            refreshItemsInSceneBox();
-        } else {
-            alert('No ASCII art selected to delete!');
-        }
-    });
-
-    document.getElementById('delete-selected-item').addEventListener('click', () => {
-        if (selectedAsciiArt) {
-            deleteAsciiArt(selectedAsciiArt);
-            selectedAsciiArt = null; // Clear the selection after deletion
-            clearPropertyBox();
-            refreshItemsInSceneBox();
-        } else {
-            alert('No ASCII art selected to delete!');
-        }
-    });
-
-    document.getElementById('change-color').onclick = () => {
-        changeAsciiColor(asciiObject);
-        contextMenu.style.display = 'none';
-    };
 }
+
+// Hide the context menu when clicking outside
+document.getElementById('close-context-menu').addEventListener('click', function() {
+    document.getElementById('context-menu').style.display = 'none';
+  });
+  
 
 // Clear Property Box
 function clearPropertyBox() {
@@ -365,9 +364,12 @@ function updateScenePanelHighlight(asciiObject) {
 }
 
 // Event listener for document click to close the context menu
-document.addEventListener('click', () => {
-    document.getElementById('context-menu').style.display = 'none';
-});
+document.addEventListener('click', function(event) {
+    const contextMenu = document.getElementById('context-menu');
+    if (contextMenu.style.display === 'block' && !contextMenu.contains(event.target)) {
+      contextMenu.style.display = 'none';
+    }
+  });
 
 // Update the property box with selected object's properties
 function updatePropertyBox(asciiObject) {
@@ -451,27 +453,6 @@ function updatePropertyBox(asciiObject) {
     });
 }
 
-// New function to handle enabling the "clickable" property and prompting the user
-// function enableClickable(asciiObject) {
-//     // If the targetObjectName already exists, don't prompt the user again
-//     if (asciiObject.targetObjectName) {
-//         alert(`Clickability already set for target: ${asciiObject.targetObjectName}`);
-//         return; // Skip the prompt if targetObjectName already exists
-//     }
-
-//     // Alert user and prompt for target object name when the "clickable" property is enabled
-//     const targetObjectName = prompt('Enter the target object name to enable clickability');
-//     if (targetObjectName) {
-//         asciiObject.targetObjectName = targetObjectName; // Save target object name to the ASCII object
-//         //set item-name here for better readability if possible to targetObjectName
-//         alert(`Clickability enabled for target: ${targetObjectName}`);
-//     } else {
-//         // If user cancels or enters nothing, disable clickable again
-//         asciiObject.clickable = false;
-//         document.getElementById('clickable').checked = false;
-//         alert('Clickability was not enabled.');
-//     }
-// }
 
 // Save properties
 document.getElementById('save-properties').addEventListener('click', () => {

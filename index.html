@@ -17,10 +17,130 @@
     <!-- Main Content Container -->
     <div id="ascii-container">
         <div id="ascii-display"></div>
-        <div id="context-menu" style="display: none; position: absolute;">  <!-- I want this to display when clicked at the clicked object-->
+        <div id="context-menu" style="display: none; position: absolute;">
+            <div style="display: flex; justify-content: space-between; align-items: left;">
+                <strong style="font-size: 20px;">Functionality</strong>
+                <button id="close-context-menu" style="background: none; border: none; font-size: 12px; cursor: pointer; color: black;margin-top: 0px;">✖</button>
+            </div>
+
+            <hr />
+          
+            <!-- Row 1: Clickable -->
+            <label>
+              <input type="checkbox" id="prop-clickable" />
+              Clickable
+            </label>
+            <hr />
+          
+            <!-- Row 2: Invisible -->
+            <label>
+              <input type="checkbox" id="prop-invisible" />
+              Invisible
+            </label>
+            <hr />
+
+            <!-- Row 4: Main Player -->
+            <label>
+                <input type="checkbox" id="prop-main-player" />
+                Main Player
+              </label>
+              <hr />
+            
+          
+            <!-- Row 3: Enable Colors -->
+            <div>
+                Enable Colors:
+                <div id="color-section" style="margin-left: 10px;">
+                <label>
+                    <input type="checkbox" id="enable-default-color" />
+                    Default 
+                    <input type="color" id="color-default" disabled/>
+                </label>
+                <label>
+                    <input type="checkbox" id="enable-hover-color" />
+                    Hover
+                    <input type="color" id="color-hover" disabled/>
+                </label>
+                <label>
+                    <input type="checkbox" id="enable-click-color" />
+                    Click
+                    <input type="color" id="color-click" disabled/>
+                </label>
+                </div>
+            </div>
+  
+            <hr />
+          
+            <!-- Row 5: Switch Scene -->
+            <div>
+              <label>
+                <input type="checkbox" id="prop-switch-scene-enabled" />
+                Switch Scene
+              </label>
+              Trigger:
+              <select id="switch-scene-trigger">
+                <option value="click">Click</option>
+                <option value="touch">Touch</option>
+              </select><br/>
+              Scene:
+              <select id="switch-scene-list">
+                <!-- Scene names go here -->
+              </select>
+            </div>
+            <hr />
+          
+            <!-- Row 6: Give Currency -->
+            <div>
+              <label>
+                <input type="checkbox" id="prop-give-currency-enabled" />
+                Give Currency
+              </label>
+              Trigger:
+              <select id="give-currency-trigger">
+                <option value="click">Click</option>
+                <option value="touch">Touch</option>
+              </select><br/>
+              Currency:
+              <select id="give-currency-list">
+                <!-- Currency names go here -->
+              </select><br/>
+              Amount:
+              <input type="number" id="give-currency-amount" placeholder="Amount" /><br/>
+              <label>
+                <input type="checkbox" id="give-currency-delete-after" checked />
+                Delete After Giving
+              </label>
+            </div>
+            <hr />
+          
+            <!-- Row 7: Give Object -->
+            <div>
+              <label>
+                <input type="checkbox" id="prop-give-object-enabled" />
+                Give Object
+              </label>
+              Trigger:
+              <select id="give-object-trigger">
+                <option value="click">Click</option>
+                <option value="touch">Touch</option>
+              </select><br/>
+              Object:
+              <select id="give-object-list">
+                <!-- Object names go here -->
+              </select><br/>
+              <label>
+                <input type="checkbox" id="give-object-delete-after" checked />
+                Delete After Giving
+              </label>
+            </div>
+          
+            <hr />
+          
+            <!-- Delete and Save Button -->
+            <button id="save-properties">Save</button> 
             <button id="delete-item">Delete</button>
-            <!-- <button id="change-color">Change Color</button> -->
         </div>
+          
     </div>
 
     <div class="scene-editor">
@@ -28,7 +148,7 @@
         <textarea id="ascii-input" rows="5" placeholder="Type ASCII art here..."></textarea>
         <button id="add-ascii-art">Add ASCII Art to Display</button>
     </div>
-
+d
     <div class="scene-controls">
         <label for="scene-name">Scene Name:</label>
         <input type="text" id="scene-name" placeholder="Enter scene name"></input>

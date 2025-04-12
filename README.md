@@ -180,3 +180,52 @@ Next steps:
 	Step 3: Ensure game interactions work properly – Gradually implement scene transitions, keybinds, and object interactions within the standalone window.
 	Step 4: Build export_converter.js – Once we confirm that game_window.html runs the game properly, we move on to writing the script that extracts data from the editor and formats it into final exportable files.
 
+
+# Update: 4-10-2025
+
+I have updated some more things and have fixed up some amazing problems I was facing previously! Here is a list of things that I have added(Not all 100% implemented):
+-
+-
+-
+
+
+
+I have reviewed the structure and am looking at adjusting my definitions of objects and their properties to encompass more features of "games" below being a review of the properties I will be highlighting as changable/workable per each scene:
+
+Object Properties Needed:
+Clickable: in game object is clickable by user, if this is enabled other properties may or may not be usable for now just true or false
+
+Visible: property for if the object is visible, if set to true nothing, if set or made false it should make the text object color transparent. I want this property to include true or false then object default color, for now I don’t want default color adjusted here
+
+Enable Colors: I want this to include 3 sub dictionaries/parts: default, hover, and click. Default just having default color value. Hover and click I want individual dictionaries for each being 2 things, true or false, and color. If true then I want them to function as intended if false I don’t want them to work respectively.
+
+Main Player: this just need just true or false. This will determine if this object in that scene is the “main/controllable” character/object. For now this means this
+
+Now comes more complicated properties
+
+Click Switch Scene: I want this to have 2 parts like others before this one, a true or false and a list. I want the list to contain the names of all the currently saved scenes. I only want the switch scene to function if set to true and if Clickable is also set to true.
+
+Touch Switch Scene: I want this to have 2 parts like others before this one, a true or false and a list. I want the list to contain the names of all the currently saved scenes. I only want the switch scene to function if set to true and if an object with Main Player property true touches it.
+
+Click Give Currency: I want this to have 4 parts , a true or false, a list, a textbox which holds the amount to give, then another true or false. I want the list to contain the names of all the user created currencies. I only want this to function if first value set to true and if Clickable property is also set to true. Give players currency of the listed type and amount. Then if the 3rd part is set to true in game time and this is activated delete this object.
+
+Touch Give Currency: I want this to have 4 parts , a true or false, a list, a textbox which holds the amount to give, then another true or false. I want the list to contain the names of all the user created currencies.  I only want this to function if first vale is set to true and if an object with Main Player property true touches it. Give players currency of the listed type and amount. Then if the 3rd part is set to true in game time and this is activated delete this object.
+
+Click Give Object: I want this to have 3 parts , a true or false and a list, then another true or false. I want the list to contain the names of all the user created objects. I only want this to function if first value set to true and if Clickable property is also set to true. Then if the 3rd part is set to true in game time and this is activated delete this object.
+
+Touch Give Object: I want this to have 3 parts , a true or false and a list, then another true or false. I want the list to contain the names of all the user created currencies.  I only want this to function if first vale is set to true and if an object with Main Player property true touches it. Then if the 3rd part is set to true in game time and this is activated delete this object.
+
+I will be adding a way to create currencies, objects, and a “player inventory” to hold them later, this is just what I am wanting to be implemented. 
+I will start by telling how I want these properties to be saved. I would like these saved as I am currently saving the non functional properties. As to not change how the base website code is laid out, we have to set the properties into the context menu as desired. I want this menu to have 1 of these properties per row. I want them in this order. Keep in mind I want all of the true/false values to be checkboxes, and all set to false except the second true false values for the click/touch give currency/objects 4 properties as We will assume if they give players things we will want those things to disappear.
+
+Order:
+Clickable
+Invisible
+Enable Colors
+Main player
+Click Change Scene
+Touch Change Scene
+Click Give Currency
+Touch Give Currency
+Click Give Object
+Touch Give object

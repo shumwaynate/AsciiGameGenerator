@@ -35,8 +35,14 @@ function launchGamePreview() {
     const userHeight = parseInt(localStorage.getItem('userHeight') || '400');
   
     // Calculate scaling factors based on the user input
+    // Calculate scaling factors based on the user input
     const scaleX = userWidth / 650; // base width of the editor
     const scaleY = userHeight / 400; // base height of the editor
+
+    const scaleFont = (scaleX + scaleY) / 2; // Average scale for font sizing
+    const baseFontSize = 15; // Editor base font size
+    const finalFontSize = baseFontSize * scaleFont;
+
   
     // === 2. Create CSS content for pop-up window ===
     const cssContent = `
@@ -60,6 +66,7 @@ function launchGamePreview() {
         position: absolute;
         cursor: pointer;
         white-space: pre;
+        font-size: ${finalFontSize}px;
       }
       button {
         margin: 5px;

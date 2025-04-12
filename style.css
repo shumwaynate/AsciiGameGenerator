@@ -130,6 +130,7 @@ button {
     cursor: pointer;
     white-space: pre;
     color: black;
+    font-size: 15px;
 }
 
 /* Selection Highlight */
@@ -142,3 +143,95 @@ button {
     background-color: #ffd700; /* Highlight color */
     font-weight: bold; /* Optional: Makes the highlighted item more visible */
 }
+
+
+#context-menu {
+    position: absolute;
+    display: none;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 12px;
+    border-radius: 8px;
+    width: 150px;
+    height: 200px;
+    overflow-y: auto;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    z-index: 1000;
+  }
+  
+  #context-menu strong {
+    font-size: 15px;
+    color: #333;
+    display: block;
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+  }
+  
+  #context-menu hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 10px 0;
+  }
+  
+  #context-menu label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    color: #444;
+  }
+  
+  #context-menu input[type="checkbox"] {
+    margin: 0;
+  }
+  
+  #context-menu input[type="color"],
+  #context-menu input[type="number"],
+  #context-menu select {
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  #context-menu select {
+    width: 100%;
+  }
+  
+  #context-menu input[type="color"] {
+    padding: 0;
+    width: 60px;
+    height: 28px;
+  }
+  
+  /* Inline color rows: Default, Hover, Click */
+  #context-menu #color-section label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  
+  /* Button styling */
+  #context-menu button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  #context-menu button:hover {
+    background-color: #c0392b;
+  }
+  
+  
