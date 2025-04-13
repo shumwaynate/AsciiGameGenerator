@@ -183,49 +183,23 @@ Next steps:
 
 # Update: 4-10-2025
 
+Properties and Features Update
+
 I have updated some more things and have fixed up some amazing problems I was facing previously! Here is a list of things that I have added(Not all 100% implemented):
--
--
--
+- I have moved the properties to be visible and adjustable using a "context menu" that pops up when you click on an object in the scene. This menu allows you to adjust the properties of the object besides name and color.
+-The property updates include as listed below, clickable, invisible, enable colors, main player, click/touch change scene(Scene loading into dropdowns implemented), click/touch give currency(Currencies and this functionality not implemented), and click/touch give object(Objects and this functionality not implemented). I will be adding a way to create currencies, objects, and a “player inventory” to hold them later.
+- As a big change to account for the way that websites work instead of trying to make a new website/path for a practice/render space, not possible for a realtime website, I decided to make a popout window the size of the requested pixels that will be a practice game area. It will render at the last saved/loaded scene and will be a separate window that can be closed or moved around. This will allow for a more realistic game testing experience. 
+- The now called Launch Game Window works as intended, having a play, pause, and reset button. The play button will start the game loop, ensuring all interactions function as expected. The pause button will temporarily disable keybinds and object interactions, allowing debugging or scene inspection. The reset button will reload the game state to its initial configuration, allowing quick testing of the game’s starting conditions.
+- Export and import functionality is now working, allowing users to save their game state and settings as a downloadable file. This file can be imported back into the editor, restoring the project to its previous state.
 
 
+On the way to getting implemented next
+-Added a way to create currencies, objects, and a “player inventory” to hold them later
+-player inventory?
 
-I have reviewed the structure and am looking at adjusting my definitions of objects and their properties to encompass more features of "games" below being a review of the properties I will be highlighting as changable/workable per each scene:
 
-Object Properties Needed:
-Clickable: in game object is clickable by user, if this is enabled other properties may or may not be usable for now just true or false
+I've recently expanded the structure of object properties within my game editor to support more robust and game-like behavior. Basic properties like clickable, visible, and main player are now formalized as toggleable states. Visibility now ties to transparency, while "main player" designates which object receives keyboard controls. A new collision property has been introduced to determine whether other objects can pass through. Color behavior has also been modularized into sub-properties—default, hover, and click—each with a toggle for activation and a color value, allowing for more dynamic interactions without visual edits in the context menu itself.
 
-Visible: property for if the object is visible, if set to true nothing, if set or made false it should make the text object color transparent. I want this property to include true or false then object default color, for now I don’t want default color adjusted here
+More complex behavior has also been integrated. Scene switching can now occur through either click or touch triggers, depending on whether the object is clickable or being contacted by the main player. Similarly, giving currency or objects has been enhanced to include a list selection of available resources, amount input (for currency), and an optional setting to delete the source object after transfer. These features can be triggered on click or touch depending on the object's configuration and the player's interaction.
 
-Enable Colors: I want this to include 3 sub dictionaries/parts: default, hover, and click. Default just having default color value. Hover and click I want individual dictionaries for each being 2 things, true or false, and color. If true then I want them to function as intended if false I don’t want them to work respectively.
-
-Main Player: this just need just true or false. This will determine if this object in that scene is the “main/controllable” character/object. For now this means this
-
-Now comes more complicated properties
-
-Click Switch Scene: I want this to have 2 parts like others before this one, a true or false and a list. I want the list to contain the names of all the currently saved scenes. I only want the switch scene to function if set to true and if Clickable is also set to true.
-
-Touch Switch Scene: I want this to have 2 parts like others before this one, a true or false and a list. I want the list to contain the names of all the currently saved scenes. I only want the switch scene to function if set to true and if an object with Main Player property true touches it.
-
-Click Give Currency: I want this to have 4 parts , a true or false, a list, a textbox which holds the amount to give, then another true or false. I want the list to contain the names of all the user created currencies. I only want this to function if first value set to true and if Clickable property is also set to true. Give players currency of the listed type and amount. Then if the 3rd part is set to true in game time and this is activated delete this object.
-
-Touch Give Currency: I want this to have 4 parts , a true or false, a list, a textbox which holds the amount to give, then another true or false. I want the list to contain the names of all the user created currencies.  I only want this to function if first vale is set to true and if an object with Main Player property true touches it. Give players currency of the listed type and amount. Then if the 3rd part is set to true in game time and this is activated delete this object.
-
-Click Give Object: I want this to have 3 parts , a true or false and a list, then another true or false. I want the list to contain the names of all the user created objects. I only want this to function if first value set to true and if Clickable property is also set to true. Then if the 3rd part is set to true in game time and this is activated delete this object.
-
-Touch Give Object: I want this to have 3 parts , a true or false and a list, then another true or false. I want the list to contain the names of all the user created currencies.  I only want this to function if first vale is set to true and if an object with Main Player property true touches it. Then if the 3rd part is set to true in game time and this is activated delete this object.
-
-I will be adding a way to create currencies, objects, and a “player inventory” to hold them later, this is just what I am wanting to be implemented. 
-I will start by telling how I want these properties to be saved. I would like these saved as I am currently saving the non functional properties. As to not change how the base website code is laid out, we have to set the properties into the context menu as desired. I want this menu to have 1 of these properties per row. I want them in this order. Keep in mind I want all of the true/false values to be checkboxes, and all set to false except the second true false values for the click/touch give currency/objects 4 properties as We will assume if they give players things we will want those things to disappear.
-
-Order:
-Clickable
-Invisible
-Enable Colors
-Main player
-Click Change Scene
-Touch Change Scene
-Click Give Currency
-Touch Give Currency
-Click Give Object
-Touch Give object
+All these properties are being saved in a structured and modular format, matching the revised object schema and maintaining backward compatibility with the rest of the editor. The context menu has been adapted to reflect each configurable property in its own row, with dropdowns, inputs, and checkboxes used as appropriate. Default states are false to prevent unintended behaviors, with exceptions made for properties that assume deletion after use (like giving items or currency). Systems for player inventory and currency creation are planned for upcoming phases, and these foundational structures ensure they will integrate smoothly.

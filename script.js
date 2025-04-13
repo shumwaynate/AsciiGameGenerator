@@ -117,34 +117,55 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     }
 
     const asciiObject = {
-        id: Date.now(),  // Add a unique ID using timestamp
-        element: artDiv, // Reference to the DOM element
-        ascii: asciiArt, // ASCII art content string
-        left: artDiv.style.left , // Save the initial position from the left
-        top: artDiv.style.top, // Save the initial position from the top
-        color: color || 'black',
-        hoverColor: null,
-        clickColor: null,
+        id: Date.now(),
+        element: artDiv,
+        ascii: asciiArt,
+        left: artDiv.style.left,
+        top: artDiv.style.top,
+        colors: {
+            default: color || '#000000',
+            hover: { enabled: false, color: '#000000' },
+            click: { enabled: false, color: '#000000' }
+        },
         clickable: false,
-        giveCurrency: false,
-        switchScene: false,
-        giveObject: false,
+        visible:true,
+        mainCharacter: false,
+        collision: true,
+        switchScene: {
+            enabled: false,
+            trigger: "click",
+            target: null
+        },
+        giveCurrency: {
+            enabled: false,
+            trigger: "click",
+            currency: null,
+            amount: 0,
+            deleteAfter: true
+        },
+        giveObject: {
+            enabled: false,
+            trigger: "click",
+            object: null,
+            deleteAfter: true
+        },
         targetScene: null,
         targetObjectName: null,
-        itemName: '' // Initialize item name as empty string
-    };
+        itemName: ''
+      };
+      
 
     asciiObjects.push(asciiObject); // Add the object to the global array of objects in current scene
 
     // Hover effect (Change color on hover)
     artDiv.addEventListener('mouseenter', () => {
-        if (asciiObject.hoverColor) {
-            artDiv.style.color = asciiObject.hoverColor;
+        if (asciiObject.colors?.hover?.enabled) {
+            artDiv.style.color = asciiObject.colors.hover.color;
         }
     });
     // Reset color on mouse leave
     artDiv.addEventListener('mouseleave', () => {
-        artDiv.style.color = asciiObject.color; // Reset to original color
+        artDiv.style.color = asciiObject.colors?.default || '#000000'; // Reset to original color
     });
 
     // Handle clicks to open context menu and select the object also delete objects
@@ -154,10 +175,10 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
         showContextMenu(e.clientX, e.clientY, asciiObject); // For the context menu
         
 
-        // Change color on click if a clickColor is set
-        if (asciiObject.clickColor) {
-            artDiv.style.color = asciiObject.clickColor;
-        }
+        // Change color on click if a clickColor is set and clickable is true
+        if (asciiObject.clickable && asciiObject.colors?.click?.enabled) {
+            artDiv.style.color = asciiObject.colors.click.color;
+          }
 
         // Remove previous listeners to prevent duplication
         const deleteItemButton = document.getElementById('delete-item');
@@ -219,22 +240,33 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
 
 
 function saveScene(sceneName) {
-    const artArray = asciiObjects.map(art => ({
-        ascii: art.ascii,
-        left: parseFloat(art.element.style.left), // Save as a number
-        top: parseFloat(art.element.style.top), // Save as a number
-        color: art.color,
-        hoverColor: art.hoverColor || null,
-        clickColor: art.clickColor || null,
-        clickable: art.clickable || false,
-        giveCurrency: art.giveCurrency || false,
-        switchScene: art.switchScene || false,
-        giveObject: art.giveObject || false,
-        targetScene: art.targetScene || null,
-        targetObjectName: art.targetObjectName || null,
-        itemName: art.itemName || '' // Save the item's name
-    })); // this is in the form artArray = [{ascii: "asciiArt", left: 0, top: 0, color: "black", etc}, {ascii: "asciiArt2", left: 0, top: 0, color: "black", etc}]
-    scenes[sceneName] = artArray;
+    scenes[sceneName] = asciiObjects.map(obj => ({
+        ascii: obj.ascii,
+        left: parseInt(obj.element.style.left),
+        top: parseInt(obj.element.style.top),
+        colors: {
+          default: obj.colors.default,
+          hover: {
+            enabled: obj.colors.hover.enabled,
+            color: obj.colors.hover.color
+          },
+          click: {
+            enabled: obj.colors.click.enabled,
+            color: obj.colors.click.color
+          }
+        },
+        clickable: obj.clickable,
+        visible:obj.visible,
+        mainCharacter: obj.mainCharacter,
+        collision: obj.collision,
+        giveCurrency: obj.giveCurrency,
+        switchScene: obj.switchScene,
+        giveObject: obj.giveObject,
+        targetScene: obj.targetScene,
+        targetObjectName: obj.targetObjectName,
+        itemName: obj.itemName
+    }));
+      
     alert(`Scene '${sceneName}' saved!`);
 }
 
@@ -242,32 +274,61 @@ function loadScene(sceneName) {
     if (scenes[sceneName]) {
         document.getElementById('ascii-display').innerHTML = '';
         asciiObjects = []; // Clear existing objects
-        scenes[sceneName].forEach(({ ascii, left, top, color, hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, itemName, targetScene, targetObjectName }) => {   
-            // Add ASCII art to the scene
-            addAsciiArt(ascii, left, top, color);
-            const artObject = asciiObjects[asciiObjects.length - 1]; //this 
-            
-            // // Assign additional properties
-            Object.assign(artObject, { hoverColor, clickColor, clickable, giveCurrency, switchScene, giveObject, itemName, targetScene, targetObjectName });
-            
+
+        scenes[sceneName].forEach(obj => {
+            // Backward compatibility for old color structure
+            const colors = obj.colors || {
+                default: obj.color || '#000000',
+                hover: { enabled: !!obj.hoverColor, color: obj.hoverColor || '#ff0000' },
+                click: { enabled: !!obj.clickColor, color: obj.clickColor || '#00ff00' }
+            };
+
+            // Add ASCII art to the scene using modular color.default
+            addAsciiArt(obj.ascii, obj.left, obj.top, colors.default);
+
+            const artObject = asciiObjects[asciiObjects.length - 1];
             const artDiv = artObject.element;
-            artDiv.style.color = color; // Set the color of the ASCII art
 
-            // Apply hover and click events (clearing previous ones if necessary)
-            artDiv.onmouseenter = hoverColor ? () => { artDiv.style.color = hoverColor; } : null;
-            artDiv.onmouseleave = hoverColor ? () => { artDiv.style.color = artObject.color; } : null;
+            // Assign the full color system and other properties
+            artObject.colors = colors;
+            artObject.clickable = obj.clickable;
+            artObject.mainCharacter = obj.mainCharacter;
+            artObject.visible = obj.visible;
+            artObject.collision = obj.collision ?? true;
+            artObject.switchScene = obj.switchScene ?? { enabled: false, trigger: "click", target: null };
+            artObject.giveCurrency = obj.giveCurrency ?? { enabled: false, trigger: "click", currency: null, amount: 0, deleteAfter: true };
+            artObject.giveObject = obj.giveObject ?? { enabled: false, trigger: "click", object: null, deleteAfter: true };
+            artObject.itemName = obj.itemName;
+            artObject.targetScene = obj.targetScene;
+            artObject.targetObjectName = obj.targetObjectName;
 
-            artDiv.onmousedown = clickColor ? () => { artDiv.style.color = clickColor; } : null;
-            artDiv.onmouseup = clickColor ? () => { artDiv.style.color = artObject.color; } : null;
+            // Set initial color
+            artDiv.style.color = colors.default;
+
+            // Clear previous events and apply new ones using modular structure
+            artDiv.onmouseenter = colors.hover.enabled ? () => {
+                artDiv.style.color = colors.hover.color;
+            } : null;
+
+            artDiv.onmouseleave = () => {
+                artDiv.style.color = colors.default;
+            };
+
+            artDiv.onmousedown = colors.click.enabled ? () => {
+                artDiv.style.color = colors.click.color;
+            } : null;
+
+            artDiv.onmouseup = () => {
+                artDiv.style.color = colors.default;
+            };
         });
 
-        currentScene = sceneName; // Update the current scene in global variable
-
-        // alert(`Scene '${sceneName}' loaded!`); // Alert the user that the scene was loaded
+        currentScene = sceneName; // Update global scene state
     } else {
         alert(`Scene '${sceneName}' does not exist!`);
     }
 }
+
 
 document.getElementById('delete-selected-item').addEventListener('click', () => {
     if (selectedAsciiArt) {
@@ -296,11 +357,40 @@ function showContextMenu(x, y, asciiObject) {
     contextMenu.style.top = `${artRect.top + offsetY}px`; // Adjust the position from the top
     contextMenu.style.display = 'block';  
 
+
+    // Set the context menu options based on the clicked object, this does the updating
+    document.getElementById('prop-clickable').checked = asciiObject.clickable;
+    document.getElementById('prop-invisible').checked = !asciiObject.visible;
+    document.getElementById('prop-main-player').checked = asciiObject.mainCharacter;
+
+    document.getElementById('prop-collision').checked = asciiObject.collision;
+
+    document.getElementById('prop-switch-scene-enabled').checked = asciiObject.switchScene.enabled;
+    document.getElementById('switch-scene-trigger').value = asciiObject.switchScene.trigger;
+    document.getElementById('switch-scene-list').value = asciiObject.switchScene.target;
+
+    document.getElementById('prop-give-currency-enabled').checked = asciiObject.giveCurrency.enabled;
+    document.getElementById('give-currency-trigger').value = asciiObject.giveCurrency.trigger;
+    document.getElementById('give-currency-list').value = asciiObject.giveCurrency.currency;
+    document.getElementById('give-currency-amount').value = asciiObject.giveCurrency.amount;
+    document.getElementById('give-currency-delete-after').checked = asciiObject.giveCurrency.deleteAfter;
+
+    document.getElementById('prop-give-object-enabled').checked = asciiObject.giveObject.enabled;
+    document.getElementById('give-object-trigger').value = asciiObject.giveObject.trigger;
+    document.getElementById('give-object-list').value = asciiObject.giveObject.object;
+    document.getElementById('give-object-delete-after').checked = asciiObject.giveObject.deleteAfter;
+
+
+    // Disable interaction if no object is selected
+    selectedAsciiArt = asciiObject;
+
+
 }
 
 // Hide the context menu when clicking outside
 document.getElementById('close-context-menu').addEventListener('click', function() {
     document.getElementById('context-menu').style.display = 'none';
+    refreshItemsInSceneBox(); // Refresh the items in the scene box and everything
   });
   
 
@@ -373,116 +463,148 @@ document.addEventListener('click', function(event) {
 
 // Update the property box with selected object's properties
 function updatePropertyBox(asciiObject) {
-    // Update checkbox states
-    document.getElementById('clickable').checked = asciiObject.clickable;
-    document.getElementById('give-currency').checked = asciiObject.giveCurrency;
-    document.getElementById('switch-scene').checked = asciiObject.switchScene;
-    document.getElementById('give-object').checked = asciiObject.giveObject;
-
     // Update Name Text Box
-    document.getElementById('item-name').value = asciiObject.itemName;
+    const nameInput = document.getElementById('item-name');
 
-    // Update color inputs
+    // Color Inputs
     const defaultColorInput = document.getElementById('default-color');
     const hoverColorInput = document.getElementById('hover-color');
     const clickColorInput = document.getElementById('click-color');
 
-    let itemNameInput1 = document.getElementById('item-name');
+    // Enable Color Checkboxes
+    const hoverEnabledCheckbox = document.getElementById('enable-hover-color');
+    const clickEnabledCheckbox = document.getElementById('enable-click-color');
 
-    // Remove existing event listeners by cloning inputs
-    const clonedDefaultColorInput = defaultColorInput.cloneNode(true);
-    const clonedHoverColorInput = hoverColorInput.cloneNode(true);
-    const clonedClickColorInput = clickColorInput.cloneNode(true);
+    // === Remove old event listeners by cloning elements ===
+    const newDefaultColorInput = defaultColorInput.cloneNode(true);
+    const newHoverColorInput = hoverColorInput.cloneNode(true);
+    const newClickColorInput = clickColorInput.cloneNode(true);
+    const newNameInput = nameInput.cloneNode(true);
+    const newHoverEnabledCheckbox = hoverEnabledCheckbox.cloneNode(true);
+    const newClickEnabledCheckbox = clickEnabledCheckbox.cloneNode(true);
 
-    let clonedItemNameInput = itemNameInput1.cloneNode(true);
+    defaultColorInput.replaceWith(newDefaultColorInput);
+    hoverColorInput.replaceWith(newHoverColorInput);
+    clickColorInput.replaceWith(newClickColorInput);
+    nameInput.replaceWith(newNameInput);
+    hoverEnabledCheckbox.replaceWith(newHoverEnabledCheckbox);
+    clickEnabledCheckbox.replaceWith(newClickEnabledCheckbox);
 
-    defaultColorInput.replaceWith(clonedDefaultColorInput);
-    hoverColorInput.replaceWith(clonedHoverColorInput);
-    clickColorInput.replaceWith(clonedClickColorInput);
+    // === Set initial values ===
+    newDefaultColorInput.value = asciiObject.colors?.default || '#000000';
+    newHoverColorInput.value = asciiObject.colors?.hover?.color || '#000000';
+    newClickColorInput.value = asciiObject.colors?.click?.color || '#000000';
 
-    itemNameInput1.replaceWith(clonedItemNameInput);
+    newHoverEnabledCheckbox.checked = asciiObject.colors?.hover?.enabled || false;
+    newClickEnabledCheckbox.checked = asciiObject.colors?.click?.enabled || false;
 
-    // Re-assign the updated inputs
-    const updatedDefaultColorInput = document.getElementById('default-color');
-    const updatedHoverColorInput = document.getElementById('hover-color');
-    const updatedClickColorInput = document.getElementById('click-color');
+    newNameInput.value = asciiObject.itemName || '';
 
-    let updatedNameInput = document.getElementById('item-name');
+    // === Add new event listeners ===
 
-    // Set the current color values for the selected object
-    updatedDefaultColorInput.value = asciiObject.color || '#000000';
-    updatedHoverColorInput.value = asciiObject.hoverColor || '#000000';
-    updatedClickColorInput.value = asciiObject.clickColor || '#000000';
-
-    updatedNameInput.value = asciiObject.itemName || '';
-
-    // Event listeners for color inputs to update properties dynamically
-    updatedDefaultColorInput.addEventListener('input', function () {
-        if (selectedAsciiArt) {
-            const newColor = this.value; // Get the selected color value
-            selectedAsciiArt.element.style.color = newColor; // Update the element's color
-            selectedAsciiArt.color = newColor; // Save the color to the object's properties
-        }
+    // Update default color
+    newDefaultColorInput.addEventListener('input', function () {
+        asciiObject.colors.default = this.value;
+        asciiObject.element.style.color = this.value;
     });
 
-    updatedHoverColorInput.addEventListener('input', function () {
-        asciiObject.hoverColor = this.value;
+    // Update hover color and flag
+    newHoverColorInput.addEventListener('input', function () {
+        asciiObject.colors.hover.color = this.value;
     });
 
-    updatedClickColorInput.addEventListener('input', function () {
-        asciiObject.clickColor = this.value;
+    newHoverEnabledCheckbox.addEventListener('change', function () {
+        asciiObject.colors.hover.enabled = this.checked;
     });
 
-    // Event listener for "clickable" checkbox
-    const clickableCheckbox = document.getElementById('clickable');
-    clickableCheckbox.addEventListener('change', () => {
-        if (clickableCheckbox.checked) {
-            enableClickable(asciiObject); // Call the function to enable "clickable"
-        } else {
-            disableClickable(asciiObject); // Call the function to disable "clickable" (if implemented)
-        }
+    // Update click color and flag
+    newClickColorInput.addEventListener('input', function () {
+        asciiObject.colors.click.color = this.value;
     });
 
-    // Listen for changes in the item name input box
-    updatedNameInput.addEventListener('input', function() {
-        // Dynamically update the object's name as you type
-        asciiObject.itemName = updatedNameInput.value;
+    newClickEnabledCheckbox.addEventListener('change', function () {
+        asciiObject.colors.click.enabled = this.checked;
+    });
 
+    // Update name
+    newNameInput.addEventListener('input', function () {
+        asciiObject.itemName = this.value;
         refreshItemsInSceneBox();
-        
     });
-}
 
+    // Clickable checkbox (if you decide to keep it for debugging or dev)
+    const clickableCheckbox = document.getElementById('clickable');
+    if (clickableCheckbox) {
+        clickableCheckbox.checked = asciiObject.clickable || false;
+        clickableCheckbox.addEventListener('change', () => {
+            asciiObject.clickable = clickableCheckbox.checked;
+            if (clickableCheckbox.checked) {
+                enableClickable(asciiObject);
+            } else {
+                disableClickable(asciiObject);
+            }
+        });
+    }
+}
 
 // Save properties
 document.getElementById('save-properties').addEventListener('click', () => {
     if (selectedAsciiArt) {
-        const clickable = document.getElementById('clickable').checked;
-        const giveCurrency = document.getElementById('give-currency').checked;
-        const switchScene = document.getElementById('switch-scene').checked;
-        const giveObject = document.getElementById('give-object').checked;
+        // Save the name
+        const itemName = document.getElementById('item-name').value;
+        selectedAsciiArt.itemName = itemName;
 
-        selectedAsciiArt.clickable = clickable;
-        selectedAsciiArt.giveCurrency = giveCurrency;
-        selectedAsciiArt.switchScene = switchScene;
-        selectedAsciiArt.giveObject = giveObject;
-
-        if (switchScene) {
-            selectedAsciiArt.targetScene = prompt("Enter the target scene name for transition:");
+        // Save the clickable state
+        const clickable = document.getElementById('clickable');
+        if (clickable) {
+            selectedAsciiArt.clickable = clickable.checked;
         }
 
-        if (giveObject) {
-            selectedAsciiArt.targetObjectName = prompt("Enter the target object name to enable clickability:");
-        }
+        // Save default color
+        selectedAsciiArt.colors.default = document.getElementById('default-color').value;
 
-        // Ensure the property box only updates for the selected object
+        // Save hover color and flag
+        selectedAsciiArt.colors.hover.color = document.getElementById('hover-color').value;
+        selectedAsciiArt.colors.hover.enabled = document.getElementById('enable-hover-color').checked;
+
+        // Save click color and flag
+        selectedAsciiArt.colors.click.color = document.getElementById('click-color').value;
+        selectedAsciiArt.colors.click.enabled = document.getElementById('enable-click-color').checked;
+
+        // Immediately apply the default color to the element
+        selectedAsciiArt.element.style.color = selectedAsciiArt.colors.default;
+
+        selectedAsciiArt.collision = document.getElementById('prop-collision').checked;
+
+        // save states for the other properties
+        selectedAsciiArt.switchScene = {
+        enabled: document.getElementById('prop-switch-scene-enabled').checked,
+        trigger: document.getElementById('switch-scene-trigger').value,
+        target: document.getElementById('switch-scene-list').value
+        };
+
+        selectedAsciiArt.giveCurrency = {
+        enabled: document.getElementById('prop-give-currency-enabled').checked,
+        trigger: document.getElementById('give-currency-trigger').value,
+        currency: document.getElementById('give-currency-list').value,
+        amount: parseInt(document.getElementById('give-currency-amount').value),
+        deleteAfter: document.getElementById('give-currency-delete-after').checked
+        };
+
+        selectedAsciiArt.giveObject = {
+        enabled: document.getElementById('prop-give-object-enabled').checked,
+        trigger: document.getElementById('give-object-trigger').value,
+        object: document.getElementById('give-object-list').value,
+        deleteAfter: document.getElementById('give-object-delete-after').checked
+        };
+
+
+        // Update the property box and scene panel
         updatePropertyBox(selectedAsciiArt);
-
-        // Update the highlight in the "Items in Scene" panel
-        updateScenePanelHighlight(asciiObject);
-        
+        updateScenePanelHighlight(selectedAsciiArt);
     }
 });
+
 
 // Handle click actions for clickable objects
 function performClickableActions(asciiObject) {
@@ -509,13 +631,6 @@ function findObjectByName(name) {
     return asciiObjects.find(obj => obj.targetObjectName === name);
 }
 
-// Enable or disable properties based on clickability
-document.getElementById('clickable').addEventListener('change', function() {
-    const isChecked = this.checked;
-    document.getElementById('give-currency').disabled = !isChecked;
-    document.getElementById('switch-scene').disabled = !isChecked;
-    document.getElementById('give-object').disabled = !isChecked;
-});
 
 // Event listener for adding custom keybindings
 // Add a new keybinding
@@ -548,6 +663,11 @@ function updateItemsInSceneBox() {
         listItem.addEventListener('click', () => {
             selectAsciiObject(asciiObject);
             highlightSelectedListItem(listItem);
+
+            // // Get position of the object on screen to position the context menu when clicked, not currently used
+            // const artRect = asciiObject.element.getBoundingClientRect();
+            // alert(`Selected: ${asciiObject.itemName || `Object ${index + 1}`} to open context menu, positioning at (${artRect.left}, ${artRect.top})`);
+            // showContextMenu(artRect.left, artRect.top, asciiObject);
         });
 
         objectList.appendChild(listItem);
@@ -578,6 +698,7 @@ function updateKeyBindingsList() {
 function refreshItemsInSceneBox() {
     updateItemsInSceneBox();
     updateKeyBindingsList();
+    initializeContextMenuEvents(); // Initialize context menu events
 }
 
 
@@ -607,8 +728,141 @@ document.getElementById('settings-button').addEventListener('click', () => {
 window.addEventListener('load', () => {
     loadGameState() // Load the saved game state from localStorage
     refreshItemsInSceneBox(); // Refresh the items in the scene box
-
+    
 });
+
+// Setup context menu behavior for object-specific property changes
+function initializeContextMenuEvents() {
+    populateSceneDropdown();// Populate the scene dropdown with available scenes
+
+    // Clickable toggle
+    document.getElementById('prop-clickable').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.clickable = this.checked;
+      }
+    });
+  
+    // Main Player toggle
+    document.getElementById('prop-main-player').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.mainCharacter = this.checked;
+      }
+    });
+  
+    // Collision toggle
+    document.getElementById('prop-collision').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.collision = this.checked;
+      }
+    });
+  
+    // Invisible toggle
+    document.getElementById('prop-invisible').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.visible = !this.checked;
+        selectedAsciiArt.element.style.opacity = this.checked ? "0" : "1";
+      }
+    });
+  
+    // SWITCH SCENE
+    document.getElementById('prop-switch-scene-enabled').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.switchScene.enabled = this.checked;
+      }
+    });
+  
+    document.getElementById('switch-scene-trigger').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.switchScene.trigger = this.value;
+      }
+    });
+  
+    document.getElementById('switch-scene-list').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.switchScene.target = this.value;
+      }
+    });
+  
+    // GIVE CURRENCY
+    document.getElementById('prop-give-currency-enabled').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.giveCurrency.enabled = this.checked;
+      }
+    });
+  
+    document.getElementById('give-currency-trigger').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.giveCurrency.trigger = this.value;
+      }
+    });
+  
+    document.getElementById('give-currency-list').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.giveCurrency.currency = this.value;
+      }
+    });
+  
+    document.getElementById('give-currency-amount').addEventListener('input', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.giveCurrency.amount = parseInt(this.value) || 0;
+      }
+    });
+  
+    document.getElementById('give-currency-delete-after').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.giveCurrency.deleteAfter = this.checked;
+      }
+    });
+  
+    // GIVE OBJECT
+    document.getElementById('prop-give-object-enabled').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.giveObject.enabled = this.checked;
+      }
+    });
+  
+    document.getElementById('give-object-trigger').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.giveObject.trigger = this.value;
+      }
+    });
+  
+    document.getElementById('give-object-list').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.giveObject.object = this.value;
+      }
+    });
+  
+    document.getElementById('give-object-delete-after').addEventListener('change', function () {
+      if (selectedAsciiArt) {
+        selectedAsciiArt.giveObject.deleteAfter = this.checked;
+      }
+    });
+}
+
+function populateSceneDropdown() {
+    const dropdown = document.getElementById('switch-scene-list');
+    dropdown.innerHTML = ''; // Clear existing options
+  
+    // Add a default placeholder
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = '-- Select Scene --';
+    dropdown.appendChild(defaultOption);
+  
+    // Add each scene from the current scenes object
+    Object.keys(scenes).forEach(sceneName => {
+      const option = document.createElement('option');
+      option.value = sceneName;
+      option.textContent = sceneName;
+      dropdown.appendChild(option);
+    });
+}
+  
+
+
+  
+  
 
 // function for clearing local storage using button with id clear-storage
 document.getElementById('clear-storage').addEventListener('click', () => {

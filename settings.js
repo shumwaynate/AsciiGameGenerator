@@ -53,7 +53,7 @@ function importEditorSettings(event) {
                 localStorage.setItem('gameState', JSON.stringify(importData.gameState));
             }
 
-            alert('Project imported successfully! Click "Return to Index" to see the restored game.');
+            alert('Project imported successfully! Click "Return to Editor" to see the restored game.');
         } catch (error) {
             console.error('Error importing settings:', error);
             alert('Invalid file format. Please select a valid exported project file.');
@@ -96,10 +96,4 @@ if (savedSettings) {
 document.getElementById('home-button')?.addEventListener('click', () => {
     console.log("Navigating back to index.html");
     window.location.href = 'index.html'; 
-});
-
-// test scene button navigation
-document.getElementById('test-button')?.addEventListener('click', () => {
-    console.log("Navigating back to game_window.html");
-    window.location.href = '/game_window/game_window.html'; 
 });

@@ -4,22 +4,13 @@
 // independent game format.
 // This script will then use the 3 files to make a popup window with the game loaded locally to avoid trying to adjust the website organization.
 
-
-// file: export_converter.js
-
-// Function to launch the game preview
 function launchGamePreview() {
-
-    // Get the values from the input fields 
     const userWidthset = document.getElementById('screenWidth').value;
     const userHeightset = document.getElementById('screenHeight').value;
-
-    // Save the values into localStorage
+  
     localStorage.setItem('userWidth', userWidthset);
     localStorage.setItem('userHeight', userHeightset);
-
-
-    // Get gameState from localStorage
+  
     const gameState = JSON.parse(localStorage.getItem('gameState'));
     if (!gameState) {
       alert("No game state found in localStorage.");
@@ -27,28 +18,18 @@ function launchGamePreview() {
     }
   
     const currentScene = gameState.saveCurrentScene;
-    const sceneList = gameState.sceneList;
-    const keyBindings = gameState.saveCustomKeyBindings;
-  
-    // === 1. Retrieve user-defined dimensions from settings.html ===
     const userWidth = parseInt(localStorage.getItem('userWidth') || '650');
     const userHeight = parseInt(localStorage.getItem('userHeight') || '400');
-  
-    // Calculate scaling factors based on the user input
-    // Calculate scaling factors based on the user input
-    const scaleX = userWidth / 650; // base width of the editor
-    const scaleY = userHeight / 400; // base height of the editor
-
-    const scaleFont = (scaleX + scaleY) / 2; // Average scale for font sizing
-    const baseFontSize = 15; // Editor base font size
+    const scaleX = userWidth / 650;
+    const scaleY = userHeight / 400;
+    const scaleFont = (scaleX + scaleY) / 2;
+    const baseFontSize = 15;
     const finalFontSize = baseFontSize * scaleFont;
-
   
-    // === 2. Create CSS content for pop-up window ===
     const cssContent = `
       body {
-        background-color: #111;
-        color: #eee;
+        background-color: #ffffff;
+        color: #000000;
         font-family: monospace;
         padding: 20px;
         position: relative;
@@ -59,7 +40,7 @@ function launchGamePreview() {
         margin-bottom: 20px;
         height: ${userHeight}px;
         width: ${userWidth}px;
-        background-color: #222;
+        background-color: #f5f5f5;
         overflow: hidden;
       }
       .asciiObject {
@@ -76,83 +57,193 @@ function launchGamePreview() {
       }
     `;
   
-    // === 3. JavaScript logic for scaling and rendering the game ===
     const jsContent = `
       const gameState = ${JSON.stringify(gameState)};
-  
+      const scaleX = ${scaleX};
+      const scaleY = ${scaleY};
       let playing = false;
+      let mainPlayerObj = null;
+      let sceneObjects = [];
+      const keysPressed = new Set();
+  
+      function switchToScene(sceneId) {
+        console.log("Switching to scene:", sceneId);
+        renderScene(sceneId);
+      }
   
       function renderScene(sceneId) {
-        const sceneObjects = gameState.sceneList[sceneId] || [];
+        sceneObjects = [];
         const container = document.getElementById('gameArea');
         container.innerHTML = "";
+        const objects = gameState.sceneList[sceneId] || [];
   
-        sceneObjects.forEach(obj => {
+        objects.forEach(obj => {
           const div = document.createElement('div');
           div.textContent = obj.ascii;
           div.classList.add('asciiObject');
   
-          // Apply scaling to position and size
-          div.style.left = (obj.left * ${scaleX}) + "px";
-          div.style.top = (obj.top * ${scaleY}) + "px";
-          div.style.color = obj.color;
+          const left = obj.left * scaleX;
+          const top = obj.top * scaleY;
   
-          // Hover + click effects
-          div.addEventListener('mouseenter', () => {
-            if (obj.hoverColor) div.style.color = obj.hoverColor;
-          });
-          div.addEventListener('mouseleave', () => {
-            div.style.color = obj.color;
-          });
-          div.addEventListener('click', () => {
-            if (obj.clickable && obj.clickColor) {
-              div.style.color = obj.clickColor;
-              console.log("Clicked:", obj.ascii);
-            }
-          });
+          div.style.left = left + "px";
+          div.style.top = top + "px";
+          div.style.color = obj.colors?.default || "#fff";
+  
+          if (obj.colors?.hover?.enabled) {
+            div.addEventListener('mouseenter', () => {
+              div.style.color = obj.colors.hover.color;
+            });
+            div.addEventListener('mouseleave', () => {
+              div.style.color = obj.colors.default;
+            });
+          }
+  
+          if (obj.clickable) {
+            div.addEventListener('click', () => {
+              if (obj.colors?.click?.enabled) {
+                div.style.color = obj.colors.click.color;
+              }
+              if (obj.switchScene?.enabled && obj.switchScene.trigger === 'click' && obj.switchScene.target) {
+                switchToScene(obj.switchScene.target);
+              }
+            });
+          }
   
           container.appendChild(div);
+  
+          const scaledObj = {
+            ...obj,
+            element: div,
+            left,
+            top,
+            width: div.offsetWidth,
+            height: div.offsetHeight
+          };
+          sceneObjects.push(scaledObj);
+  
+          if (obj.mainCharacter) {
+            mainPlayerObj = {
+              element: div,
+              objData: obj,
+              x: left,
+              y: top,
+              width: div.offsetWidth,
+              height: div.offsetHeight
+            };
+          }
         });
+      }
+  
+      function isColliding(a, b) {
+        return !(
+          a.x + a.width < b.left ||
+          a.x > b.left + b.width ||
+          a.y + a.height < b.top ||
+          a.y > b.top + b.height
+        );
+      }
+  
+      function moveMainPlayer(dx, dy) {
+        if (!mainPlayerObj) return;
+  
+        const proposedX = mainPlayerObj.x + dx;
+        const proposedY = mainPlayerObj.y + dy;
+  
+        const virtualPlayer = {
+          x: proposedX,
+          y: proposedY,
+          width: mainPlayerObj.width,
+          height: mainPlayerObj.height
+        };
+  
+        let blocked = false;
+  
+        for (let obj of sceneObjects) {
+          if (obj.element === mainPlayerObj.element) continue;
+  
+          const otherObj = {
+            left: obj.left,
+            top: obj.top,
+            width: obj.width,
+            height: obj.height
+          };
+  
+          if (isColliding(virtualPlayer, otherObj)) {
+            if (obj.switchScene?.enabled && obj.switchScene.trigger === "touch" && obj.switchScene.target) {
+              console.log(\`Touch-triggered scene switch from \${obj.itemName || obj.ascii} → scene \${obj.switchScene.target}\`);
+              switchToScene(obj.switchScene.target);
+              return;
+            }
+  
+            if (obj.collision !== false) {
+              blocked = true;
+              break;
+            }
+          }
+        }
+  
+        if (!blocked) {
+          mainPlayerObj.x = Math.max(0, Math.min(proposedX, ${userWidth} - mainPlayerObj.width));
+          mainPlayerObj.y = Math.max(0, Math.min(proposedY, ${userHeight} - mainPlayerObj.height));
+          mainPlayerObj.element.style.left = mainPlayerObj.x + "px";
+          mainPlayerObj.element.style.top = mainPlayerObj.y + "px";
+        }
+      }
+  
+      function setupKeyBindings() {
+        document.addEventListener('keydown', (e) => {
+          keysPressed.add(e.key.toLowerCase());
+        });
+  
+        document.addEventListener('keyup', (e) => {
+          keysPressed.delete(e.key.toLowerCase());
+        });
+      }
+  
+      function gameLoop() {
+        if (playing && mainPlayerObj) {
+          let dx = 0;
+          let dy = 0;
+  
+          if (keysPressed.has('w')) dy -= 3;
+          if (keysPressed.has('s')) dy += 3;
+          if (keysPressed.has('a')) dx -= 3;
+          if (keysPressed.has('d')) dx += 3;
+  
+          if (dx !== 0 || dy !== 0) {
+            moveMainPlayer(dx, dy);
+          }
+        }
+  
+        requestAnimationFrame(gameLoop);
       }
   
       function playGame() {
         playing = true;
-        console.log("Game started.");
         renderScene(gameState.saveCurrentScene);
+        setupKeyBindings();
+        requestAnimationFrame(gameLoop);
       }
   
       function pauseGame() {
         playing = false;
-        console.log("Game paused.");
       }
   
       function resetGame() {
         playing = false;
         renderScene(gameState.saveCurrentScene);
-        console.log("Game reset.");
       }
   
       function returnToSettings() {
         window.close();
       }
   
-      function setupKeyBindings() {
-        const bindings = gameState.saveCustomKeyBindings;
-        window.addEventListener('keydown', (e) => {
-          const action = bindings[e.key];
-          if (action) {
-            console.log(\`Key '\${e.key}' triggers action: \${action}\`);
-          }
-        });
-      }
-  
       window.onload = () => {
         renderScene(gameState.saveCurrentScene);
-        setupKeyBindings();
+        setTimeout(() => playGame(), 100);
       };
     `;
   
-    // === 4. HTML template for game window ===
     const htmlTemplate = `
       <!DOCTYPE html>
       <html>
@@ -172,7 +263,6 @@ function launchGamePreview() {
       </html>
     `;
   
-    // === 5. Create blobs for CSS and JS ===
     const cssBlob = new Blob([cssContent], { type: 'text/css' });
     const jsBlob = new Blob([jsContent], { type: 'application/javascript' });
     const cssUrl = URL.createObjectURL(cssBlob);
@@ -182,15 +272,13 @@ function launchGamePreview() {
       .replace("STYLE_URL", cssUrl)
       .replace("SCRIPT_URL", jsUrl);
   
-    // === 6. Open the pop-up window ===
-    const gameWindow = window.open('', '_blank', `width=${userWidth+100},height=${userHeight+100}`);
-  
+    const gameWindow = window.open('', '_blank', `width=${userWidth + 100},height=${userHeight + 100}`);
     if (gameWindow) {
       gameWindow.document.open();
       gameWindow.document.write(finalHtml);
+      gameWindow.focus();
       gameWindow.document.close();
     } else {
       alert("Popup blocked. Please enable pop-ups for this site.");
     }
   }
-  
