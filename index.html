@@ -1,5 +1,5 @@
 <!-- index.html -->
- 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,12 +98,13 @@
   <div id="property-box" class="panel-box">
     <div class="panel-header">Properties</div>
     <div class="panel-content">
-      <label id="current-object-name" for="item-name">Item Name:</label>
+      <h4>Item Name:</h4><br>
       <input type="text" id="item-name" placeholder="Enter item name" />
       <br />
-      <button id="delete-selected-item">Delete Selected</button> <br><br/>
+      <button id="delete-selected-item">Delete Selected</button> <br>
+      <hr />
 
-      <h3>Color Management</h3>
+      <h4>Color Management</h4><br>
       <label for="default-color">Default Color:</label>
       <input type="color" id="default-color"><br />
       <label for="hover-color">Hover Color:</label>
@@ -119,7 +120,7 @@
     <div class="panel-header">Global Settings</div>
     <div class="panel-content">
       <div>
-        <h4>Keybind Configuration</h4>
+        <h4>Keybind Configuration</h4> <br>
         <label for="global-key-input">Key:</label>
         <input type="text" id="global-key-input" placeholder="e.g., 'm' for map" />
         <label for="global-action-select">Action:</label>
@@ -129,45 +130,51 @@
           <option value="pauseGame">Pause Game</option>
           <option value="customAction">Custom Action</option>
         </select>
-        <button id="add-global-keybinding">Add Global Keybind</button>
+        <button id="add-global-keybinding">Add Keybind</button>
       </div>
+      <hr />
 
       <div>
-        <h4>RPG Mechanics</h4>
+        <h4>RPG Mechanics(Not Implemented)</h4> <br>
         <label><input type="checkbox" id="enable-rpg-mechanics" /> Enable RPG Features</label>
       </div>
+      <hr />
 
       <div>
-        <h4>Currency System</h4>
+        <h4>Currency System(Not Implemented)</h4> <br>
         <button id="manage-currencies">Manage Currencies</button>
       </div>
+      <hr />
 
       <div>
-        <h4>Toolbar / Inventory</h4>
+        <h4>Toolbar / Inventory(Not Implemented)</h4> <br>
         <label><input type="checkbox" id="enable-toolbar" /> Enable Persistent Toolbar</label><br />
         <label><input type="checkbox" id="enable-inventory" /> Enable Inventory Popup</label>
       </div>
+      <br>
     </div>
   </div>
 
   <!-- Items in Scene Box -->
   <div id="items-in-scene-box" class="panel-box">
-    <div class="panel-header">Items in Scene</div>
+    <div class="panel-header">Items in Scene</div> 
     <div class="panel-content">
       <div id="objects-list">
-        <h4>Objects in Render Area:</h4>
+        <h4>Objects in Render Area:</h4><br>
         <ul id="object-list"></ul>
       </div>
+      <hr />
 
       <div id="scene-count">
-        <h4>Scene Count: <span id="scene-total">0</span></h4>
+        <h4>Scene Count: <span id="scene-total">0</span></h4> <br>
         <ul id="scene-list"></ul>
       </div>
+      <hr />
 
       <div id="keybindings-list">
-        <h4>Enabled Keybinds:</h4>
+        <h4>Enabled Keybinds:</h4> <br>
         <ul id="keybindings-ul"></ul>
-      </div>
+      </div> <br>
     </div>
   </div>
 

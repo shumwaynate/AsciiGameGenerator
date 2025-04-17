@@ -268,6 +268,7 @@ function saveScene(sceneName) {
     }));
       
     alert(`Scene '${sceneName}' saved!`);
+    updateSceneList(); // Updates the scene list on save scene
 }
 
 function loadScene(sceneName) {
@@ -327,6 +328,7 @@ function loadScene(sceneName) {
     } else {
         alert(`Scene '${sceneName}' does not exist!`);
     }
+    updateSceneList(); // Updates the scene list on load scene
 }
 
 
@@ -634,18 +636,19 @@ function findObjectByName(name) {
 
 // Event listener for adding custom keybindings
 // Add a new keybinding
-// document.getElementById('add-key-binding').addEventListener('click', () => {
-//     const key = document.getElementById('key-input').value;
-//     const action = document.getElementById('action-select').value;
+document.getElementById('add-global-keybinding').addEventListener('click', () => {
+    const key = document.getElementById('global-key-input').value;
+    const action = document.getElementById('global-action-select').value;
 
-//     if (key && action) {
-//         keyBindings[key] = action; // Add to keyBindings object
-//         updateKeyBindingsList(); // Refresh the keybindings list
-//         document.getElementById('key-input').value = ''; // Clear input field
-//     } else {
-//         alert('Please enter a key and select an action.');
-//     }
-// });
+    if (key && action) {
+        keyBindings[key] = action; // Add to keyBindings object
+        updateKeyBindingsList(); // Refresh the keybindings list
+        document.getElementById('global-key-input').value = ''; // Clear input field
+        saveGameState() // Save new keybinds to save state
+    } else {
+        alert('Please enter a key and select an action.');
+    }
+});
 
 //Updating items in scene box
 
@@ -683,22 +686,80 @@ function highlightSelectedListItem(selectedItem) {
 
 
 // Update the list of keybindings
-function updateKeyBindingsList() {
-    const keyBindingsList = document.getElementById('keybindings-ul');
-    keyBindingsList.innerHTML = ''; // Clear the current list
+// function updateKeyBindingsList() {
+//     const keyBindingsList = document.getElementById('keybindings-ul');
+//     keyBindingsList.innerHTML = ''; // Clear the current list
 
-    Object.entries(keyBindings).forEach(([key, action]) => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `${key} for ${action}`;
-        keyBindingsList.appendChild(listItem);
+//     Object.entries(keyBindings).forEach(([key, action]) => {
+//         const listItem = document.createElement('li');
+//         listItem.textContent = `${key} for ${action}`;
+//         keyBindingsList.appendChild(listItem);
+//     });
+// }
+
+function updateKeybindList() {
+    const ul = document.getElementById('keybindings-ul');
+    ul.innerHTML = '';
+
+    for (const key in keyBindings) {
+        const li = document.createElement('li');
+        li.textContent = `${key}: ${keyBindings[key]}`;
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '✖';
+        delBtn.classList.add('delete-x');
+        delBtn.addEventListener('click', () => {
+            if (confirm(`Delete keybind for '${key}'?`)) {
+                delete keyBindings[key];
+                updateKeybindList();
+                saveGameState()
+            }
+        });
+
+        li.appendChild(delBtn);
+        ul.appendChild(li);
+    }
+}
+
+// Update the Scenes in list when called
+function updateSceneList() {
+    const sceneList = document.getElementById('scene-list');
+    const total = document.getElementById('scene-total');
+
+    sceneList.innerHTML = '';
+    const sceneKeys = Object.keys(scenes);
+    total.textContent = sceneKeys.length;
+
+    sceneKeys.forEach(sceneName => {
+        const li = document.createElement('li');
+        li.textContent = sceneName;
+
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '✖';
+        delBtn.classList.add('delete-x');
+        delBtn.addEventListener('click', () => {
+            if (confirm(`Are you sure you want to delete scene: "${sceneName}"?`)) {
+                delete scenes[sceneName];
+                updateSceneList();
+                saveGameState();
+            }
+        });
+
+        li.appendChild(delBtn);
+        sceneList.appendChild(li);
     });
 }
+
+
+
 
 // Call this function whenever an object is added, removed, or updated
 function refreshItemsInSceneBox() {
     updateItemsInSceneBox();
-    updateKeyBindingsList();
+    updateKeybindList();
     initializeContextMenuEvents(); // Initialize context menu events
+
 }
 
 
@@ -747,6 +808,7 @@ document.getElementById('settings-button').addEventListener('click', () => {
 window.addEventListener('load', () => {
     loadGameState() // Load the saved game state from localStorage
     refreshItemsInSceneBox(); // Refresh the items in the scene box
+    updateSceneList(); // Updates the scene list on load
     
 });
 

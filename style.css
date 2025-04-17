@@ -13,6 +13,7 @@ body {
 
 h3, h4 {
     margin-top: 0;
+    margin-bottom: 0px;
 }
 
 /* ====== HEADER ====== */
@@ -158,7 +159,7 @@ h3, h4 {
     background-color: #f0f0f0;
     padding: 0;
     border: 1px solid #ccc;
-    width: 220px;
+    width: 250px;
     z-index: 20;
     box-sizing: border-box;
 }
@@ -191,7 +192,7 @@ h3, h4 {
 
 #global-settings-panel {
     bottom: 20px;
-    left: 260px; /* Offset from property box */
+    left: 300px; /* Offset from property box */
 }
 
 #items-in-scene-box {
@@ -204,6 +205,7 @@ h3, h4 {
 #items-in-scene-box h3,
 #items-in-scene-box h4 {
     margin-top: 0;
+    margin-bottom: 0px;
 }
 
 #object-list,
@@ -212,6 +214,7 @@ h3, h4 {
     list-style-type: none;
     padding: 0;
     margin: 0;
+    margin-bottom: 0px;
 }
 
 #object-list li,
@@ -219,8 +222,19 @@ h3, h4 {
 #scene-list li {
     cursor: pointer;
     font-size: 14px;
-    margin-bottom: 4px;
+    margin-bottom: 0px;
 }
+
+.delete-x {
+    background: transparent;
+    border: none;
+    color: darkgrey;
+    font-weight: bold;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
 
 /* ====== HIGHLIGHT ====== */
 
