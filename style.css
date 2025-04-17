@@ -1,20 +1,4 @@
-/* style.css */
-
-/* General Styles */
-
-/* Header Styling */
-#header {
-    text-align: center;
-    background-color: #333;
-    color: white;
-    padding: 20px 0;
-}
-
-#header h1 {
-    font-size: 36px;
-    margin: 0;
-}
-
+/* ====== GENERAL STYLES ====== */
 
 body {
     font-family: monospace, Arial, sans-serif;
@@ -27,94 +11,26 @@ body {
     height: 100vh;
 }
 
-h3 {
+h3, h4 {
     margin-top: 0;
 }
 
-/* Properties Panel (Positioned at bottom-left) */
-#property-box {
-    position: absolute;
-    bottom: 20px;   /* Keep it 20px from the bottom */
-    left: 20px;     /* Position it 20px from the left edge */
-    background-color: #f0f0f0;
-    padding: 20px;
-    border: 1px solid #ccc;
-    width: 200px;
-    z-index: 20;    /* Ensure it sits on top of everything else */
+/* ====== HEADER ====== */
+
+#header {
+    text-align: center;
+    background-color: #333;
+    color: white;
+    padding: 20px 0;
 }
 
-/* Items in Scene Panel (Positioned at bottom-right) */
-#items-in-scene-box {
-    position: absolute;
-    bottom: 20px;   /* Keep it 20px from the bottom */
-    right: 20px;    /* Position it 20px from the right edge */
-    background-color: #f0f0f0;
-    padding: 20px;
-    border: 1px solid #ccc;
-    width: 200px;
-    z-index: 20;    /* Ensure it sits on top of everything else */
+#header h1 {
+    font-size: 36px;
+    margin: 0;
 }
 
-#items-in-scene-box h3, #items-in-scene-box h4 {
-    margin-top: 0;
-}
+/* ====== ASCII DISPLAY ====== */
 
-/* Objects List Section */
-#objects-list {
-    margin-bottom: 20px;
-}
-
-#object-list {
-    list-style-type: none;
-    padding: 0;
-}
-
-#object-list li {
-    cursor: pointer;
-}
-
-/* Keybindings List Section */
-#keybindings-list {
-    margin-top: 20px;
-}
-
-#keybindings-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-#keybindings-ul li {
-    margin-bottom: 5px;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-/* Flashing outline for selected object */
-.flashing-border {
-    animation: flash-border 1s infinite;
-    border: 2px solid red;
-}
-
-/* Flash animation */
-@keyframes flash-border {
-    0% { border-color: red; }
-    50% { border-color: transparent; }
-    100% { border-color: red; }
-}
-
-/* Input and Button Styles */
-textarea {
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
-button {
-    padding: 5px 15px;
-    margin-top: 10px;
-    cursor: pointer;
-}
-
-/* Render Area */
 #ascii-display {
     position: relative;
     width: 650px;
@@ -124,7 +40,8 @@ button {
     overflow: hidden;
 }
 
-/* ASCII Art Object Styles */
+/* ====== ASCII OBJECTS ====== */
+
 .ascii-art {
     position: absolute;
     cursor: pointer;
@@ -133,17 +50,23 @@ button {
     font-size: 15px;
 }
 
-/* Selection Highlight */
 .selected {
-    border: 2px solid blue; /* Customize color for selected outline */
+    border: 2px solid blue;
     outline-offset: 2px;
 }
 
-.highlight {
-    background-color: #ffd700; /* Highlight color */
-    font-weight: bold; /* Optional: Makes the highlighted item more visible */
+.flashing-border {
+    animation: flash-border 1s infinite;
+    border: 2px solid red;
 }
 
+@keyframes flash-border {
+    0% { border-color: red; }
+    50% { border-color: transparent; }
+    100% { border-color: red; }
+}
+
+/* ====== CONTEXT MENU ====== */
 
 #context-menu {
     position: absolute;
@@ -159,66 +82,60 @@ button {
     font-family: Arial, sans-serif;
     font-size: 14px;
     z-index: 1000;
-  }
-  
-  #context-menu strong {
+}
+
+#context-menu strong {
     font-size: 15px;
     color: #333;
     display: block;
     margin-bottom: 4px;
     padding-bottom: 2px;
-  }
-  
-  #context-menu hr {
+}
+
+#context-menu hr {
     border: none;
     border-top: 1px solid #e0e0e0;
     margin: 10px 0;
-  }
-  
-  #context-menu label {
+}
+
+#context-menu label {
     display: flex;
     align-items: center;
     gap: 6px;
     margin-bottom: 6px;
     color: #444;
-  }
-  
-  #context-menu input[type="checkbox"] {
+}
+
+#context-menu input[type="checkbox"] {
     margin: 0;
-  }
-  
-  #context-menu input[type="color"],
-  #context-menu input[type="number"],
-  #context-menu select {
+}
+
+#context-menu input[type="color"],
+#context-menu input[type="number"],
+#context-menu select {
     font-size: 13px;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 4px;
     width: 100%;
     box-sizing: border-box;
-  }
-  
-  #context-menu select {
-    width: 100%;
-  }
-  
-  #context-menu input[type="color"] {
+}
+
+#context-menu input[type="color"] {
     padding: 0;
     width: 60px;
     height: 28px;
-  }
-  
-  /* Inline color rows: Default, Hover, Click */
-  #context-menu #color-section label {
+}
+
+#context-menu #color-section label {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
     margin-bottom: 6px;
-  }
-  
-  /* Button styling */
-  #context-menu button {
+}
+
+#context-menu button {
     background-color: #e74c3c;
     color: white;
     border: none;
@@ -228,10 +145,99 @@ button {
     font-size: 13px;
     width: 100%;
     margin-top: 10px;
-  }
-  
-  #context-menu button:hover {
+}
+
+#context-menu button:hover {
     background-color: #c0392b;
-  }
-  
-  
+}
+
+/* ====== PANELS: COMMON STYLE ====== */
+
+.panel-box {
+    position: absolute;
+    background-color: #f0f0f0;
+    padding: 0;
+    border: 1px solid #ccc;
+    width: 220px;
+    z-index: 20;
+    box-sizing: border-box;
+}
+
+/* Collapsible Header */
+.panel-header {
+    background-color: #ddd;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    border-bottom: 1px solid #bbb;
+}
+
+/* Panel Content */
+.panel-content {
+    padding: 10px;
+}
+
+/* Collapsed Panels */
+.panel-box.collapsed .panel-content {
+    display: none;
+}
+
+/* ====== INDIVIDUAL PANEL POSITIONS ====== */
+
+#property-box {
+    bottom: 20px;
+    left: 20px;
+}
+
+#global-settings-panel {
+    bottom: 20px;
+    left: 260px; /* Offset from property box */
+}
+
+#items-in-scene-box {
+    bottom: 20px;
+    right: 20px;
+}
+
+/* ====== ITEM / SCENE BOX ====== */
+
+#items-in-scene-box h3,
+#items-in-scene-box h4 {
+    margin-top: 0;
+}
+
+#object-list,
+#scene-list,
+#keybindings-ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#object-list li,
+#keybindings-ul li,
+#scene-list li {
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+/* ====== HIGHLIGHT ====== */
+
+.highlight {
+    background-color: #ffd700;
+    font-weight: bold;
+}
+
+/* ====== BUTTON / FORM STYLES ====== */
+
+textarea {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 5px 15px;
+    margin-top: 10px;
+    cursor: pointer;
+}

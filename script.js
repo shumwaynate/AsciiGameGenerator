@@ -634,18 +634,18 @@ function findObjectByName(name) {
 
 // Event listener for adding custom keybindings
 // Add a new keybinding
-document.getElementById('add-key-binding').addEventListener('click', () => {
-    const key = document.getElementById('key-input').value;
-    const action = document.getElementById('action-select').value;
+// document.getElementById('add-key-binding').addEventListener('click', () => {
+//     const key = document.getElementById('key-input').value;
+//     const action = document.getElementById('action-select').value;
 
-    if (key && action) {
-        keyBindings[key] = action; // Add to keyBindings object
-        updateKeyBindingsList(); // Refresh the keybindings list
-        document.getElementById('key-input').value = ''; // Clear input field
-    } else {
-        alert('Please enter a key and select an action.');
-    }
-});
+//     if (key && action) {
+//         keyBindings[key] = action; // Add to keyBindings object
+//         updateKeyBindingsList(); // Refresh the keybindings list
+//         document.getElementById('key-input').value = ''; // Clear input field
+//     } else {
+//         alert('Please enter a key and select an action.');
+//     }
+// });
 
 //Updating items in scene box
 
@@ -712,6 +712,24 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+//for making panels open and closable
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".panel-box").forEach(panel => {
+      const header = panel.querySelector(".panel-header");
+      const content = panel.querySelector(".panel-content");
+  
+      header.addEventListener("click", () => {
+        panel.classList.toggle("collapsed");
+        content.style.display = panel.classList.contains("collapsed") ? "none" : "block";
+      });
+  
+      // Set initial visibility
+      content.style.display = panel.classList.contains("collapsed") ? "none" : "block";
+    });
+  });
+  
+  
+
 // used to swap to settings page
 document.getElementById('settings-button').addEventListener('click', () => {
     saveGameState() // Serialize and save the current scenes and game state
@@ -723,6 +741,7 @@ document.getElementById('settings-button').addEventListener('click', () => {
     // Navigate to settings.html
     window.location.href = 'settings.html';
 });
+
 
 // used to load where left off when returning/loading site
 window.addEventListener('load', () => {

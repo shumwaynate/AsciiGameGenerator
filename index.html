@@ -1,245 +1,176 @@
 <!-- index.html -->
-
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Game Creator</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ASCII Game Creator</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <!-- Header Section -->
-    <header id="header">
-        <h1>ASCII Art Web Creator</h1>
-    </header>
 
-    <!-- Main Content Container -->
-    <div id="ascii-container">
-        <div id="ascii-display"></div>
-        <div id="context-menu" style="display: none; position: absolute;">
-            <div style="display: flex; justify-content: space-between; align-items: left;">
-                <strong style="font-size: 20px;">Functionality</strong>
-                <button id="close-context-menu" style="background: none; border: none; font-size: 12px; cursor: pointer; color: black;margin-top: 0px;">✖</button>
-            </div>
+  <!-- Header Section -->
+  <header id="header">
+    <h1>ASCII Art Web Creator</h1>
+  </header>
 
-            <hr />
-          
-            <!-- Row 1: Clickable -->
-            <label>
-              <input type="checkbox" id="prop-clickable" />
-              Clickable
-            </label>
-            <hr />
-          
-            <!-- Row 2: Invisible -->
-            <label>
-              <input type="checkbox" id="prop-invisible" />
-              Invisible
-            </label>
-            <hr />
+  <!-- Main Display Area -->
+  <div id="ascii-container">
+    <div id="ascii-display"></div>
 
-            <!-- Row 4: Main Player -->
-            <label>
-                <input type="checkbox" id="prop-main-player" />
-                Main Player
-              </label>
-              <hr />
+    <!-- Context Menu -->
+    <div id="context-menu" style="display: none; position: absolute;">
+      <div style="display: flex; justify-content: space-between; align-items: left;">
+        <strong style="font-size: 20px;">Functionality</strong>
+        <button id="close-context-menu" style="background: none; border: none; font-size: 12px; cursor: pointer; color: black;margin-top: 0px;">✖</button>
+      </div>
 
-            <!-- Row 4.5: Collision -->
-            <label>
-                <input type="checkbox" id="prop-collision" />
-                Collision
-              </label>
-              <hr />
-            
-          
-            <!-- Row 3: Enable Colors -->
-            <div>
-                Enable Colors:
-                <div id="color-section" style="margin-left: 10px;">
-                <label>
-                    <input type="checkbox" id="enable-default-color" />
-                    Default 
-                    <!-- <input type="color" id="color-default" disabled/> -->
-                </label>
-                <label>
-                    <input type="checkbox" id="enable-hover-color" />
-                    Hover
-                    <!-- <input type="color" id="color-hover" disabled/> -->
-                </label>
-                <label>
-                    <input type="checkbox" id="enable-click-color" />
-                    Click
-                    <!-- <input type="color" id="color-click" disabled/> -->
-                </label>
-                </div>
-            </div>
-  
-            <hr />
-          
-            <!-- Row 5: Switch Scene -->
-            <div>
-              <label>
-                <input type="checkbox" id="prop-switch-scene-enabled" />
-                Switch Scene
-              </label>
-              Trigger:
-              <select id="switch-scene-trigger">
-                <option value="click">Click</option>
-                <option value="touch">Touch</option>
-              </select><br/>
-              Scene:
-              <select id="switch-scene-list">
-                <!-- Scene names go here -->
-              </select>
-            </div>
-            <hr />
-          
-            <!-- Row 6: Give Currency -->
-            <div>
-              <label>
-                <input type="checkbox" id="prop-give-currency-enabled" />
-                Give Currency
-              </label>
-              Trigger:
-              <select id="give-currency-trigger">
-                <option value="click">Click</option>
-                <option value="touch">Touch</option>
-              </select><br/>
-              Currency:
-              <select id="give-currency-list">
-                <!-- Currency names go here -->
-              </select><br/>
-              Amount:
-              <input type="number" id="give-currency-amount" placeholder="Amount" /><br/>
-              <label>
-                <input type="checkbox" id="give-currency-delete-after" checked />
-                Delete After Giving
-              </label>
-            </div>
-            <hr />
-          
-            <!-- Row 7: Give Object -->
-            <div>
-              <label>
-                <input type="checkbox" id="prop-give-object-enabled" />
-                Give Object
-              </label>
-              Trigger:
-              <select id="give-object-trigger">
-                <option value="click">Click</option>
-                <option value="touch">Touch</option>
-              </select><br/>
-              Object:
-              <select id="give-object-list">
-                <!-- Object names go here -->
-              </select><br/>
-              <label>
-                <input type="checkbox" id="give-object-delete-after" checked />
-                Delete After Giving
-              </label>
-            </div>
-          
-            <hr />
-          
-            <!-- Delete and Save Button -->
-            <button id="save-properties">Save</button> 
-            <button id="delete-item">Delete</button>
+      <hr />
+      <!-- Object Property Controls -->
+      <label><input type="checkbox" id="prop-clickable" /> Clickable</label><hr />
+      <label><input type="checkbox" id="prop-invisible" /> Invisible</label><hr />
+      <label><input type="checkbox" id="prop-main-player" /> Main Player</label><hr />
+      <label><input type="checkbox" id="prop-collision" /> Collision</label><hr />
+
+      <div>
+        Enable Colors:
+        <div id="color-section" style="margin-left: 10px;">
+          <label><input type="checkbox" id="enable-default-color" /> Default</label>
+          <label><input type="checkbox" id="enable-hover-color" /> Hover</label>
+          <label><input type="checkbox" id="enable-click-color" /> Click</label>
         </div>
-          
+      </div>
+      <hr />
+
+      <!-- Switch Scene -->
+      <div>
+        <label><input type="checkbox" id="prop-switch-scene-enabled" /> Switch Scene</label>
+        Trigger: <select id="switch-scene-trigger"><option value="click">Click</option><option value="touch">Touch</option></select><br/>
+        Scene: <select id="switch-scene-list"></select>
+      </div>
+      <hr />
+
+      <!-- Give Currency -->
+      <div>
+        <label><input type="checkbox" id="prop-give-currency-enabled" /> Give Currency</label>
+        Trigger: <select id="give-currency-trigger"><option value="click">Click</option><option value="touch">Touch</option></select><br/>
+        Currency: <select id="give-currency-list"></select><br/>
+        Amount: <input type="number" id="give-currency-amount" placeholder="Amount" /><br/>
+        <label><input type="checkbox" id="give-currency-delete-after" checked /> Delete After Giving</label>
+      </div>
+      <hr />
+
+      <!-- Give Object -->
+      <div>
+        <label><input type="checkbox" id="prop-give-object-enabled" /> Give Object</label>
+        Trigger: <select id="give-object-trigger"><option value="click">Click</option><option value="touch">Touch</option></select><br/>
+        Object: <select id="give-object-list"></select><br/>
+        <label><input type="checkbox" id="give-object-delete-after" checked /> Delete After Giving</label>
+      </div>
+      <hr />
+
+      <button id="save-properties">Save</button> 
+      <button id="delete-item">Delete</button>
     </div>
+  </div>
 
-    <div class="scene-editor">
-        <label for="ascii-input">Enter ASCII Art:</label>
-        <textarea id="ascii-input" rows="5" placeholder="Type ASCII art here..."></textarea>
-        <button id="add-ascii-art">Add ASCII Art to Display</button>
+  <!-- Scene Controls -->
+  <div class="scene-editor">
+    <label for="ascii-input">Enter ASCII Art:</label>
+    <textarea id="ascii-input" rows="5" placeholder="Type ASCII art here..."></textarea>
+    <button id="add-ascii-art">Add ASCII Art to Display</button>
+  </div>
+
+  <div class="scene-controls">
+    <label for="scene-name">Scene Name:</label>
+    <input type="text" id="scene-name" placeholder="Enter scene name" />
+    <button id="save-scene">Save Scene</button>
+    <button id="load-scene">Load Scene</button>
+    <button id="settings-button">Editor Settings + Export & Import</button>
+    <br><br>
+    <button id="clear-storage">Clear Storage</button>
+  </div>
+
+  <div id="status-message"></div>
+
+  <!-- Property Box -->
+  <div id="property-box" class="panel-box">
+    <div class="panel-header">Properties</div>
+    <div class="panel-content">
+      <label id="current-object-name" for="item-name">Item Name:</label>
+      <input type="text" id="item-name" placeholder="Enter item name" />
+      <br />
+      <button id="delete-selected-item">Delete Selected</button> <br><br/>
+
+      <h3>Color Management</h3>
+      <label for="default-color">Default Color:</label>
+      <input type="color" id="default-color"><br />
+      <label for="hover-color">Hover Color:</label>
+      <input type="color" id="hover-color"><br />
+      <label for="click-color">Click Color:</label>
+      <input type="color" id="click-color"><br />
+      <br />
     </div>
+  </div>
 
-    <div class="scene-controls">
-        <label for="scene-name">Scene Name:</label>
-        <input type="text" id="scene-name" placeholder="Enter scene name"></input>
-        <button id="save-scene">Save Scene</button>
-        <button id="load-scene">Load Scene</button>
-        <button id="settings-button">Editor Settings + Export & Import</button>
+  <!-- Global Settings Panel -->
+  <div id="global-settings-panel" class="panel-box collapsed">
+    <div class="panel-header">Global Settings</div>
+    <div class="panel-content">
+      <div>
+        <h4>Keybind Configuration</h4>
+        <label for="global-key-input">Key:</label>
+        <input type="text" id="global-key-input" placeholder="e.g., 'm' for map" />
+        <label for="global-action-select">Action:</label>
+        <select id="global-action-select">
+          <option value="toggleInventory">Toggle Inventory</option>
+          <option value="openMap">Open Map</option>
+          <option value="pauseGame">Pause Game</option>
+          <option value="customAction">Custom Action</option>
+        </select>
+        <button id="add-global-keybinding">Add Global Keybind</button>
+      </div>
 
-        <br><br>
-        <button id="clear-storage">Clear Storage</button>
+      <div>
+        <h4>RPG Mechanics</h4>
+        <label><input type="checkbox" id="enable-rpg-mechanics" /> Enable RPG Features</label>
+      </div>
+
+      <div>
+        <h4>Currency System</h4>
+        <button id="manage-currencies">Manage Currencies</button>
+      </div>
+
+      <div>
+        <h4>Toolbar / Inventory</h4>
+        <label><input type="checkbox" id="enable-toolbar" /> Enable Persistent Toolbar</label><br />
+        <label><input type="checkbox" id="enable-inventory" /> Enable Inventory Popup</label>
+      </div>
     </div>
+  </div>
 
-    <div id="status-message"></div>
+  <!-- Items in Scene Box -->
+  <div id="items-in-scene-box" class="panel-box">
+    <div class="panel-header">Items in Scene</div>
+    <div class="panel-content">
+      <div id="objects-list">
+        <h4>Objects in Render Area:</h4>
+        <ul id="object-list"></ul>
+      </div>
 
-    <!-- Property Box (Updated) -->
-    <div id="property-box">
-        <h3>Properties</h3>
-        <label id="current-object-name" for="item-name">Item Name:</label>
-        <input type="text" id="item-name" placeholder="Enter item name">
-        <br>
+      <div id="scene-count">
+        <h4>Scene Count: <span id="scene-total">0</span></h4>
+        <ul id="scene-list"></ul>
+      </div>
 
-        <!-- <label>
-            <input type="checkbox" id="clickable"> Clickable
-        </label><br>
-        <label>
-            <input type="checkbox" id="give-currency"> Give Currency
-        </label><br>
-        <label>
-            <input type="checkbox" id="switch-scene"> Switch Scene
-        </label><br>
-        <label>
-            <input type="checkbox" id="give-object"> Give Object
-        </label> <br> 
-        <button id="save-properties">Save Properties</button>  -->
-
-        <button id="delete-selected-item">Delete Selected</button> <br> <br>
-
-        <h3>Color Management</h3>
-        <label for="default-color">Default Color:</label>
-        <input type="color" id="default-color"><br>
-
-        <label for="hover-color">Hover Color:</label>
-        <input type="color" id="hover-color"><br>
-
-        <label for="click-color">Click Color:</label>
-        <input type="color" id="click-color"> <br>
-        <br>
-
-
-
-        <div id="key-bindings">
-            <h3>Custom Key Bindings</h3>
-            <label for="key-input">Key:</label>
-            <input type="text" id="key-input" placeholder="e.g., 'i' for inventory">
-            <label for="action-select">Action:</label>
-            <select id="action-select">
-                <option value="toggleInventory">Toggle Inventory</option>
-                <option value="openMap">Open Map</option>
-                <option value="customAction">Custom Action</option>
-            </select>
-            <button id="add-key-binding">Add Key Binding</button>
-        </div>
+      <div id="keybindings-list">
+        <h4>Enabled Keybinds:</h4>
+        <ul id="keybindings-ul"></ul>
+      </div>
     </div>
+  </div>
 
-    <!-- Items in Scene Box -->
-    <div id="items-in-scene-box">
-        <h3>Items in Scene</h3>
-
-        <!-- Objects in Render Area Section -->
-        <div id="objects-list">
-            <h4>Objects in Render Area:</h4>
-            <ul id="object-list">
-                <!-- Objects will be dynamically added here -->
-            </ul>
-        </div>
-
-        <!-- Key Bindings Section -->
-        <div id="keybindings-list">
-            <h4>Enabled Keybinds:</h4>
-            <ul id="keybindings-ul">
-                <!-- Keybindings will be dynamically added here -->
-            </ul>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
