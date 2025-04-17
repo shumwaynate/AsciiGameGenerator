@@ -705,7 +705,7 @@ function updateKeybindList() {
         const li = document.createElement('li');
         li.textContent = `${key}: ${keyBindings[key]}`;
 
-        const delBtn = document.createElement('button');
+        const delBtn = document.createElement('button1');
         delBtn.textContent = '✖';
         delBtn.classList.add('delete-x');
         delBtn.addEventListener('click', () => {
@@ -735,7 +735,7 @@ function updateSceneList() {
         li.textContent = sceneName;
 
         // Delete button
-        const delBtn = document.createElement('button');
+        const delBtn = document.createElement('button1');
         delBtn.textContent = '✖';
         delBtn.classList.add('delete-x');
         delBtn.addEventListener('click', () => {
@@ -751,6 +751,16 @@ function updateSceneList() {
     });
 }
 
+// Clears canvas of objects
+document.getElementById('clear-canvas').addEventListener('click', () => {
+    if (confirm("Are you sure you want to clear all ASCII objects from the canvas?")) {
+        asciiObjects.forEach(obj => {
+            obj.element.remove();
+        });
+        asciiObjects = [];
+        refreshItemsInSceneBox(); // updates sidebar
+    }
+});
 
 
 

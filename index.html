@@ -53,7 +53,7 @@
 
       <!-- Give Currency -->
       <div>
-        <label><input type="checkbox" id="prop-give-currency-enabled" /> Give Currency</label>
+        <label><input type="checkbox" id="prop-give-currency-enabled" /> Give Currency(NYI)</label>
         Trigger: <select id="give-currency-trigger"><option value="click">Click</option><option value="touch">Touch</option></select><br/>
         Currency: <select id="give-currency-list"></select><br/>
         Amount: <input type="number" id="give-currency-amount" placeholder="Amount" /><br/>
@@ -63,7 +63,7 @@
 
       <!-- Give Object -->
       <div>
-        <label><input type="checkbox" id="prop-give-object-enabled" /> Give Object</label>
+        <label><input type="checkbox" id="prop-give-object-enabled" /> Give Object(NYI)</label>
         Trigger: <select id="give-object-trigger"><option value="click">Click</option><option value="touch">Touch</option></select><br/>
         Object: <select id="give-object-list"></select><br/>
         <label><input type="checkbox" id="give-object-delete-after" checked /> Delete After Giving</label>
@@ -80,16 +80,20 @@
     <label for="ascii-input">Enter ASCII Art:</label>
     <textarea id="ascii-input" rows="5" placeholder="Type ASCII art here..."></textarea>
     <button id="add-ascii-art">Add ASCII Art to Display</button>
-  </div>
+    <button id="clear-canvas">Clear Canvas</button>
+</div>
 
   <div class="scene-controls">
     <label for="scene-name">Scene Name:</label>
     <input type="text" id="scene-name" placeholder="Enter scene name" />
     <button id="save-scene">Save Scene</button>
     <button id="load-scene">Load Scene</button>
-    <button id="settings-button">Editor Settings + Export & Import</button>
-    <br><br>
-    <button id="clear-storage">Clear Storage</button>
+    
+    <br>
+    <div style="display: flex; justify-content: right; gap: 10px;">
+        <button id="clear-storage">Clear Storage</button>
+        <button id="settings-button">Editor Settings + Export & Import</button>
+    </div>
   </div>
 
   <div id="status-message"></div>
@@ -135,19 +139,19 @@
       <hr />
 
       <div>
-        <h4>RPG Mechanics(Not Implemented)</h4> <br>
+        <h4>RPG Mechanics(NYI)</h4> <br>
         <label><input type="checkbox" id="enable-rpg-mechanics" /> Enable RPG Features</label>
       </div>
       <hr />
 
       <div>
-        <h4>Currency System(Not Implemented)</h4> <br>
+        <h4>Currency System(NYI)</h4> <br>
         <button id="manage-currencies">Manage Currencies</button>
       </div>
       <hr />
 
       <div>
-        <h4>Toolbar / Inventory(Not Implemented)</h4> <br>
+        <h4>Toolbar / Inventory(NYI)</h4> <br>
         <label><input type="checkbox" id="enable-toolbar" /> Enable Persistent Toolbar</label><br />
         <label><input type="checkbox" id="enable-inventory" /> Enable Inventory Popup</label>
       </div>
