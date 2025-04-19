@@ -2,8 +2,8 @@
 
 // Global variables
 let selectedAsciiArt = null; // Track selected ASCII art for context menu
-let scenes = { default: [] }; // Initialize with default scene
-let currentScene = 'default'; // Default scene
+let scenes = {  }; // Initialize with default scene
+let currentScene = ''; // Default scene
 let asciiObjects = []; // Track individual ASCII objects with their properties
 let gameCurrency = 0; // Initialize game currency for reward actions
 let keyBindings = {};// Store keybindings in an object

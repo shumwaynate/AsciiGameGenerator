@@ -192,7 +192,7 @@ h3, h4 {
 
 #global-settings-panel {
     bottom: 20px;
-    left: 290px; /* Offset from property box */
+    left: 240px; /* Offset from property box */
 }
 
 #items-in-scene-box {
