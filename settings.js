@@ -66,6 +66,28 @@ function importEditorSettings(event) {
 // Attach event listener to import file input
 document.getElementById('importFile')?.addEventListener('change', importEditorSettings);
 
+// Make the import project button import an example save
+exampleSave = 'Example Saves/Save_April_2025.json'
+document.getElementById('importProject').addEventListener('click', () => {
+    fetch(exampleSave)
+        .then(res => res.json())
+        .then(importData => {
+            if (importData.editorSettings) {
+                document.getElementById('screenWidth').value = importData.editorSettings.screenWidth;
+                document.getElementById('screenHeight').value = importData.editorSettings.screenHeight;
+                localStorage.setItem('editorSettings', JSON.stringify(importData.editorSettings));
+            }
+            if (importData.gameState) {
+                localStorage.setItem('gameState', JSON.stringify(importData.gameState));
+            }
+            alert('Project imported successfully! Click "Return to Editor" to see the restored game.');
+        })
+        .catch(err => {
+            console.error('Error importing example save:', err);
+            alert('Failed to load example project.');
+        });
+});
+
 // Function to save screen size settings
 document.getElementById('saveScreenSize')?.addEventListener('click', () => {
     const screenWidth = parseInt(document.getElementById('screenWidth').value, 10);
