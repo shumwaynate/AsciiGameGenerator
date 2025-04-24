@@ -642,9 +642,9 @@ document.getElementById('add-global-keybinding').addEventListener('click', () =>
 
     if (key && action) {
         keyBindings[key] = action; // Add to keyBindings object
-        updateKeyBindingsList(); // Refresh the keybindings list
+        updateKeybindList(); // Refresh the keybindings list
         document.getElementById('global-key-input').value = ''; // Clear input field
-        saveGameState() // Save new keybinds to save state
+        silentSaveGameState // Save new keybinds to save state
     } else {
         alert('Please enter a key and select an action.');
     }
@@ -674,6 +674,129 @@ function updateItemsInSceneBox() {
         });
 
         objectList.appendChild(listItem);
+    });
+}
+
+// Update the list of currencies
+function updateCurrencyList() {
+    const currencyList = document.getElementById('editor-currency-list');
+    if (!currencyList) return;
+    currencyList.innerHTML = '';
+
+    const currencies = window.persistentSettings?.currencies || {};
+    for (const [name, value] of Object.entries(currencies)) {
+        const li = document.createElement('li');
+        li.textContent = `${name}: `;
+
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.value = value;
+        input.style.width = '50px';
+
+        let inputTimeout;
+        input.addEventListener('input', () => {
+            clearTimeout(inputTimeout);
+            inputTimeout = setTimeout(() => {
+                window.persistentSettings.currencies[name] = parseInt(input.value) || 0;
+                silentSaveGameState();
+            }, 500);
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '✖';
+        delBtn.classList.add('delete-x');
+        delBtn.addEventListener('click', () => {
+            if (confirm(`Delete currency '${name}'?`)) {
+                delete window.persistentSettings.currencies[name];
+                updateCurrencyList();
+                silentSaveGameState();
+            }
+        });
+
+        li.appendChild(input);
+        li.appendChild(delBtn);
+        currencyList.appendChild(li);
+    }
+}
+
+// Update the list of stat effects for objects
+function updateObjectLibraryEffects() {
+    const statList = document.getElementById('object-stat-effects-list');
+    if (!statList) return;
+    statList.innerHTML = '';
+
+    window.persistentSettings = window.persistentSettings || {};
+    window.persistentSettings.objects = window.persistentSettings.objects || [];
+    window.persistentSettings.objectEffects = window.persistentSettings.objectEffects || {};
+    window.persistentSettings.playerStats = window.persistentSettings.playerStats || {
+        health: 100,
+        mana: 50,
+        strength: 10,
+        agility: 8
+    };
+
+    const objectEffects = window.persistentSettings.objectEffects;
+    const objectNames = window.persistentSettings.objects;
+    const stats = Object.keys(window.persistentSettings.playerStats);
+
+    objectNames.forEach(name => {
+        const li = document.createElement('li');
+        const label = document.createElement('label');
+        label.textContent = name;
+
+        const statDropdown = document.createElement('select');
+        stats.forEach(stat => {
+            const option = document.createElement('option');
+            option.value = stat;
+            option.textContent = stat;
+            statDropdown.appendChild(option);
+        });
+
+        const amountInput = document.createElement('input');
+        amountInput.type = 'number';
+        amountInput.placeholder = '+/-';
+        amountInput.style.width = '50px';
+
+        let amountTimeout;
+        amountInput.addEventListener('input', () => {
+            clearTimeout(amountTimeout);
+            amountTimeout = setTimeout(() => {
+                window.persistentSettings.objectEffects[name] = window.persistentSettings.objectEffects[name] || {};
+                window.persistentSettings.objectEffects[name].amount = parseInt(amountInput.value) || 0;
+                silentSaveGameState();
+            }, 500);
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '✖';
+        delBtn.classList.add('delete-x');
+        delBtn.addEventListener('click', () => {
+            delete window.persistentSettings.objectEffects[name];
+            silentSaveGameState();
+            updateObjectLibraryEffects();
+        });
+
+        statDropdown.addEventListener('change', () => {
+            window.persistentSettings.objectEffects[name] = window.persistentSettings.objectEffects[name] || {};
+            window.persistentSettings.objectEffects[name].stat = statDropdown.value;
+            silentSaveGameState();
+        });
+
+        if (objectEffects[name]) {
+            const effect = objectEffects[name];
+            if (effect.stat && stats.includes(effect.stat)) {
+                statDropdown.value = effect.stat;
+            }
+            if (typeof effect.amount === 'number') {
+                amountInput.value = effect.amount;
+            }
+        }
+
+        li.appendChild(label);
+        li.appendChild(statDropdown);
+        li.appendChild(amountInput);
+        li.appendChild(delBtn);
+        statList.appendChild(li);
     });
 }
 
@@ -712,7 +835,7 @@ function updateKeybindList() {
             if (confirm(`Delete keybind for '${key}'?`)) {
                 delete keyBindings[key];
                 updateKeybindList();
-                saveGameState()
+                silentSaveGameState();
             }
         });
 
@@ -742,7 +865,7 @@ function updateSceneList() {
             if (confirm(`Are you sure you want to delete scene: "${sceneName}"?`)) {
                 delete scenes[sceneName];
                 updateSceneList();
-                saveGameState();
+                silentSaveGameState();
             }
         });
 
@@ -766,22 +889,26 @@ document.getElementById('clear-canvas').addEventListener('click', () => {
 
 // Call this function whenever an object is added, removed, or updated
 function refreshItemsInSceneBox() {
-    updateItemsInSceneBox();
-    updateKeybindList();
-    initializeContextMenuEvents(); // Initialize context menu events
-
+    setTimeout(() => {
+        updateItemsInSceneBox();
+        updateKeybindList();
+        initializeContextMenuEvents();
+        updateCurrencyList();
+        updateObjectLibraryEffects();
+    }, 50); // Ensure DOM has rendered completely
 }
 
 
-// Listen for keydown events globally to trigger actions
-document.addEventListener('keydown', (event) => {
-    const key = event.key;  // Get the key that was pressed
-    if (keyBindings[key]) {
-        const action = keyBindings[key];
-        alert(`Action triggered for '${key}': ${action}`);
-        performAction(action); // Trigger the action associated with the keybinding
-    }
-});
+
+// Listen for keydown events globally to trigger actions no longer needed as that will only be used in the final render
+// document.addEventListener('keydown', (event) => {
+//     const key = event.key;  // Get the key that was pressed
+//     if (keyBindings[key]) {
+//         const action = keyBindings[key];
+//         alert(`Action triggered for '${key}': ${action}`);
+//         performAction(action); // Trigger the action associated with the keybinding
+//     }
+// });
 
 //for making panels open and closable
 document.addEventListener("DOMContentLoaded", () => {
@@ -797,6 +924,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Set initial visibility
       content.style.display = panel.classList.contains("collapsed") ? "none" : "block";
     });
+    setupGlobalSettingsUI(); // Initialize global settings UI
   });
   
   
@@ -825,6 +953,7 @@ window.addEventListener('load', () => {
 // Setup context menu behavior for object-specific property changes
 function initializeContextMenuEvents() {
     populateSceneDropdown();// Populate the scene dropdown with available scenes
+    populateGiveDropdowns(); // Populate currency and object dropdowns
 
     // Clickable toggle
     document.getElementById('prop-clickable').addEventListener('change', function () {
@@ -931,6 +1060,7 @@ function initializeContextMenuEvents() {
     });
 }
 
+// Populate the scene dropdown with available scenes
 function populateSceneDropdown() {
     const dropdown = document.getElementById('switch-scene-list');
     dropdown.innerHTML = ''; // Clear existing options
@@ -949,6 +1079,34 @@ function populateSceneDropdown() {
       dropdown.appendChild(option);
     });
 }
+
+// Populates currency and object dropdowns in the context menu
+function populateGiveDropdowns() {
+    const currencyList = document.getElementById('give-currency-list');
+    const objectList = document.getElementById('give-object-list');
+
+    currencyList.innerHTML = '';
+    objectList.innerHTML = '';
+
+    // Populate currencies
+    const currencies = window.persistentSettings?.currencies || {};
+    for (const key in currencies) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = key;
+        currencyList.appendChild(opt);
+    }
+
+    // Populate objects
+    const objects = window.persistentSettings?.objects || [];
+    objects.forEach(obj => {
+        const opt = document.createElement('option');
+        opt.value = obj;
+        opt.textContent = obj;
+        objectList.appendChild(opt);
+    });
+}
+
   
 
 
@@ -965,25 +1123,48 @@ document.getElementById('clear-storage').addEventListener('click', () => {
     refreshItemsInSceneBox(); // Refresh the items in the scene box
 });
 
-// function that can be callable to save the game state from anywere, likely will me added when saving a scene.
+// function that can be callable to save the game state from anywere.
 function saveGameState() {
     const gameState = {
-        sceneList: scenes, // Save all scenes as a dictionary sceneList = {"sceneName": [list of asciiObjects], "sceneName2": [list of asciiObjects], etc}
-        saveCurrentScene: currentScene,         // Save which scene is currently active
-        // playerSettings: playerSettings,     // Save any other global settings if necessary
-        saveCustomKeyBindings: keyBindings // Save the custom keybindings
+        sceneList: scenes,
+        saveCurrentScene: currentScene,
+        saveCustomKeyBindings: keyBindings,
+        persistentSettings: {
+            rpgEnabled: true,
+            inventory: [],
+            currencies: window.persistentSettings?.currencies || {},
+            objects: window.persistentSettings?.objects || [],
+            objectEffects: window.persistentSettings?.objectEffects || {},
+            toolbar: {
+                enabled: window.persistentSettings?.toolbar?.enabled || false,
+                statsToDisplay: window.persistentSettings?.toolbar?.statsToDisplay || []
+            },
+            playerStats: window.persistentSettings?.playerStats || {
+                health: 100,
+                mana: 50,
+                strength: 10,
+                agility: 8
+            }
+        }
     };
-    //give localStorage a key of gameState and save the gameState object as a string
     localStorage.setItem('gameState', JSON.stringify(gameState));
-    // alert the user how many scenes are saved
     alert(`Saved ${Object.keys(scenes).length} scenes to local storage!`);
 }
+// Function to silently save the game state without user interaction
+function silentSaveGameState() {
+    const gameState = {
+      sceneList: scenes,
+      saveCurrentScene: currentScene,
+      saveCustomKeyBindings: keyBindings,
+      persistentSettings: window.persistentSettings
+    };
+    localStorage.setItem('gameState', JSON.stringify(gameState));
+  }
+
 
 // Function to load the game state from local storage
 function loadGameState() {
-    // Load the saved game state from localStorage
     const savedGameState = localStorage.getItem('gameState');
-    //make it so scenemanager.getAllScenes() returns an empty array if no scenes are detected, otherwise save the scenes
     if (savedGameState) {
         const gameState = JSON.parse(savedGameState);
         sceneManager.loadScenes(gameState.sceneList);
@@ -991,12 +1172,22 @@ function loadGameState() {
         loadScene(currentScene);
         keyBindings = gameState.saveCustomKeyBindings;
 
-        // playerSettings = gameState.playerSettings; // Load any other global settings if necessary
+        // Handle persistent RPG data
+        if (!gameState.persistentSettings) {
+            gameState.persistentSettings = {
+                rpgEnabled: false,
+                inventory: [],
+                currencies: {},
+                objects: [],
+                toolbar: { enabled: false, statsToDisplay: [] },
+                playerStats: { health: 100, mana: 50, strength: 10, agility: 8 }
+            };
+        }
+
+        window.persistentSettings = gameState.persistentSettings;
+
         alert('Game state loaded successfully!');
-        //alert user which scene they are in and what scenes are available
         alert(`Current Scene: ${currentScene}\nAvailable Scenes: ${Object.keys(scenes).join(', ')}`);
-        //this alert displays we are in a scene that was previously saved but the scene doesn't display or load items from it
-        
     } else {
         alert('No saved game state found.');
     }
@@ -1031,6 +1222,103 @@ function openMap() {
 function customAction() {
     alert("Custom action triggered!");
 }
+
+// Utility Functions for RPG Actions === //
+
+function giveCurrency(currencyName, amount) {
+    if (!window.persistentSettings.currencies[currencyName]) {
+        window.persistentSettings.currencies[currencyName] = 0;
+    }
+    window.persistentSettings.currencies[currencyName] += amount;
+    renderToolbar();
+}
+
+function addItemToInventory(itemName) {
+    window.persistentSettings.inventory.push(itemName);
+    renderInventoryPopup();
+}
+
+function renderToolbar() {
+    if (!window.persistentSettings.toolbar.enabled) return;
+    // placeholder logic to draw toolbar
+    console.log("Toolbar stats:", window.persistentSettings.toolbar.statsToDisplay);
+}
+
+function renderInventoryPopup() {
+    if (!window.persistentSettings.rpgEnabled) return;
+    // placeholder logic to display inventory popup
+    console.log("Inventory:", window.persistentSettings.inventory);
+}
+
+function setupGlobalSettingsUI() {
+    const rpgToggle = document.getElementById('enable-rpg-mechanics');
+    const rpgConfig = document.getElementById('rpg-stats-config');
+    const currencyNameInput = document.getElementById('new-currency-name');
+    const currencyValueInput = document.getElementById('new-currency-value');
+    const objectNameInput = document.getElementById('new-object-name');
+    const objectList = document.getElementById('object-library-list');
+
+    // Show/hide RPG stat inputs
+    rpgToggle?.addEventListener('change', function () {
+        rpgConfig.style.display = this.checked ? 'block' : 'none';
+        if (window.persistentSettings) {
+            window.persistentSettings.rpgEnabled = this.checked;
+        }
+    });
+
+    // Add currency
+    document.getElementById('add-currency')?.addEventListener('click', function () {
+        const name = currencyNameInput.value.trim();
+        const value = parseInt(currencyValueInput.value);
+        if (name && !isNaN(value)) {
+            if (!window.persistentSettings.currencies) {
+                window.persistentSettings.currencies = {};
+            }
+            window.persistentSettings.currencies[name] = value;
+            currencyNameInput.value = '';
+            currencyValueInput.value = '';
+            silentSaveGameState();
+            updateCurrencyList();
+            updateItemsInSceneBox();
+            
+        } else {
+            alert("Enter a valid currency name and value.");
+        }
+    });
+
+    // Add object
+    document.getElementById('add-object-button')?.addEventListener('click', function () {
+        const objName = objectNameInput.value.trim();
+        if (objName) {
+            if (!window.persistentSettings.objects.includes(objName)) {
+                window.persistentSettings.objects.push(objName);
+
+                // const li = document.createElement('li');
+                // li.textContent = objName;
+                // objectList.appendChild(li);
+                
+                silentSaveGameState();
+                updateObjectLibraryEffects();
+                updateItemsInSceneBox();
+            }
+            objectNameInput.value = '';
+        } else {
+            alert("Please enter a valid object name.");
+        }
+    });
+
+    // Load toolbar toggle states
+    document.getElementById('enable-toolbar')?.addEventListener('change', function () {
+        if (window.persistentSettings?.toolbar) {
+            window.persistentSettings.toolbar.enabled = this.checked;
+        }
+    });
+
+    document.getElementById('enable-inventory')?.addEventListener('change', function () {
+        window.persistentSettings.showInventory = this.checked;
+    });
+}
+  
 
 
 // Refresh items in scene box when the page loads

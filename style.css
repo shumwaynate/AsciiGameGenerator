@@ -162,10 +162,19 @@ h3, h4 {
     width: 200px;
     z-index: 20;
     box-sizing: border-box;
+
+    max-height: 65vh;       /* Limit height to 75% of the screen */
+    overflow-y: auto;       /* Allow vertical scrolling */
+    overflow-x: hidden;     /* Prevent horizontal scroll unless needed */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Collapsible Header */
 .panel-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     background-color: #ddd;
     padding: 10px;
     cursor: pointer;

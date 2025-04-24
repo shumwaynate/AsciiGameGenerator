@@ -124,7 +124,7 @@
     <div class="panel-header">Global Settings</div>
     <div class="panel-content">
       <div>
-        <h4>Keybind Configuration</h4> <br>
+        <h4>Keybind Configuration</h4><br>
         <label for="global-key-input">Key:</label>
         <input type="text" id="global-key-input" placeholder="e.g., 'm' for map" />
         <label for="global-action-select">Action:</label>
@@ -137,25 +137,41 @@
         <button id="add-global-keybinding">Add Keybind</button>
       </div>
       <hr />
-
+  
       <div>
-        <h4>RPG Mechanics(NYI)</h4> <br>
+        <h4>RPG Mechanics(NYI)</h4><br>
         <label><input type="checkbox" id="enable-rpg-mechanics" /> Enable RPG Features</label>
+        <div id="rpg-stats-config" style="margin-left: 10px; display: none;">
+          <label>Health: <input type="number" id="stat-health" value="100" /></label><br>
+          <label>Mana: <input type="number" id="stat-mana" value="50" /></label><br>
+          <label>Strength: <input type="number" id="stat-strength" value="10" /></label><br>
+          <label>Agility: <input type="number" id="stat-agility" value="8" /></label>
+        </div>
       </div>
       <hr />
-
+  
       <div>
-        <h4>Currency System(NYI)</h4> <br>
-        <button id="manage-currencies">Manage Currencies</button>
+        <h4>Currency System</h4><br>
+        <label>New Currency: <input type="text" id="new-currency-name" placeholder="e.g. Gold" /></label>
+        <input type="number" id="new-currency-value" placeholder="Starting Value" />
+        <button id="add-currency">Add Currency</button>
       </div>
       <hr />
-
+  
       <div>
-        <h4>Toolbar / Inventory(NYI)</h4> <br>
+        <h4>Object System</h4><br>
+        <label for="new-object-name">New Object:</label>
+        <input type="text" id="new-object-name" placeholder="e.g. Sword, Potion" />
+        <button id="add-object-button">Add Object</button>
+        <ul id="object-library-list"></ul>
+      </div>
+      <hr />
+  
+      <div>
+        <h4>Toolbar / Inventory(NYI)</h4><br>
         <label><input type="checkbox" id="enable-toolbar" /> Enable Persistent Toolbar</label><br />
         <label><input type="checkbox" id="enable-inventory" /> Enable Inventory Popup</label>
-      </div>
-      <br>
+      </div><br>
     </div>
   </div>
 
@@ -168,17 +184,29 @@
         <ul id="object-list"></ul>
       </div>
       <hr />
-
+  
       <div id="scene-count">
         <h4>Scene Count: <span id="scene-total">0</span></h4> <br>
         <ul id="scene-list"></ul>
       </div>
       <hr />
-
+  
       <div id="keybindings-list">
         <h4>Enabled Keybinds:</h4> <br>
         <ul id="keybindings-ul"></ul>
-      </div> <br>
+      </div> 
+      <hr />
+  
+      <div id="currencies-in-editor">
+        <h4>Manage Currencies</h4>
+        <ul id="editor-currency-list"></ul>
+      </div>
+      <hr />
+  
+      <div id="object-stat-effects">
+        <h4>Object Stat Effects</h4>
+        <ul id="object-stat-effects-list"></ul>
+      </div>
     </div>
   </div>
 
