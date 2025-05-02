@@ -1,0 +1,616 @@
+{
+  "editorSettings": {
+    "screenWidth": null,
+    "screenHeight": null
+  },
+  "gameState": {
+    "sceneList": {
+      "1": [
+        {
+          "ascii": "o\n/\\\n/\\",
+          "left": 191,
+          "top": 172,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": true,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "O",
+          "left": 414,
+          "top": 193,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": true,
+            "trigger": "touch",
+            "target": "2"
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "w",
+          "left": 261,
+          "top": 107,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": true,
+            "trigger": "click",
+            "currency": "w",
+            "amount": 10,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "wwwwww",
+          "left": 89,
+          "top": 91,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": true,
+            "trigger": "click",
+            "currency": "w",
+            "amount": 10,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "w touch",
+          "left": 174,
+          "top": 54,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": true,
+            "trigger": "touch",
+            "currency": "w",
+            "amount": 9,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "e touch\n\n",
+          "left": 371,
+          "top": 69,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": true,
+            "trigger": "touch",
+            "object": "eeeee",
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "eclick",
+          "left": 489,
+          "top": 64,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": true,
+            "trigger": "click",
+            "object": "eeeee",
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        }
+      ],
+      "2": [
+        {
+          "ascii": "o\n/\\\n/\\",
+          "left": 191,
+          "top": 172,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": true,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "O",
+          "left": 416,
+          "top": 195,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": true,
+            "trigger": "touch",
+            "target": "1"
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "w",
+          "left": 261,
+          "top": 107,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": true,
+            "trigger": "click",
+            "currency": "w",
+            "amount": 10,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "wwwwww",
+          "left": 89,
+          "top": 91,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": true,
+            "trigger": "click",
+            "currency": "w",
+            "amount": 10,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "w touch",
+          "left": 176,
+          "top": 56,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": false,
+          "giveCurrency": {
+            "enabled": true,
+            "trigger": "touch",
+            "currency": "w",
+            "amount": 9,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "e touch\n\n",
+          "left": 371,
+          "top": 69,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": true,
+            "trigger": "touch",
+            "object": "eeeee",
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        },
+        {
+          "ascii": "eclick",
+          "left": 491,
+          "top": 66,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": true,
+            "trigger": "click",
+            "object": "eeeee",
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": ""
+        }
+      ]
+    },
+    "saveCurrentScene": "2",
+    "saveCustomKeyBindings": {},
+    "persistentSettings": {
+      "rpgEnabled": true,
+      "inventory": [],
+      "currencies": {
+        "w": 1,
+        "wwwww": 1
+      },
+      "objects": [
+        "eeeee"
+      ],
+      "objectEffects": {
+        "eeeee": {
+          "amount": 1
+        }
+      },
+      "toolbar": {
+        "enabled": false,
+        "statsToDisplay": []
+      },
+      "playerStats": {
+        "health": 100,
+        "mana": 50,
+        "strength": 10,
+        "agility": 8
+      }
+    }
+  }
+}
