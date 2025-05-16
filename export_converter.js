@@ -57,6 +57,18 @@ function renderInventory() {
   curBox.innerHTML = '<h3>Inventory</h3><strong>Currencies:</strong><ul>' + curList + '</ul><strong>Items:</strong><ul>' + objList + '</ul>';
 }
 
+function updateMainPlayerPosition() {
+  if (mainPlayerObj) {
+    const currentScene = gameState.saveCurrentScene;
+    const sceneObjects = gameState.sceneList[currentScene];
+    const playerObject = sceneObjects.find(o => o.mainCharacter);
+    if (playerObject) {
+      playerObject.left = Math.round(mainPlayerObj.x / scaleX);
+      playerObject.top = Math.round(mainPlayerObj.y / scaleY);
+    }
+  }
+}
+
 function renderScene(sceneId) {
   const container = document.getElementById('gameArea');
   container.innerHTML = "";
@@ -154,6 +166,8 @@ function moveMainPlayer(dx, dy) {
   const virtualPlayer = { x: proposedX, y: proposedY, width: mainPlayerObj.width, height: mainPlayerObj.height };
 
   let blocked = false;
+  
+  updateMainPlayerPosition();
 
   for (let i = 0; i < sceneObjects.length; i++) {
     const obj = sceneObjects[i];

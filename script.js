@@ -96,7 +96,26 @@ const sceneManager = {
     }
 };
 
-// Add ASCII Art Object to the Display
+
+
+// === New Function to Generate Unique Item Names === //
+function generateUniqueName() {
+  const baseName = "Object ";
+  let counter = 1;
+
+  // Collect existing names
+  const existingNames = asciiObjects.map(obj => obj.itemName);
+
+  // Find the first available name
+  while (existingNames.includes(baseName + counter)) {
+    counter++;
+  }
+
+  return baseName + counter;
+}
+
+
+// Add ASCII Art to Display
 function addAsciiArt(asciiArt, left = null, top = null, color = null) {
     const artDiv = document.createElement('div');
     artDiv.classList.add('ascii-art');
@@ -115,6 +134,9 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
         artDiv.style.left = `${(containerRect.width - 100) / 2}px`;
         artDiv.style.top = `${(containerRect.height - 50) / 2}px`;
     }
+
+    // === Use the unique name generator to set itemName ===
+    const uniqueName = generateUniqueName();
 
     const asciiObject = {
         id: Date.now(),
@@ -151,9 +173,8 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
         },
         targetScene: null,
         targetObjectName: null,
-        itemName: ''
-      };
-      
+        itemName: uniqueName  // <--- Here it is assigned
+    };
 
     asciiObjects.push(asciiObject); // Add the object to the global array of objects in current scene
 
@@ -173,44 +194,12 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
         e.stopPropagation();
         selectAsciiObject(asciiObject);
         showContextMenu(e.clientX, e.clientY, asciiObject); // For the context menu
-        
 
         // Change color on click if a clickColor is set and clickable is true
         if (asciiObject.clickable && asciiObject.colors?.click?.enabled) {
             artDiv.style.color = asciiObject.colors.click.color;
-          }
-
-        // Remove previous listeners to prevent duplication
-        const deleteItemButton = document.getElementById('delete-item');
-        const deleteSelectedButton = document.getElementById('delete-selected-item');
-
-        deleteItemButton.replaceWith(deleteItemButton.cloneNode(true));
-        deleteSelectedButton.replaceWith(deleteSelectedButton.cloneNode(true));
-
-        // Reattach event listeners to new cloned buttons
-        document.getElementById('delete-item').addEventListener('click', () => { //this uses the context menu's delete
-            if (selectedAsciiArt) {
-                deleteAsciiArt(selectedAsciiArt);
-                selectedAsciiArt = null; // Clear the selection after deletion
-                clearPropertyBox();
-                refreshItemsInSceneBox();
-            } else {
-                alert('No ASCII art selected to delete!');
-            }
-        });
-
-        document.getElementById('delete-selected-item').addEventListener('click', () => { //this uses the property box delete
-            if (selectedAsciiArt) {
-                deleteAsciiArt(selectedAsciiArt);
-                selectedAsciiArt = null; // Clear the selection after deletion
-                clearPropertyBox();
-                refreshItemsInSceneBox();
-            } else {
-                alert('No ASCII art selected to delete!');
-            }
-        });
-    }
-);
+        }
+    });
 
     // Draggable functionality
     artDiv.addEventListener('mousedown', (e) => {
@@ -237,6 +226,7 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
 
     refreshItemsInSceneBox(); // Update the panel
 }
+
 
 
 function saveScene(sceneName) {
@@ -1280,6 +1270,8 @@ function setupGlobalSettingsUI() {
             silentSaveGameState();
             updateCurrencyList();
             updateItemsInSceneBox();
+            updateContextMenuEvents();
+            
             
         } else {
             alert("Enter a valid currency name and value.");
