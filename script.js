@@ -921,16 +921,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // used to swap to settings page
 document.getElementById('settings-button').addEventListener('click', () => {
-    saveGameState() // Serialize and save the current scenes and game state
-    
-    //wait 5 seconds before navigating to settings.html
+    saveGameState(); // Serialize and save the current scenes and game state
+
+    // Check if it is saving correctly
+    const savedState = localStorage.getItem('gameState');
+    console.log("Saved State Before Navigation:", JSON.parse(savedState));
+
+    // Navigate to settings.html
     setTimeout(() => {
         window.location.href = 'settings.html';
-    }, 5000);
-    // Navigate to settings.html
-    window.location.href = 'settings.html';
+    }, 500);
 });
-
 
 // used to load where left off when returning/loading site
 window.addEventListener('load', () => {
@@ -938,6 +939,17 @@ window.addEventListener('load', () => {
     refreshItemsInSceneBox(); // Refresh the items in the scene box
     updateSceneList(); // Updates the scene list on load
     
+    console.log("Loaded State After Return:", window.persistentSettings);
+
+    const inventoryCheckbox = document.getElementById('enable-inventory');
+    if (window.persistentSettings.inventoryEnabled) {
+        console.log("Inventory is enabled!");
+        inventoryCheckbox.checked = true;
+    } else {
+        console.log("Inventory is not enabled.");
+        inventoryCheckbox.checked = false;
+    }
+
 });
 
 // Setup context menu behavior for object-specific property changes
@@ -1097,10 +1109,7 @@ function populateGiveDropdowns() {
     });
 }
 
-  
 
-
-  
   
 
 // function for clearing local storage using button with id clear-storage
@@ -1134,7 +1143,8 @@ function saveGameState() {
                 mana: 50,
                 strength: 10,
                 agility: 8
-            }
+            },
+            inventoryEnabled: window.persistentSettings?.inventoryEnabled || false // Ensure inventoryEnabled exists
         }
     };
     localStorage.setItem('gameState', JSON.stringify(gameState));
@@ -1142,6 +1152,12 @@ function saveGameState() {
 }
 // Function to silently save the game state without user interaction
 function silentSaveGameState() {
+    // Ensure inventoryEnabled exists
+    if (typeof window.persistentSettings.inventoryEnabled === 'undefined') {
+        window.persistentSettings.inventoryEnabled = false;
+    }
+
+
     const gameState = {
       sceneList: scenes,
       saveCurrentScene: currentScene,
@@ -1170,18 +1186,28 @@ function loadGameState() {
                 currencies: {},
                 objects: [],
                 toolbar: { enabled: false, statsToDisplay: [] },
-                playerStats: { health: 100, mana: 50, strength: 10, agility: 8 }
+                playerStats: { health: 100, mana: 50, strength: 10, agility: 8 },
+                inventoryEnabled: false  // <-- This is always defined now
             };
         }
 
         window.persistentSettings = gameState.persistentSettings;
 
-        alert('Game state loaded successfully!');
-        alert(`Current Scene: ${currentScene}\nAvailable Scenes: ${Object.keys(scenes).join(', ')}`);
+        // Load inventoryEnabled correctly
+        if (gameState.persistentSettings.inventoryEnabled) {
+            document.getElementById('enable-inventory').checked = true;
+        } else {
+            document.getElementById('enable-inventory').checked = false;
+        }
+
+
+        console.log('Game state loaded successfully!');
+        console.log(`Current Scene: ${currentScene}\nAvailable Scenes: ${Object.keys(scenes).join(', ')}`);
     } else {
         alert('No saved game state found.');
     }
 }
+
 
 // Function to perform actions based on the keybinding
 function performAction(action) {
@@ -1306,9 +1332,20 @@ function setupGlobalSettingsUI() {
         }
     });
 
-    document.getElementById('enable-inventory')?.addEventListener('change', function () {
-        window.persistentSettings.showInventory = this.checked;
+    // Enable Inventory Toggle
+    document.getElementById('enable-inventory').addEventListener('change', function () {
+        // Update the persistent settings with the new state
+        window.persistentSettings = window.persistentSettings || {};
+        window.persistentSettings.inventoryEnabled = this.checked;
+    
+        // Call the silent save to update localStorage
+        silentSaveGameState();
+        
+    // Log for verification
+    console.log("Inventory Enabled State Saved:", window.persistentSettings.inventoryEnabled);
     });
+    
+      
 }
   
 
