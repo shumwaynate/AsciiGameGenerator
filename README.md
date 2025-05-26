@@ -1,6 +1,63 @@
 # AsciiGameGenerator
 I am planning to make here a website that will allow a user to create a game or usable widget using ASCII created objects. This project will allow the user to, after editing, download or copy the .html, .css, and a single script.js file to add the widget to any website .html. I am starting this as a project for one of my college classes.
 
+# How To Use
+
+AsciiGameGenerator is a browser-based ASCII game editor that lets users visually build game scenes with interactive ASCII art. It includes a test render window for live previewing, and exports a complete game into a self-contained folder called gameInsert. This folder includes:
+
+game_style.css – handles all game visuals
+
+game_script.js – contains all gameplay logic and embedded game state
+
+game_embed.js – a single injector script
+
+To embed your game on any website, simply place the gameInsert folder in the same directory as your site's index.html, and add the following line in your HTML:
+
+```html
+<script src="gameInsert/game_embed.js"></script>
+```
+
+# Features
+
+	🎨 Visual Editor – Drag and drop ASCII objects into a scalable game canvas.
+
+	📜 Scene Management – Create, name, save, load, and switch between multiple scenes.
+
+	🖱️ Clickable Objects – Assign actions like scene changes, item giving, and currency rewards to ASCII art.
+
+	🎮 Custom Keybinds – Trigger game actions like inventory or map toggles via user-defined keys.
+
+	🎯 Modular Properties – Toggle visibility, collision, colors (hover/click), and interactivity per object.
+
+	🧠 Context Menu Editing – Right-click objects to quickly edit functionality.
+
+	🧰 Global Settings Panel – Configure RPG settings, currency types, and object libraries.
+
+	💾 Save & Import – Export your entire game state as a .json project file to reopen later.
+
+	🧪 Launch Game Preview – Test your game in a popup window with real-time Play, Pause, and Reset.
+
+	📦 Export as Website Game – One click generates an embeddable gameInsert/ folder with CSS, JS, and inject script to add to any site.
+
+# Not Yet Implemented Features
+
+	🧙 RPG Mechanics (Planned)
+		Players will eventually have RPG-style stats like health, mana, strength, and agility. ASCII objects will be able to affect these stats through interaction (e.g., a potion increasing health or a sword increasing strength). These effects will persist across scenes and be tracked in a global player profile.
+
+	🎒 Inventory System (Planned)
+		The inventory will be a toggleable popup during gameplay, listing both collected objects and currencies. Developers will be able to configure:
+
+			* What objects are obtainable
+			* How they’re displayed
+			* Stat-modifying effects on use/equip
+			* A persistent toolbar to display selected stats/currencies
+
+
+
+
+
+## Working Plan and Boring Notes
+
 # Working Plan Stretches
 
 Here’s a revised 7-week plan to guide us toward implementing all the features I've outlined for the ASCII generative application. This plan organizes tasks by priority, with achievable milestones each week, ensuring a steady build-up to the complete functionality.
