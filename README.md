@@ -58,137 +58,122 @@ To embed your game on any website, simply place the gameInsert folder in the sam
 
 ## Working Plan and Boring Notes
 
-# Working Plan Stretches
+### 🧭 Original Plan of Attack: 7-Week Build Strategy
 
-Here’s a revised 7-week plan to guide us toward implementing all the features I've outlined for the ASCII generative application. This plan organizes tasks by priority, with achievable milestones each week, ensuring a steady build-up to the complete functionality.
+This was the original 7-week roadmap created at the start of the project. It laid out a prioritized development structure to ensure a complete and usable ASCII game editor, with weekly goals and milestones.
 
-## Week 1: Initial Setup and Core Structure
+---
 
-Goals:
+#### **Week 1: Initial Setup and Core Structure**
 
-	•	Set up the GitHub repository with project documentation.
- 
-	•	Create the initial HTML, CSS, and JavaScript file structure.
- 
-	•	Establish the main 2D render area (canvas or div) and build the persistent layout.
- 
-Key Features:
+**Goals:**
+- Set up the GitHub repository with project documentation  
+- Create initial HTML, CSS, and JavaScript file structure  
+- Establish the main 2D render area (canvas or `div`) and layout  
 
-	•	Basic rendering of ASCII art in the main canvas.
- 
-	•	Scalable/responsive container setup to allow embedding on other websites.
- 
-Milestone: Successfully display a simple, centered ASCII scene that resizes based on the container dimensions.
+**Key Features:**
+- Basic rendering of ASCII art on the canvas  
+- Responsive container for embedding in any site  
 
-## Week 2: Scene and Object Management
+**Milestone:**  
+> Display a centered, scalable ASCII scene.
 
-Goals:
+---
 
-	•	Implement the framework for creating, saving, loading, and switching between scenes.
- 
-	•	Set up scene storage using localStorage and/or downloadable JSON files.
- 
-Key Features:
+#### **Week 2: Scene and Object Management**
 
-	•	Editor functionality to create new scenes, adjust scene size, and position objects.
- 
-	•	Ability to save and load scenes.
- 
-Milestone: Ability to save a basic scene with objects and reload it on editor load.
+**Goals:**
+- Implement creation, saving, and switching between scenes  
+- Store scenes in `localStorage` or downloadable `.json`  
 
-## Week 3: Interactive and Persistent Toolbars
+**Key Features:**
+- Scene creation tools and size adjustments  
+- Ability to save/load scenes via UI  
 
-Goals:
+**Milestone:**  
+> Successfully save and reload a basic scene.
 
-	•	Develop an editor toolbar for creating and adding items to scenes.
- 
-	•	Implement the in-game toolbar (money counter, save/load button, inventory/map buttons).
- 
-Key Features:
+---
 
-	•	Ability to add the in-game toolbar and make it persist across scenes, with an option to hide it per scene.
- 
-	•	Drag-and-drop functionality for adding items from the editor toolbar into the scene.
- 
-Milestone: Editor toolbar functions to add elements to scenes; in-game toolbar can display persistent data like money count.
+#### **Week 3: Interactive and Persistent Toolbars**
 
-## Week 4: Clickable ASCII Objects with Configurable Actions
+**Goals:**
+- Build an editor toolbar for adding items to scenes  
+- Add an in-game persistent toolbar (e.g., money, inventory/map, save)  
 
-Goals:
+**Key Features:**
+- Toolbar appears across scenes, with toggle options  
+- Drag-and-drop to place toolbar elements  
 
-	•	Enable ASCII characters or groups to function as clickable objects with custom actions.
- 
-	•	Implement configurable actions like granting items, adding currency, navigating to scenes, or displaying text.
+**Milestone:**  
+> Functional editor and in-game toolbar system.
 
-Key Features:
+---
 
-	•	Clickable ASCII groups with a simple action editor.
- 
-	•	Scene navigation buttons.
- 
-Milestone: Scene elements can be clicked, triggering basic actions like scene transitions or displaying a message.
+#### **Week 4: Clickable ASCII Objects with Configurable Actions**
 
-## Week 5: Custom Keyboard Inputs for In-Game Actions
+**Goals:**
+- Make ASCII objects interactive with custom behaviors  
+- Enable object-triggered actions like giving currency or switching scenes  
 
-Goals:
+**Key Features:**
+- Clickable ASCII groups with attached logic  
+- Simple dropdown/action editors  
 
-	•	Implement custom keyboard input bindings, allowing users to assign keys to specific actions (e.g., ‘e’ for an explosion).
- 
-	•	Integrate these bindings with existing objects and actions.
- 
-Key Features:
+**Milestone:**  
+> Click to transition scenes or give rewards.
 
-	•	Keyboard event listeners that trigger assigned actions.
- 
-	•	Support for custom effects like “drop a bomb” or “shoot a fireball.”
-Milestone: Users can configure a key to trigger a specific action for selected objects in-game.
+---
 
+#### **Week 5: Custom Keyboard Inputs for In-Game Actions**
 
-## Week 6: Color Customization for ASCII Objects
+**Goals:**
+- Support custom keybindings for game actions  
+- Map keys like ‘e’ to trigger effects or events  
 
-Goals:
+**Key Features:**
+- Flexible key-to-action bindings  
+- Trigger custom actions like “drop bomb” or “toggle map”  
 
-	•	Implement color settings for individual ASCII characters and groups.
- 
-	•	Set up state-based color changes (default, hover, and click).
- 
-Key Features:
+**Milestone:**  
+> Custom key mapped to in-game object behavior.
 
-	•	Color selection tools in the editor, supporting different states.
- 
-	•	Preview of color changes in the render area.
- 
-Milestone: Users can assign colors to ASCII objects, with colors changing on hover and click events.
+---
 
-## Week 7: Final Integration, Testing, and Documentation
+#### **Week 6: Color Customization for ASCII Objects**
 
-Goals:
+**Goals:**
+- Add per-object color options (default, hover, click states)  
 
-	•	Conduct thorough testing of all features to ensure smooth functionality.
- 
-	•	Write comprehensive documentation and create usage examples.
- 
-	•	Perform any final adjustments or optimizations for embedding and scaling.
- 
-Key Features:
+**Key Features:**
+- Color pickers in the editor  
+- Preview changes live in the canvas  
 
-	•	Documentation on GitHub covering installation, configuration, and usage.
- 
-	•	Bug fixes and improvements based on testing.
- 
-Milestone: Fully functional, documented application ready for embedding on any website.
+**Milestone:**  
+> Dynamic color states for ASCII objects.
+
+---
+
+#### **Week 7: Final Integration, Testing, and Documentation**
+
+**Goals:**
+- Run complete functionality tests  
+- Write full documentation and examples  
+- Ensure export-compatibility and responsive design  
+
+**Key Features:**
+- GitHub README with setup and usage guides  
+- Code cleanup and embedding optimization  
+
+**Milestone:**  
+> A fully functional, exportable ASCII game creator ready for the web.
+
+---
 
 
 
-# Features And Questions
+# Questions
 
-## Features
-
-Currently scenes.json Is impenmented but meant to later be replaced with a user database. It currentely will be used to save scenes.
-
-
-
-## Questions
 
 
 
@@ -262,3 +247,11 @@ More complex behavior has also been integrated. Scene switching can now occur th
 All these properties are being saved in a structured and modular format, matching the revised object schema and maintaining backward compatibility with the rest of the editor. The context menu has been adapted to reflect each configurable property in its own row, with dropdowns, inputs, and checkboxes used as appropriate. Default states are false to prevent unintended behaviors, with exceptions made for properties that assume deletion after use (like giving items or currency). Systems for player inventory and currency creation are planned for upcoming phases, and these foundational structures ensure they will integrate smoothly.
 
 Next I would like to implement 2 new features but they will require many new features to start them. I would like to start by taking a step back, with this project I want it to range from a simple score count and/or timer based game, to a game just about solving a puzzle with no score or time features, ranging to an rpg type game with just the one character that might have score or time or player aspects (like damage or health) and/or currencies(maybe different types and multiple) and/or objects that a player can get( to be addeed to a player inventory and/or adjust player aspects/stats) and/or a full like inventory to hold items(allowing equipping removing and seeing currencies and such) and or some sort of persistent like toolbar(this would be in any scene where it is added and hold any stats or currencies that would be customizable in the editor).        Now of all those things many things are implemented but the hardest is yet to come in terms of code. I would like to implement into the game state saving probably some sort of other item/dictionary to hold things that will be persisting through scenes.   Next thought is I am thinking of splitting of the keybind creation out of the Property Box and making another 3rd seperate box that would handle creation if big game persisting objects/functionality. This would include keybind creation(other functionality based around specific keybinds to be added later), MAybe just a Enable RPG spot here that creates a rpg mechanics/incorporates them (maybe adding health, damage, a toolbar , and maybe a couple keybinds?), creating currencies and setting starting values(will discuss currencie organization/structuring later), creating objects(adjusting functionality/possible ascii images created to represent the objects may be implemented unsure), Enabling/creating a sort of toolbar(as per previous to hold and display some if not all player stats) and the making of a player inventory(maay include a coded inventory only, or maybe the creation of a inventory scene perhaps? Or maybe like the context menu a pop up menu like the context menu but it only will open in game time and cover all or most of the render area stopping all time for the game in render to reflect other game pause logic). These are things I am thinking to add.
+
+# Update: 5-26-2025
+
+After tinkering and adjusting the window of the game I have finished, for now, the export game to a folder functionality. This will allow the user to export the game to a folder with all the files needed to run the game in a browser. The idea of exporting the game into a standalone website folder—gameInsert—is central to making the AsciiGameGenerator practical and widely usable. By packaging the complete game into modular files (game_style.css, game_script.js, and game_embed.js), users can embed their creations into any existing HTML site with a single script tag. This approach eliminates dependency on the original editor or browser storage, ensuring the game runs independently and consistently. It also empowers creators to share, host, or publish their games anywhere on the web with minimal setup, making the editor not just a development tool but a full pipeline for deployment.
+
+Currently the export functionality sets the game on the bottom right of the website its added to, but this is adjustable in the game_style.css file. The game_embed.js file will handle the loading of the game and the game_script.js file will handle all the game logic and functionality. The game_style.css file will handle all the styling of the game and its elements.
+
+I will possible look into creating a UI for the settings website for adjusting the placement of the game in the website or if I want to make the game be draggable in the website. I may also look into making the game be able to be resized in the website, but this will take some time to implement and test.
