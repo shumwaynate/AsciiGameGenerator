@@ -89,11 +89,11 @@ function renderInventoryOverlay() {
 }
 
 function renderScene(sceneId) {
+  gameState.saveCurrentScene = sceneId;
   const container = document.getElementById('gameArea');
   container.innerHTML = "";
   sceneObjects = [];
   const objects = gameState.sceneList[sceneId] || [];
-  
 
   objects.forEach(obj => {
     const div = document.createElement('div');
@@ -108,23 +108,31 @@ function renderScene(sceneId) {
       div.addEventListener('mouseleave', () => div.style.color = obj.colors.default);
     }
 
-    div.addEventListener('click', () => {
+    const handleClick = () => {
       if (obj.clickable && obj.colors?.click?.enabled) div.style.color = obj.colors.click.color;
 
       if (obj.giveCurrency?.enabled && obj.giveCurrency.trigger === 'click' && obj.giveCurrency.currency) {
         currencies[obj.giveCurrency.currency] = (currencies[obj.giveCurrency.currency] || 0) + obj.giveCurrency.amount;
-        if (obj.giveCurrency.deleteAfter) div.remove();
+        if (obj.giveCurrency.deleteAfter) {
+          div.remove();
+          sceneObjects = sceneObjects.filter(o => o.element !== div);
+        }
       }
 
       if (obj.giveObject?.enabled && obj.giveObject.trigger === 'click' && obj.giveObject.object) {
         inventory.push(obj.giveObject.object);
-        if (obj.giveObject.deleteAfter) div.remove();
+        if (obj.giveObject.deleteAfter) {
+          div.remove();
+          sceneObjects = sceneObjects.filter(o => o.element !== div);
+        }
       }
 
       if (obj.switchScene?.enabled && obj.switchScene.trigger === 'click' && obj.switchScene.target) {
         renderScene(obj.switchScene.target);
       }
-    });
+    };
+
+    if (obj.clickable) div.addEventListener('click', handleClick);
 
     container.appendChild(div);
 
@@ -148,16 +156,25 @@ function moveMainPlayer(dx, dy) {
     const other = { left: obj.left, top: obj.top, width: obj.width, height: obj.height };
     const isColliding = !(virtualPlayer.x + virtualPlayer.width < other.left || virtualPlayer.x > other.left + other.width || virtualPlayer.y + virtualPlayer.height < other.top || virtualPlayer.y > other.top + other.height);
     if (isColliding) {
-      if (obj.switchScene?.enabled && obj.switchScene.trigger === 'touch') renderScene(obj.switchScene.target);
+      if (obj.switchScene?.enabled && obj.switchScene.trigger === 'touch' && obj.switchScene.target) {
+        renderScene(obj.switchScene.target);
+        return;
+      }
       if (obj.giveCurrency?.enabled && obj.giveCurrency.trigger === 'touch' && obj.giveCurrency.currency) {
         currencies[obj.giveCurrency.currency] = (currencies[obj.giveCurrency.currency] || 0) + obj.giveCurrency.amount;
-        if (obj.giveCurrency.deleteAfter) obj.element.remove();
+        if (obj.giveCurrency.deleteAfter) {
+          obj.element.remove();
+          sceneObjects = sceneObjects.filter(o => o.element !== obj.element);
+        }
       }
       if (obj.giveObject?.enabled && obj.giveObject.trigger === 'touch' && obj.giveObject.object) {
         inventory.push(obj.giveObject.object);
-        if (obj.giveObject.deleteAfter) obj.element.remove();
+        if (obj.giveObject.deleteAfter) {
+          obj.element.remove();
+          sceneObjects = sceneObjects.filter(o => o.element !== obj.element);
+        }
       }
-      if (obj.collision !== false) return; // Block movement
+      if (obj.collision !== false) return;
     }
   }
 
