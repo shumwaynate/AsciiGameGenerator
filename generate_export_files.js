@@ -55,7 +55,8 @@ async function exportGameAsZip() {
 
   // === Script ===
   const js = `
-const gameState = ${JSON.stringify(gameState)};
+const initialGameState = ${JSON.stringify(gameState)};
+let gameState = JSON.parse(JSON.stringify(initialGameState));
 const scaleX = ${scaleX};
 const scaleY = ${scaleY};
 let playing = true;
@@ -116,6 +117,7 @@ function renderScene(sceneId) {
         if (obj.giveCurrency.deleteAfter) {
           div.remove();
           sceneObjects = sceneObjects.filter(o => o.element !== div);
+          gameState.sceneList[sceneId] = gameState.sceneList[sceneId].filter(o => o.itemName !== obj.itemName);
         }
       }
 
@@ -124,6 +126,7 @@ function renderScene(sceneId) {
         if (obj.giveObject.deleteAfter) {
           div.remove();
           sceneObjects = sceneObjects.filter(o => o.element !== div);
+          gameState.sceneList[sceneId] = gameState.sceneList[sceneId].filter(o => o.itemName !== obj.itemName);
         }
       }
 
@@ -165,6 +168,7 @@ function moveMainPlayer(dx, dy) {
         if (obj.giveCurrency.deleteAfter) {
           obj.element.remove();
           sceneObjects = sceneObjects.filter(o => o.element !== obj.element);
+          gameState.sceneList[gameState.saveCurrentScene] = gameState.sceneList[gameState.saveCurrentScene].filter(o => o.itemName !== obj.itemName);
         }
       }
       if (obj.giveObject?.enabled && obj.giveObject.trigger === 'touch' && obj.giveObject.object) {
@@ -172,6 +176,7 @@ function moveMainPlayer(dx, dy) {
         if (obj.giveObject.deleteAfter) {
           obj.element.remove();
           sceneObjects = sceneObjects.filter(o => o.element !== obj.element);
+          gameState.sceneList[gameState.saveCurrentScene] = gameState.sceneList[gameState.saveCurrentScene].filter(o => o.itemName !== obj.itemName);
         }
       }
       if (obj.collision !== false) return;
@@ -182,6 +187,14 @@ function moveMainPlayer(dx, dy) {
   mainPlayerObj.y = Math.max(0, Math.min(proposedY, ${screenHeight} - mainPlayerObj.height));
   mainPlayerObj.element.style.left = mainPlayerObj.x + 'px';
   mainPlayerObj.element.style.top = mainPlayerObj.y + 'px';
+
+  const currentSceneId = gameState.saveCurrentScene;
+  const sceneData = gameState.sceneList[currentSceneId];
+  const playerObj = sceneData.find(o => o.mainCharacter);
+  if (playerObj) {
+    playerObj.left = Math.round(mainPlayerObj.x / scaleX);
+    playerObj.top = Math.round(mainPlayerObj.y / scaleY);
+  }
 }
 
 function gameLoop() {
@@ -230,7 +243,6 @@ window.onload = () => {
 `;
   folder.file("game_script.js", js);
 
-  // === Embed ===
   const embed = `
 (function(){
   const link = document.createElement('link');
