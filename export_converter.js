@@ -1,15 +1,4 @@
-// This script will extract all necessary data from the editor (scenes, objects, keybinds, interactions) 
-// and format them into properly structured files (index.html, script.js, style.css). This ensures that 
-// all functionality, including scene transitions and interactions, is correctly translated into an 
-// independent game format.
-// This script will then use the 3 files to make a popup window with the game loaded locally to avoid trying to adjust the website organization.
-// export_converter.js - Updated with Inventory + Deletion Logic for Game Preview
-
-// export_converter.js - Updated with Inventory + Deletion Logic for Game Preview
-
-// Full updated export_converter.js based on your new requests:
-
-// Final version of export_converter.js with fixes for click/touch give+delete behavior
+// Final version of export_converter.js with inventory overlay toggle support (merged into full file)
 
 function launchGamePreview() {
   const userWidthset = document.getElementById('screenWidth').value;
@@ -36,8 +25,7 @@ function launchGamePreview() {
 #gameArea { position: relative; border: 1px solid #ccc; height: ${userHeight}px; width: ${userWidth}px; background: #f5f5f5; overflow: hidden; }
 .asciiObject { position: absolute; cursor: pointer; white-space: pre; font-size: ${finalFontSize}px; }
 button { margin: 5px; padding: 10px 15px; font-size: 14px; cursor: pointer; }
-#inventoryPanel { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: 1px solid #ccc; padding: 10px; font-family: monospace; font-size: 14px; width: 180px; z-index: 10; }
-#inventoryPanel h3 { margin-top: 0; font-size: 16px; }`;
+#inventoryOverlay { display: none; position: absolute; top: 0; left: 0; width: ${userWidth}px; height: ${userHeight}px; background: rgba(255,255,255,0.95); font-size: ${finalFontSize}px; padding: 20px; overflow-y: auto; z-index: 100; font-family: monospace; }`;
 
   const jsContent = `
 const gameState = ${JSON.stringify(gameState)};
@@ -50,11 +38,34 @@ const keysPressed = new Set();
 const inventory = [];
 const currencies = {};
 
-function renderInventory() {
-  const curBox = document.getElementById('inventoryPanel');
-  const curList = Object.entries(currencies).map(([name, amount]) => '<li>' + name + ': ' + amount + '</li>').join('');
-  const objList = inventory.map(obj => '<li>' + obj + '</li>').join('');
-  curBox.innerHTML = '<h3>Inventory</h3><strong>Currencies:</strong><ul>' + curList + '</ul><strong>Items:</strong><ul>' + objList + '</ul>';
+function renderInventoryOverlay() {
+  const overlay = document.getElementById('inventoryOverlay');
+  if (!overlay) return;
+
+  const hasCurrencies = Object.keys(currencies).length > 0;
+  const hasItems = inventory.length > 0;
+
+  if (!hasCurrencies && !hasItems) {
+    overlay.innerHTML = '<p>No inventory yet.</p>';
+    return;
+  }
+
+  let html = "<h2>Inventory</h2>";
+  if (hasCurrencies) {
+    html += "<strong>Currencies:</strong><ul>";
+    for (const [name, amount] of Object.entries(currencies)) {
+      html += \`<li>\${name}: \${amount}</li>\`;
+    }
+    html += "</ul>";
+  }
+  if (hasItems) {
+    html += "<strong>Items:</strong><ul>";
+    for (const item of inventory) {
+      html += \`<li>\${item}</li>\`;
+    }
+    html += "</ul>";
+  }
+  overlay.innerHTML = html;
 }
 
 function updateMainPlayerPosition() {
@@ -99,27 +110,25 @@ function renderScene(sceneId) {
       if (obj.giveCurrency?.enabled && obj.giveCurrency.trigger === 'click' && obj.giveCurrency.currency) {
         if (!(obj.giveCurrency.currency in currencies)) currencies[obj.giveCurrency.currency] = 0;
         currencies[obj.giveCurrency.currency] += obj.giveCurrency.amount;
-        renderInventory();
         if (obj.giveCurrency.deleteAfter && obj.itemName) {
           const idx = gameState.sceneList[sceneId].findIndex(o => o.itemName === obj.itemName);
           if (idx !== -1) {
             gameState.sceneList[sceneId].splice(idx, 1);
             renderScene(sceneId);
+            return;
           }
-          return;
         }
       }
 
       if (obj.giveObject?.enabled && obj.giveObject.trigger === 'click' && obj.giveObject.object) {
         inventory.push(obj.giveObject.object);
-        renderInventory();
         if (obj.giveObject.deleteAfter && obj.itemName) {
           const idx = gameState.sceneList[sceneId].findIndex(o => o.itemName === obj.itemName);
           if (idx !== -1) {
             gameState.sceneList[sceneId].splice(idx, 1);
             renderScene(sceneId);
+            return;
           }
-          return;
         }
       }
 
@@ -142,15 +151,7 @@ function renderScene(sceneId) {
 }
 
 function switchToScene(sceneId) {
-  if (mainPlayerObj) {
-    const sceneIdToSave = gameState.saveCurrentScene;
-    const objList = gameState.sceneList[sceneIdToSave];
-    const player = objList.find(o => o.mainCharacter);
-    if (player) {
-      player.left = Math.round(mainPlayerObj.x / scaleX);
-      player.top = Math.round(mainPlayerObj.y / scaleY);
-    }
-  }
+  updateMainPlayerPosition();
   gameState.saveCurrentScene = sceneId;
   renderScene(sceneId);
 }
@@ -166,24 +167,18 @@ function moveMainPlayer(dx, dy) {
   const virtualPlayer = { x: proposedX, y: proposedY, width: mainPlayerObj.width, height: mainPlayerObj.height };
 
   let blocked = false;
-  
-  updateMainPlayerPosition();
 
-  for (let i = 0; i < sceneObjects.length; i++) {
-    const obj = sceneObjects[i];
+  for (let obj of sceneObjects) {
     if (obj.element === mainPlayerObj.element) continue;
     const otherObj = { left: obj.left, top: obj.top, width: obj.width, height: obj.height };
     if (isColliding(virtualPlayer, otherObj)) {
-
       if (obj.switchScene?.enabled && obj.switchScene.trigger === 'touch' && obj.switchScene.target) {
         switchToScene(obj.switchScene.target);
         return;
       }
-
       if (obj.giveCurrency?.enabled && obj.giveCurrency.trigger === 'touch' && obj.giveCurrency.currency) {
         if (!(obj.giveCurrency.currency in currencies)) currencies[obj.giveCurrency.currency] = 0;
         currencies[obj.giveCurrency.currency] += obj.giveCurrency.amount;
-        renderInventory();
         if (obj.giveCurrency.deleteAfter && obj.itemName) {
           const idx = gameState.sceneList[gameState.saveCurrentScene].findIndex(o => o.itemName === obj.itemName);
           if (idx !== -1) {
@@ -193,10 +188,8 @@ function moveMainPlayer(dx, dy) {
           }
         }
       }
-
       if (obj.giveObject?.enabled && obj.giveObject.trigger === 'touch' && obj.giveObject.object) {
         inventory.push(obj.giveObject.object);
-        renderInventory();
         if (obj.giveObject.deleteAfter && obj.itemName) {
           const idx = gameState.sceneList[gameState.saveCurrentScene].findIndex(o => o.itemName === obj.itemName);
           if (idx !== -1) {
@@ -206,7 +199,6 @@ function moveMainPlayer(dx, dy) {
           }
         }
       }
-
       if (obj.collision !== false) {
         blocked = true;
         break;
@@ -219,11 +211,24 @@ function moveMainPlayer(dx, dy) {
     mainPlayerObj.y = Math.max(0, Math.min(proposedY, ${userHeight} - mainPlayerObj.height));
     mainPlayerObj.element.style.left = mainPlayerObj.x + 'px';
     mainPlayerObj.element.style.top = mainPlayerObj.y + 'px';
+    updateMainPlayerPosition();
   }
 }
 
 function setupKeyBindings() {
-  document.addEventListener('keydown', e => keysPressed.add(e.key.toLowerCase()));
+  document.addEventListener('keydown', e => {
+    const key = e.key.toLowerCase();
+    keysPressed.add(key);
+    const action = gameState.saveCustomKeyBindings?.[key];
+    if (gameState.persistentSettings?.inventoryEnabled && action === 'toggleInventory') {
+      const overlay = document.getElementById('inventoryOverlay');
+      if (overlay) {
+        const showing = overlay.style.display === 'block';
+        overlay.style.display = showing ? 'none' : 'block';
+        if (!showing) renderInventoryOverlay();
+      }
+    }
+  });
   document.addEventListener('keyup', e => keysPressed.delete(e.key.toLowerCase()));
 }
 
@@ -251,16 +256,17 @@ function resetGame() { playing = false; renderScene(gameState.saveCurrentScene);
 function returnToSettings() { window.close(); }
 
 window.onload = () => {
-  const panel = document.createElement('div');
-  panel.id = 'inventoryPanel';
-  document.body.appendChild(panel);
+  if (gameState.persistentSettings?.inventoryEnabled) {
+    const invOverlay = document.createElement('div');
+    invOverlay.id = 'inventoryOverlay';
+    document.body.appendChild(invOverlay);
+  }
   renderScene(gameState.saveCurrentScene);
-  renderInventory();
   setTimeout(() => playGame(), 100);
 };
 `;
 
-  const htmlTemplate = `<!DOCTYPE html><html><head><meta charset='UTF-8'><title>ASCII Game Preview</title><link rel='stylesheet' href='STYLE_URL'></head><body><div id='gameArea'></div><button onclick='playGame()'>Play</button><button onclick='pauseGame()'>Pause</button><button onclick='resetGame()'>Reset</button><button onclick='returnToSettings()'>Return to Settings</button><script src='SCRIPT_URL'></script></body></html>`;
+  const htmlTemplate = `<!DOCTYPE html><html><head><meta charset='UTF-8'><title>ASCII Game Preview</title><link rel='stylesheet' href='STYLE_URL'></head><body><div id='gameArea'></div><script src='SCRIPT_URL'></script></body></html>`;
 
   const cssBlob = new Blob([cssContent], { type: 'text/css' });
   const jsBlob = new Blob([jsContent], { type: 'application/javascript' });
