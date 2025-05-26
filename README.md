@@ -1,6 +1,15 @@
 # AsciiGameGenerator
 I am planning to make here a website that will allow a user to create a game or usable widget using ASCII created objects. This project will allow the user to, after editing, download or copy the .html, .css, and a single script.js file to add the widget to any website .html. I am starting this as a project for one of my college classes.
 
+## 🌐 Try It Live
+
+You can launch the live version of the ASCII Game Editor here:
+
+🔗 [AsciiGameGenerator Editor](https://shumwaynate.github.io/AsciiGameGenerator/)
+
+Start creating scenes, test your game, and export it—all right in the browser!
+
+
 # How To Use
 
 AsciiGameGenerator is a browser-based ASCII game editor that lets users visually build game scenes with interactive ASCII art. It includes a test render window for live previewing, and exports a complete game into a self-contained folder called gameInsert. This folder includes:
@@ -39,13 +48,24 @@ To embed your game on any website, simply place the gameInsert folder in the sam
 
 	📦 Export as Website Game – One click generates an embeddable gameInsert/ folder with CSS, JS, and inject script to add to any site.
 
+	💾 Your work is saved automatically to your local device using `localStorage`, so you can pick up where you left off.
+
+	📤 Export your full editor project as a `.json` file to switch devices or back up your progress.
+	
+	🧪 Use the built-in **Import Test Project** button to instantly load a sample game and explore key features in action.
+
+
 # Not Yet Implemented Features
 
 	🧙 RPG Mechanics (Planned)
-		Players will eventually have RPG-style stats like health, mana, strength, and agility. ASCII objects will be able to affect these stats through interaction (e.g., a potion increasing health or a sword increasing strength). These effects will persist across scenes and be tracked in a global player profile.
+		Players will eventually have RPG-style stats like health, mana, strength, and agility.
+		 ASCII objects will be able to affect these stats through interaction (e.g., a potion
+		  increasing health or a sword increasing strength). These effects will persist across
+		   scenes and be tracked in a global player profile.
 
 	🎒 Inventory System (Planned)
-		The inventory will be a toggleable popup during gameplay, listing both collected objects and currencies. Developers will be able to configure:
+		The inventory will be a toggleable popup during gameplay, listing both collected 
+		objects and currencies. Developers will be able to configure:
 
 			* What objects are obtainable
 			* How they’re displayed
