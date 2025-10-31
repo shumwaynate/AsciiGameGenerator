@@ -322,7 +322,17 @@ function loadScene(sceneName) {
 }
 
 
-document.getElementById('delete-selected-item').addEventListener('click', () => {
+document.getElementById('delete-selected-item').addEventListener('click', () => { //proterty box delete button
+    if (selectedAsciiArt) {
+        deleteAsciiArt(selectedAsciiArt);
+        selectedAsciiArt = null; // Clear the selection after deletion
+        clearPropertyBox();
+        refreshItemsInSceneBox();
+    } else {
+        alert('No ASCII art selected to delete!');
+    }
+});
+document.getElementById('delete-item').addEventListener('click', () => { //context menu delete button
     if (selectedAsciiArt) {
         deleteAsciiArt(selectedAsciiArt);
         selectedAsciiArt = null; // Clear the selection after deletion
@@ -781,6 +791,8 @@ function updateObjectLibraryEffects() {
                 amountInput.value = effect.amount;
             }
         }
+        //disable the +/- input for now until we implement effects
+        amountInput.disabled = true;
 
         li.appendChild(label);
         li.appendChild(statDropdown);

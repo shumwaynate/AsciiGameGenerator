@@ -1,4 +1,8 @@
-// Final version of export_converter.js with inventory overlay toggle support (merged into full file)
+// Current version of export_converter.js used to launch game preview
+// Problem: when player touches non deleting give object/currency objects, they keep triggering repeatedly,
+// I want them to only trigger once per touch and not again until 1 game second has passed if possible?
+// otherwise they can just spam it by holding down movement against it.
+// file: export_converter.js
 
 function launchGamePreview() {
   const userWidthset = document.getElementById('screenWidth').value;
@@ -37,6 +41,37 @@ let sceneObjects = [];
 const keysPressed = new Set();
 const inventory = [];
 const currencies = {};
+
+// --- touch throttling: once-per-touch + 1s cooldown ---
+const TOUCH_COOLDOWN_MS = 1000;
+const touchMemory = new Map(); // key -> { inContact: bool, last: number }
+
+function touchKeyFor(obj) {
+  // Prefer stable key by itemName; fall back to element/object identity
+  return obj.itemName || obj.element || obj;
+}
+
+function canTriggerTouch(obj) {
+  const key = touchKeyFor(obj);
+  const state = touchMemory.get(key) || { inContact: false, last: 0 };
+  const now = performance.now();
+  const allowed = !state.inContact && (now - state.last >= TOUCH_COOLDOWN_MS);
+  if (allowed) {
+    state.inContact = true;
+    state.last = now;
+    touchMemory.set(key, state);
+  }
+  return allowed;
+}
+
+function endContact(obj) {
+  const key = touchKeyFor(obj);
+  const state = touchMemory.get(key) || { inContact: false, last: 0 };
+  if (state.inContact) {
+    state.inContact = false;
+    touchMemory.set(key, state);
+  }
+}
 
 function renderInventoryOverlay() {
   const overlay = document.getElementById('inventoryOverlay');
@@ -171,38 +206,48 @@ function moveMainPlayer(dx, dy) {
   for (let obj of sceneObjects) {
     if (obj.element === mainPlayerObj.element) continue;
     const otherObj = { left: obj.left, top: obj.top, width: obj.width, height: obj.height };
+
     if (isColliding(virtualPlayer, otherObj)) {
-      if (obj.switchScene?.enabled && obj.switchScene.trigger === 'touch' && obj.switchScene.target) {
-        switchToScene(obj.switchScene.target);
-        return;
-      }
-      if (obj.giveCurrency?.enabled && obj.giveCurrency.trigger === 'touch' && obj.giveCurrency.currency) {
-        if (!(obj.giveCurrency.currency in currencies)) currencies[obj.giveCurrency.currency] = 0;
-        currencies[obj.giveCurrency.currency] += obj.giveCurrency.amount;
-        if (obj.giveCurrency.deleteAfter && obj.itemName) {
-          const idx = gameState.sceneList[gameState.saveCurrentScene].findIndex(o => o.itemName === obj.itemName);
-          if (idx !== -1) {
-            gameState.sceneList[gameState.saveCurrentScene].splice(idx, 1);
-            renderScene(gameState.saveCurrentScene);
-            return;
+      // Only allow one trigger per continuous contact, and enforce 1s cooldown
+      const mayTrigger = canTriggerTouch(obj);
+
+      if (mayTrigger) {
+        if (obj.switchScene?.enabled && obj.switchScene.trigger === 'touch' && obj.switchScene.target) {
+          switchToScene(obj.switchScene.target);
+          return;
+        }
+        if (obj.giveCurrency?.enabled && obj.giveCurrency.trigger === 'touch' && obj.giveCurrency.currency) {
+          if (!(obj.giveCurrency.currency in currencies)) currencies[obj.giveCurrency.currency] = 0;
+          currencies[obj.giveCurrency.currency] += obj.giveCurrency.amount;
+          if (obj.giveCurrency.deleteAfter && obj.itemName) {
+            const idx = gameState.sceneList[gameState.saveCurrentScene].findIndex(o => o.itemName === obj.itemName);
+            if (idx !== -1) {
+              gameState.sceneList[gameState.saveCurrentScene].splice(idx, 1);
+              renderScene(gameState.saveCurrentScene);
+              return;
+            }
+          }
+        }
+        if (obj.giveObject?.enabled && obj.giveObject.trigger === 'touch' && obj.giveObject.object) {
+          inventory.push(obj.giveObject.object);
+          if (obj.giveObject.deleteAfter && obj.itemName) {
+            const idx = gameState.sceneList[gameState.saveCurrentScene].findIndex(o => o.itemName === obj.itemName);
+            if (idx !== -1) {
+              gameState.sceneList[gameState.saveCurrentScene].splice(idx, 1);
+              renderScene(gameState.saveCurrentScene);
+              return;
+            }
           }
         }
       }
-      if (obj.giveObject?.enabled && obj.giveObject.trigger === 'touch' && obj.giveObject.object) {
-        inventory.push(obj.giveObject.object);
-        if (obj.giveObject.deleteAfter && obj.itemName) {
-          const idx = gameState.sceneList[gameState.saveCurrentScene].findIndex(o => o.itemName === obj.itemName);
-          if (idx !== -1) {
-            gameState.sceneList[gameState.saveCurrentScene].splice(idx, 1);
-            renderScene(gameState.saveCurrentScene);
-            return;
-          }
-        }
-      }
+
       if (obj.collision !== false) {
         blocked = true;
         break;
       }
+    } else {
+      // No longer touching this object -> reset contact so it can trigger again later
+      endContact(obj);
     }
   }
 

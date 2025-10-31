@@ -1,0 +1,656 @@
+{
+  "editorSettings": {
+    "screenWidth": 650,
+    "screenHeight": 400
+  },
+  "gameState": {
+    "sceneList": {
+      "1": [
+        {
+          "ascii": " @ ",
+          "left": 298,
+          "top": 187,
+          "colors": {
+            "default": "#222222",
+            "hover": {
+              "enabled": true,
+              "color": "#0066ff"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#ff8800"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": true,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "Player"
+        },
+        {
+          "ascii": "$ coin (click deletes)",
+          "left": 13,
+          "top": 67,
+          "colors": {
+            "default": "#b8860b",
+            "hover": {
+              "enabled": true,
+              "color": "#ffd700"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#ff4500"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": false,
+          "giveCurrency": {
+            "enabled": true,
+            "trigger": "click",
+            "currency": "Gold",
+            "amount": 5,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "CoinClickDelete"
+        },
+        {
+          "ascii": "$ coin (click stays)",
+          "left": 18,
+          "top": 120,
+          "colors": {
+            "default": "#8b7500",
+            "hover": {
+              "enabled": true,
+              "color": "#ffd700"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#00ced1"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": false,
+          "giveCurrency": {
+            "enabled": true,
+            "trigger": "click",
+            "currency": "Gold",
+            "amount": 7,
+            "deleteAfter": false
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "CoinClickStay"
+        },
+        {
+          "ascii": "* gem (touch deletes)",
+          "left": 16,
+          "top": 178,
+          "colors": {
+            "default": "#9400d3",
+            "hover": {
+              "enabled": true,
+              "color": "#ba55d3"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#ff69b4"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": true,
+            "trigger": "touch",
+            "object": "Gem",
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "GemTouchDelete"
+        },
+        {
+          "ascii": "k key (touch stays)",
+          "left": 19,
+          "top": 241,
+          "colors": {
+            "default": "#228b22",
+            "hover": {
+              "enabled": true,
+              "color": "#32cd32"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#2e8b57"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": true,
+            "trigger": "touch",
+            "object": "Key",
+            "deleteAfter": false
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "KeyTouchStay"
+        },
+        {
+          "ascii": "[Door] (click -> scene 2)",
+          "left": 413,
+          "top": 65,
+          "colors": {
+            "default": "#8b4513",
+            "hover": {
+              "enabled": true,
+              "color": "#a0522d"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#cd853f"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": true,
+            "trigger": "click",
+            "target": "2"
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "DoorClickTo2"
+        },
+        {
+          "ascii": "( ) portal (touch -> scene 2)",
+          "left": 389,
+          "top": 287,
+          "colors": {
+            "default": "#1e90ff",
+            "hover": {
+              "enabled": true,
+              "color": "#00bfff"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#4169e1"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": true,
+            "trigger": "touch",
+            "target": "2"
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "PortalTouchTo2"
+        },
+        {
+          "ascii": "====================\n####################",
+          "left": 183,
+          "top": 338,
+          "colors": {
+            "default": "#444444",
+            "hover": {
+              "enabled": true,
+              "color": "#666666"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#222222"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "Wall"
+        },
+        {
+          "ascii": "Welcome to Demo Scene 1",
+          "left": 206,
+          "top": 24,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": false,
+              "color": "#000000"
+            },
+            "click": {
+              "enabled": false,
+              "color": "#000000"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": false,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "Object 1"
+        }
+      ],
+      "2": [
+        {
+          "ascii": " @ ",
+          "left": 300,
+          "top": 200,
+          "colors": {
+            "default": "#222222",
+            "hover": {
+              "enabled": true,
+              "color": "#0066ff"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#ff8800"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": true,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "PlayerS2"
+        },
+        {
+          "ascii": "< back (click -> 1)",
+          "left": 28,
+          "top": 116,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": true,
+              "color": "#ff1493"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#8a2be2"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": true,
+            "trigger": "click",
+            "target": "1"
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "BackClickTo1"
+        },
+        {
+          "ascii": "< back (touch -> 1)",
+          "left": 28,
+          "top": 168,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": true,
+              "color": "#ffa500"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#ff0000"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": true,
+            "trigger": "touch",
+            "target": "1"
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "BackTouchTo1"
+        },
+        {
+          "ascii": "[chest] (click gives gold, deletes)",
+          "left": 344,
+          "top": 116,
+          "colors": {
+            "default": "#8b4513",
+            "hover": {
+              "enabled": true,
+              "color": "#a0522d"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#daa520"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": true,
+            "trigger": "click",
+            "currency": "Gold",
+            "amount": 15,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "ChestGoldDelete"
+        },
+        {
+          "ascii": "totem (click gives Gem, stays)",
+          "left": 376,
+          "top": 163,
+          "colors": {
+            "default": "#483d8b",
+            "hover": {
+              "enabled": true,
+              "color": "#6a5acd"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#7fffd4"
+            }
+          },
+          "clickable": true,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": true,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": true,
+            "trigger": "click",
+            "object": "Gem",
+            "deleteAfter": false
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "TotemGemStay"
+        },
+        {
+          "ascii": "Welcome to Scene 2",
+          "left": 246,
+          "top": 34,
+          "colors": {
+            "default": "#000000",
+            "hover": {
+              "enabled": true,
+              "color": "#555555"
+            },
+            "click": {
+              "enabled": true,
+              "color": "#111111"
+            }
+          },
+          "clickable": false,
+          "visible": true,
+          "mainCharacter": false,
+          "collision": false,
+          "giveCurrency": {
+            "enabled": false,
+            "trigger": "click",
+            "currency": null,
+            "amount": 0,
+            "deleteAfter": true
+          },
+          "switchScene": {
+            "enabled": false,
+            "trigger": "click",
+            "target": null
+          },
+          "giveObject": {
+            "enabled": false,
+            "trigger": "click",
+            "object": null,
+            "deleteAfter": true
+          },
+          "targetScene": null,
+          "targetObjectName": null,
+          "itemName": "Scene2Title"
+        }
+      ]
+    },
+    "saveCurrentScene": "1",
+    "saveCustomKeyBindings": {
+      "e": "toggleInventory"
+    },
+    "persistentSettings": {
+      "rpgEnabled": true,
+      "inventory": [],
+      "currencies": {
+        "Gold": 0
+      },
+      "objects": [
+        "Gem",
+        "Key"
+      ],
+      "objectEffects": {},
+      "toolbar": {
+        "enabled": false,
+        "statsToDisplay": []
+      },
+      "playerStats": {
+        "health": 100,
+        "mana": 50,
+        "strength": 10,
+        "agility": 8
+      },
+      "inventoryEnabled": true
+    }
+  }
+}

@@ -109,18 +109,18 @@
       <hr />
 
       <h4>Color Management</h4><br>
-      <label for="default-color">Default Color:</label>
+      <label for="default-color">Default Color:</label><br>
       <input type="color" id="default-color"><br />
-      <label for="hover-color">Hover Color:</label>
+      <label for="hover-color">Hover Color:</label><br>
       <input type="color" id="hover-color"><br />
-      <label for="click-color">Click Color:</label>
+      <label for="click-color">Click Color:</label><br>
       <input type="color" id="click-color"><br />
       <br />
     </div>
   </div>
 
   <!-- Global Settings Panel -->
-  <div id="global-settings-panel" class="panel-box collapsed">
+  <div id="global-settings-panel" class="panel-box">
     <div class="panel-header">Global Settings</div>
     <div class="panel-content">
       <div>
@@ -140,7 +140,7 @@
   
       <div>
         <h4>RPG Mechanics(NYI)</h4><br>
-        <label><input type="checkbox" id="enable-rpg-mechanics" /> Enable RPG Features</label>
+        <label><input type="checkbox" id="enable-rpg-mechanics" disabled /> Enable RPG Features</label>
         <div id="rpg-stats-config" style="margin-left: 10px; display: none;">
           <label>Health: <input type="number" id="stat-health" value="100" /></label><br>
           <label>Mana: <input type="number" id="stat-mana" value="50" /></label><br>
@@ -168,9 +168,9 @@
       <hr />
   
       <div>
-        <h4>Inventory / Toolbar/h4><br>
-        <label><input type="checkbox" id="enable-inventory" /> Enable Inventory Popup</label>
-        <label><input type="checkbox" id="enable-toolbar" /> Enable Persistent Toolbar(NYI)</label><br />
+        <h4>Inventory / Toolbar<br><br>
+        <label><input type="checkbox" id="enable-inventory" /> Enable Inventory Popup</label><br />
+        <label><input type="checkbox" id="enable-toolbar" disabled/> Enable Persistent Toolbar(NYI)</label><br />
       </div><br>
     </div>
   </div>
@@ -205,7 +205,7 @@
   
       <div id="object-stat-effects">
         <h4>Object Stat Effects(NYI)</h4>
-        <ul id="object-stat-effects-list"></ul>
+        <ul id="object-stat-effects-list" disable></ul>
       </div>
     </div>
   </div>

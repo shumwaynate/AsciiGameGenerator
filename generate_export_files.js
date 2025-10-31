@@ -1,3 +1,6 @@
+// This file generates the exportable game files as a zip using JSZip
+// file: generate_export_files.js
+
 document.getElementById('saveGameExport')?.addEventListener('click', exportGameAsZip);
 
 async function exportGameAsZip() {
@@ -65,6 +68,35 @@ let sceneObjects = [];
 const keysPressed = new Set();
 const inventory = [];
 const currencies = {};
+
+// --- touch throttling: once-per-touch + 1s cooldown ---
+const TOUCH_COOLDOWN_MS = 1000;
+const touchMemory = new Map(); // key -> { inContact: bool, last: number }
+
+function touchKeyFor(obj) {
+  // Prefer stable key by itemName; fall back to element/object identity
+  return obj.itemName || obj.element || obj;
+}
+function canTriggerTouch(obj) {
+  const key = touchKeyFor(obj);
+  const state = touchMemory.get(key) || { inContact: false, last: 0 };
+  const now = performance.now();
+  const allowed = !state.inContact && (now - state.last >= TOUCH_COOLDOWN_MS);
+  if (allowed) {
+    state.inContact = true;
+    state.last = now;
+    touchMemory.set(key, state);
+  }
+  return allowed;
+}
+function endContact(obj) {
+  const key = touchKeyFor(obj);
+  const state = touchMemory.get(key) || { inContact: false, last: 0 };
+  if (state.inContact) {
+    state.inContact = false;
+    touchMemory.set(key, state);
+  }
+}
 
 function renderInventoryOverlay() {
   const overlay = document.getElementById('inventoryOverlay');
@@ -154,34 +186,52 @@ function moveMainPlayer(dx, dy) {
   const proposedY = mainPlayerObj.y + dy;
   const virtualPlayer = { x: proposedX, y: proposedY, width: mainPlayerObj.width, height: mainPlayerObj.height };
 
+  let blocked = false;
+
   for (let obj of sceneObjects) {
     if (obj.element === mainPlayerObj.element) continue;
     const other = { left: obj.left, top: obj.top, width: obj.width, height: obj.height };
-    const isColliding = !(virtualPlayer.x + virtualPlayer.width < other.left || virtualPlayer.x > other.left + other.width || virtualPlayer.y + virtualPlayer.height < other.top || virtualPlayer.y > other.top + other.height);
-    if (isColliding) {
-      if (obj.switchScene?.enabled && obj.switchScene.trigger === 'touch' && obj.switchScene.target) {
-        renderScene(obj.switchScene.target);
-        return;
-      }
-      if (obj.giveCurrency?.enabled && obj.giveCurrency.trigger === 'touch' && obj.giveCurrency.currency) {
-        currencies[obj.giveCurrency.currency] = (currencies[obj.giveCurrency.currency] || 0) + obj.giveCurrency.amount;
-        if (obj.giveCurrency.deleteAfter) {
-          obj.element.remove();
-          sceneObjects = sceneObjects.filter(o => o.element !== obj.element);
-          gameState.sceneList[gameState.saveCurrentScene] = gameState.sceneList[gameState.saveCurrentScene].filter(o => o.itemName !== obj.itemName);
+    const colliding = !(virtualPlayer.x + virtualPlayer.width < other.left || virtualPlayer.x > other.left + other.width || virtualPlayer.y + virtualPlayer.height < other.top || virtualPlayer.y > other.top + other.height);
+
+    if (colliding) {
+      // Throttled "touch" triggers
+      const mayTrigger = canTriggerTouch(obj);
+
+      if (mayTrigger) {
+        if (obj.switchScene?.enabled && obj.switchScene.trigger === 'touch' && obj.switchScene.target) {
+          renderScene(obj.switchScene.target);
+          return;
+        }
+        if (obj.giveCurrency?.enabled && obj.giveCurrency.trigger === 'touch' && obj.giveCurrency.currency) {
+          currencies[obj.giveCurrency.currency] = (currencies[obj.giveCurrency.currency] || 0) + obj.giveCurrency.amount;
+          if (obj.giveCurrency.deleteAfter) {
+            obj.element.remove();
+            sceneObjects = sceneObjects.filter(o => o.element !== obj.element);
+            gameState.sceneList[gameState.saveCurrentScene] =
+              gameState.sceneList[gameState.saveCurrentScene].filter(o => o.itemName !== obj.itemName);
+          }
+        }
+        if (obj.giveObject?.enabled && obj.giveObject.trigger === 'touch' && obj.giveObject.object) {
+          inventory.push(obj.giveObject.object);
+          if (obj.giveObject.deleteAfter) {
+            obj.element.remove();
+            sceneObjects = sceneObjects.filter(o => o.element !== obj.element);
+            gameState.sceneList[gameState.saveCurrentScene] =
+              gameState.sceneList[gameState.saveCurrentScene].filter(o => o.itemName !== obj.itemName);
+          }
         }
       }
-      if (obj.giveObject?.enabled && obj.giveObject.trigger === 'touch' && obj.giveObject.object) {
-        inventory.push(obj.giveObject.object);
-        if (obj.giveObject.deleteAfter) {
-          obj.element.remove();
-          sceneObjects = sceneObjects.filter(o => o.element !== obj.element);
-          gameState.sceneList[gameState.saveCurrentScene] = gameState.sceneList[gameState.saveCurrentScene].filter(o => o.itemName !== obj.itemName);
-        }
+
+      if (obj.collision !== false) {
+        blocked = true; // maintain original block behavior
       }
-      if (obj.collision !== false) return;
+    } else {
+      // Not touching anymore -> allow future triggers
+      endContact(obj);
     }
   }
+
+  if (blocked) return;
 
   mainPlayerObj.x = Math.max(0, Math.min(proposedX, ${screenWidth} - mainPlayerObj.width));
   mainPlayerObj.y = Math.max(0, Math.min(proposedY, ${screenHeight} - mainPlayerObj.height));

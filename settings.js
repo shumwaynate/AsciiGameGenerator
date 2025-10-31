@@ -67,7 +67,7 @@ function importEditorSettings(event) {
 document.getElementById('importFile')?.addEventListener('change', importEditorSettings);
 
 // Make the import project button import an example save
-exampleSave = 'Example Saves/Save_May_2025.json'
+exampleSave = 'Example Saves/DemoTest-103125.json'
 document.getElementById('importProject').addEventListener('click', () => {
     fetch(exampleSave)
         .then(res => res.json())
