@@ -76,6 +76,18 @@
             position: relative;
             padding-bottom: 100%;
         }
+
+        .location-grid {
+            display: grid; grid-template-columns: repeat(3, 40px); gap: 6px;
+            margin: 8px 0 12px; user-select: none;
+            }
+            .location-grid > div {
+            display:flex; align-items:center; justify-content:center;
+            border:1px solid #ccc; border-radius:6px; height:40px; font-weight:700;
+            }
+            .location-controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+            .location-controls .checkbox { display:flex; gap:6px; align-items:center; }
+
     </style>
 </head>
 <body>
@@ -113,7 +125,7 @@
         <hr />
 
         <div class="section">
-            <h2>Screen Size (Scales all propertions)</h2>
+            <h2>Screen Size</h2>
             <div class="form-group">
                 <label for="screenWidth">Width (pixels)</label>
                 <input type="text" id="screenWidth" placeholder="e.g., 650(editor size)">
@@ -122,8 +134,40 @@
                 <label for="screenHeight">Height (pixels)</label>
                 <input type="text" id="screenHeight" placeholder="e.g., 400(editor size)">
             </div>
+            
+            <!-- Visual reference: 3×3 numbered grid -->
+            <h2>Screen Location</h2>
+            <div class="location-grid" aria-label="Game location reference">
+                <div>1</div><div>2</div><div>3</div>
+                <div>4</div><div>5</div><div>6</div>
+                <div>7</div><div>8</div><div>9</div>
+            </div>
+
+            <!-- Separated controls -->
+            <div class="location-controls">
+                <label for="positionSelect">Location</label>
+                <select id="positionSelect" name="positionSelect">
+                <option value="1">1 (Top-Left)</option>
+                <option value="2">2 (Top-Center)</option>
+                <option value="3">3 (Top-Right)</option>
+                <option value="4">4 (Center-Left)</option>
+                <option value="5">5 (Center)</option>
+                <option value="6">6 (Center-Right)</option>
+                <option value="7">7 (Bottom-Left)</option>
+                <option value="8">8 (Bottom-Center)</option>
+                <option value="9" selected>9 (Bottom-Right)</option>
+                </select>
+
+                <label class="checkbox">
+                <input type="checkbox" id="allowDragCheckbox" />
+                Allow mouse drag
+                </label>
+
+                <!-- <button id="saveLocationSettings">Save to Settings</button> -->
+
+
             <div class="form-group">
-                <button id="saveScreenSize">Save Screen Size</button> <br><br>
+                <button id="saveScreenSize">Save Screen Size/Location</button> <br><br>
                 <hr />
                 <button id="home-button">Return To Editor</button>
                 <button onclick="launchGamePreview()">Launch Game Preview</button>
