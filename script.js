@@ -644,7 +644,7 @@ document.getElementById('add-global-keybinding').addEventListener('click', () =>
         keyBindings[key] = action; // Add to keyBindings object
         updateKeybindList(); // Refresh the keybindings list
         document.getElementById('global-key-input').value = ''; // Clear input field
-        silentSaveGameState // Save new keybinds to save state
+        silentSaveGameState(); // Save new keybinds to save state
     } else {
         alert('Please enter a key and select an action.');
     }
@@ -1308,7 +1308,7 @@ function setupGlobalSettingsUI() {
             silentSaveGameState();
             updateCurrencyList();
             updateItemsInSceneBox();
-            updateContextMenuEvents();
+            populateGiveDropdowns();
             
             
         } else {
