@@ -5,8 +5,10 @@ AsciiGameGenerator is a browser-based ASCII game editor that supports scene crea
 ## Permanent Project Requirements
 
 - Multiple ASCII objects may be marked as main characters. Do not enforce a single-main-character restriction.
-- Existing exported JSON project files must remain compatible whenever practical.
-- Use non-destructive normalization or migrations when the saved structure changes.
+- Compatibility with old test JSON files is not currently required. Test and example JSON files may be regenerated as the project evolves.
+- Preserve projects created with the current supported schema unless a deliberate schema change is approved.
+- When introducing the next significant saved-data structure, add a `schemaVersion` field so future formats can be identified clearly.
+- Do not build legacy migrations or compatibility layers unless the user explicitly requests them.
 - The editor must continue working entirely in the browser without a backend.
 - Exported games must remain standalone and must not depend on the editor or its `localStorage`.
 - Preview behavior and exported-game behavior should remain consistent.
