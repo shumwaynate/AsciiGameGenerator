@@ -61,6 +61,14 @@ h3, h4 {
     border: 2px solid red;
 }
 
+#selection-overlay {
+    position: absolute;
+    display: none;
+    pointer-events: none;
+    box-sizing: border-box;
+    z-index: 10;
+}
+
 @keyframes flash-border {
     0% { border-color: red; }
     50% { border-color: transparent; }
@@ -244,6 +252,14 @@ h3, h4 {
     margin-left: 10px;
     cursor: pointer;
     font-size: 14px;
+}
+
+#keybindings-ul button.delete-x,
+#scene-list button.delete-x {
+    margin: 0 0 0 10px;
+    padding: 0;
+    font-family: inherit;
+    line-height: inherit;
 }
 
 

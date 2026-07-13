@@ -26,7 +26,6 @@ document.getElementById('save-scene').addEventListener('click', () => {
     const sceneName = document.getElementById('scene-name').value;
     if (sceneName) {
         saveScene(sceneName); // Save the current scene
-        currentScene = sceneName; // Update current scene name global variable
        
         //may need this later to just copy the objects and not the references
         // let asciiObjectsCopy = JSON.parse(JSON.stringify(asciiObjects));
@@ -211,6 +210,9 @@ function addAsciiArt(asciiArt, left = null, top = null, color = null) {
         const mouseMoveHandler = (event) => {
             artDiv.style.left = `${event.clientX - containerRect.left - offsetX}px`;
             artDiv.style.top = `${event.clientY - containerRect.top - offsetY}px`;
+            if (selectedAsciiArt === asciiObject) {
+                updateSelectionOverlay(asciiObject);
+            }
         };
 
         const mouseUpHandler = () => {
@@ -256,6 +258,8 @@ function saveScene(sceneName) {
         targetObjectName: obj.targetObjectName,
         itemName: obj.itemName
     }));
+
+    currentScene = sceneName;
       
     alert(`Scene '${sceneName}' saved!`);
     updateSceneList(); // Updates the scene list on save scene
@@ -263,6 +267,7 @@ function saveScene(sceneName) {
 
 function loadScene(sceneName) {
     if (scenes[sceneName]) {
+        clearAsciiSelection();
         document.getElementById('ascii-display').innerHTML = '';
         asciiObjects = []; // Clear existing objects
 
@@ -284,7 +289,7 @@ function loadScene(sceneName) {
             artObject.colors = colors;
             artObject.clickable = obj.clickable;
             artObject.mainCharacter = obj.mainCharacter;
-            artObject.visible = obj.visible;
+            artObject.visible = obj.visible !== false;
             artObject.collision = obj.collision ?? true;
             artObject.switchScene = obj.switchScene ?? { enabled: false, trigger: "click", target: null };
             artObject.giveCurrency = obj.giveCurrency ?? { enabled: false, trigger: "click", currency: null, amount: 0, deleteAfter: true };
@@ -295,6 +300,7 @@ function loadScene(sceneName) {
 
             // Set initial color
             artDiv.style.color = colors.default;
+            artDiv.style.opacity = artObject.visible ? "1" : "0";
 
             // Clear previous events and apply new ones using modular structure
             artDiv.onmouseenter = colors.hover.enabled ? () => {
@@ -401,10 +407,57 @@ function clearPropertyBox() {
     document.getElementById('property-box').querySelectorAll('input[type="checkbox"]').forEach(input => input.checked = false);
 }
 
+function getSelectionOverlay() {
+    let overlay = document.getElementById('selection-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'selection-overlay';
+        overlay.classList.add('flashing-border');
+        document.getElementById('ascii-display').appendChild(overlay);
+    }
+    return overlay;
+}
+
+function hideSelectionOverlay() {
+    const overlay = document.getElementById('selection-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+}
+
+function updateSelectionOverlay(asciiObject) {
+    if (
+        !asciiObject ||
+        asciiObject.visible !== false ||
+        !asciiObject.element.isConnected
+    ) {
+        hideSelectionOverlay();
+        return;
+    }
+
+    const overlay = getSelectionOverlay();
+    overlay.style.left = `${asciiObject.element.offsetLeft}px`;
+    overlay.style.top = `${asciiObject.element.offsetTop}px`;
+    overlay.style.width = `${asciiObject.element.offsetWidth}px`;
+    overlay.style.height = `${asciiObject.element.offsetHeight}px`;
+    overlay.style.display = 'block';
+}
+
+function clearAsciiSelection() {
+    if (selectedAsciiArt) {
+        selectedAsciiArt.element.classList.remove('flashing-border');
+    }
+    selectedAsciiArt = null;
+    hideSelectionOverlay();
+}
+
 // Delete ASCII art
 function deleteAsciiArt(asciiObject) {
     const index = asciiObjects.indexOf(asciiObject);
     if (index !== -1) {
+        if (selectedAsciiArt === asciiObject) {
+            clearAsciiSelection();
+        }
         asciiObjects.splice(index, 1);
         asciiObject.element.remove();
     }
@@ -429,8 +482,9 @@ function selectAsciiObject(asciiObject) {
     // Update selected object
     selectedAsciiArt = asciiObject;
 
-    // Add highlight to the currently selected object
-    selectedAsciiArt.element.classList.add('flashing-border');
+    // Highlight visible objects directly and invisible objects with the overlay
+    selectedAsciiArt.element.classList.toggle('flashing-border', selectedAsciiArt.visible !== false);
+    updateSelectionOverlay(selectedAsciiArt);
 
     // Ensure the property box only updates for the selected object
     updatePropertyBox(selectedAsciiArt);
@@ -830,7 +884,8 @@ function updateKeybindList() {
         const li = document.createElement('li');
         li.textContent = `${key}: ${keyBindings[key]}`;
 
-        const delBtn = document.createElement('button1');
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
         delBtn.textContent = '✖';
         delBtn.classList.add('delete-x');
         delBtn.addEventListener('click', () => {
@@ -859,8 +914,13 @@ function updateSceneList() {
         const li = document.createElement('li');
         li.textContent = sceneName;
 
+        if (sceneName === currentScene) {
+            li.classList.add('highlight');
+        }
+
         // Delete button
-        const delBtn = document.createElement('button1');
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
         delBtn.textContent = '✖';
         delBtn.classList.add('delete-x');
         delBtn.addEventListener('click', () => {
@@ -879,6 +939,7 @@ function updateSceneList() {
 // Clears canvas of objects
 document.getElementById('clear-canvas').addEventListener('click', () => {
     if (confirm("Are you sure you want to clear all ASCII objects from the canvas?")) {
+        clearAsciiSelection();
         asciiObjects.forEach(obj => {
             obj.element.remove();
         });
@@ -997,6 +1058,8 @@ function initializeContextMenuEvents() {
       if (selectedAsciiArt) {
         selectedAsciiArt.visible = !this.checked;
         selectedAsciiArt.element.style.opacity = this.checked ? "0" : "1";
+        selectedAsciiArt.element.classList.toggle('flashing-border', selectedAsciiArt.visible);
+        updateSelectionOverlay(selectedAsciiArt);
       }
     });
   

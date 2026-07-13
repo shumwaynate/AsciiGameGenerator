@@ -135,6 +135,7 @@ function renderScene(sceneId) {
     div.style.left = (obj.left * scaleX) + 'px';
     div.style.top = (obj.top * scaleY) + 'px';
     div.style.color = obj.colors?.default || '#000';
+    div.style.opacity = obj.visible === false ? '0' : '1';
 
     if (obj.colors?.hover?.enabled) {
       div.addEventListener('mouseenter', () => div.style.color = obj.colors.hover.color);
