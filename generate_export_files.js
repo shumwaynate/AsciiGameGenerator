@@ -126,6 +126,7 @@ function renderScene(sceneId) {
   const container = document.getElementById('gameArea');
   container.innerHTML = "";
   sceneObjects = [];
+  mainPlayerObj = null;
   const objects = gameState.sceneList[sceneId] || [];
 
   objects.forEach(obj => {
@@ -175,7 +176,7 @@ function renderScene(sceneId) {
     const scaledObj = { ...obj, element: div, left: obj.left * scaleX, top: obj.top * scaleY, width: div.offsetWidth, height: div.offsetHeight };
     sceneObjects.push(scaledObj);
 
-    if (obj.mainCharacter) {
+    if (obj.mainCharacter && !mainPlayerObj) {
       mainPlayerObj = { element: div, objData: obj, x: scaledObj.left, y: scaledObj.top, width: scaledObj.width, height: scaledObj.height };
     }
   });

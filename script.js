@@ -271,6 +271,7 @@ function loadScene(sceneName) {
         document.getElementById('ascii-display').innerHTML = '';
         asciiObjects = []; // Clear existing objects
 
+        let mainCharacterFound = false;
         scenes[sceneName].forEach(obj => {
             // Backward compatibility for old color structure
             const colors = obj.colors || {
@@ -288,7 +289,11 @@ function loadScene(sceneName) {
             // Assign the full color system and other properties
             artObject.colors = colors;
             artObject.clickable = obj.clickable;
-            artObject.mainCharacter = obj.mainCharacter;
+            artObject.mainCharacter = obj.mainCharacter === true && !mainCharacterFound;
+            if (artObject.mainCharacter) {
+                mainCharacterFound = true;
+            }
+
             artObject.visible = obj.visible !== false;
             artObject.collision = obj.collision ?? true;
             artObject.switchScene = obj.switchScene ?? { enabled: false, trigger: "click", target: null };
@@ -1041,9 +1046,17 @@ function initializeContextMenuEvents() {
   
     // Main Player toggle
     document.getElementById('prop-main-player').addEventListener('change', function () {
-      if (selectedAsciiArt) {
+      if (!selectedAsciiArt) return;
+
+      if (this.checked) {
+        asciiObjects.forEach(asciiObject => {
+          asciiObject.mainCharacter = asciiObject === selectedAsciiArt;
+        });
+      } else {
         selectedAsciiArt.mainCharacter = this.checked;
       }
+
+      this.checked = selectedAsciiArt.mainCharacter;
     });
   
     // Collision toggle

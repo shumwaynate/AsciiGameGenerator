@@ -119,6 +119,7 @@ function renderScene(sceneId) {
   const container = document.getElementById('gameArea');
   container.innerHTML = "";
   sceneObjects = [];
+  mainPlayerObj = null;
 
   const objects = gameState.sceneList[sceneId] || [];
 
@@ -180,7 +181,7 @@ function renderScene(sceneId) {
     const scaledObj = { ...obj, element: div, left, top, width: div.offsetWidth, height: div.offsetHeight };
     sceneObjects.push(scaledObj);
 
-    if (obj.mainCharacter) {
+    if (obj.mainCharacter && !mainPlayerObj) {
       mainPlayerObj = { element: div, objData: obj, x: left, y: top, width: div.offsetWidth, height: div.offsetHeight };
     }
   });

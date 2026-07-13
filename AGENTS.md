@@ -4,7 +4,11 @@ AsciiGameGenerator is a browser-based ASCII game editor that supports scene crea
 
 ## Permanent Project Requirements
 
-- Multiple ASCII objects may be marked as main characters. Do not enforce a single-main-character restriction.
+- Each scene supports a maximum of one main character.
+- A scene may have zero main characters.
+- When a different object is marked as the main character, the previously marked object in the current scene should be unmarked automatically.
+- Different scenes may use different main-character objects.
+- Multiple-character or party movement is not currently supported and may be reconsidered later.
 - Compatibility with old test JSON files is not currently required. Test and example JSON files may be regenerated as the project evolves.
 - Preserve projects created with the current supported schema unless a deliberate schema change is approved.
 - When introducing the next significant saved-data structure, add a `schemaVersion` field so future formats can be identified clearly.
