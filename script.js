@@ -1136,6 +1136,24 @@ document.getElementById('clear-storage').addEventListener('click', () => {
     refreshItemsInSceneBox(); // Refresh the items in the scene box
 });
 
+function createDefaultPersistentSettings() {
+    return {
+        rpgEnabled: false,
+        inventory: [],
+        currencies: {},
+        objects: [],
+        objectEffects: {},
+        toolbar: { enabled: false, statsToDisplay: [] },
+        playerStats: {
+            health: 100,
+            mana: 50,
+            strength: 10,
+            agility: 8
+        },
+        inventoryEnabled: false
+    };
+}
+
 // function that can be callable to save the game state from anywere.
 function saveGameState() {
     const gameState = {
@@ -1194,15 +1212,7 @@ function loadGameState() {
 
         // Handle persistent RPG data
         if (!gameState.persistentSettings) {
-            gameState.persistentSettings = {
-                rpgEnabled: false,
-                inventory: [],
-                currencies: {},
-                objects: [],
-                toolbar: { enabled: false, statsToDisplay: [] },
-                playerStats: { health: 100, mana: 50, strength: 10, agility: 8 },
-                inventoryEnabled: false  // <-- This is always defined now
-            };
+            gameState.persistentSettings = createDefaultPersistentSettings();
         }
 
         window.persistentSettings = gameState.persistentSettings;
@@ -1218,6 +1228,7 @@ function loadGameState() {
         console.log('Game state loaded successfully!');
         console.log(`Current Scene: ${currentScene}\nAvailable Scenes: ${Object.keys(scenes).join(', ')}`);
     } else {
+        window.persistentSettings = createDefaultPersistentSettings();
         alert('No saved game state found.');
     }
 }
