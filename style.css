@@ -49,6 +49,8 @@ h3, h4 {
     white-space: pre;
     color: black;
     font-size: 15px;
+    touch-action: none;
+    user-select: none;
 }
 
 .selected {
@@ -67,6 +69,11 @@ h3, h4 {
     pointer-events: none;
     box-sizing: border-box;
     z-index: 10;
+}
+
+#object-list li.selected-panel-item {
+    background-color: #d9e9ff;
+    font-weight: bold;
 }
 
 @keyframes flash-border {
