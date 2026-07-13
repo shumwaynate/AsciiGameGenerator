@@ -894,7 +894,8 @@ function refreshItemsInSceneBox() {
     setTimeout(() => {
         updateItemsInSceneBox();
         updateKeybindList();
-        initializeContextMenuEvents();
+        populateSceneDropdown();
+        populateGiveDropdowns();
         updateCurrencyList();
         updateObjectLibraryEffects();
     }, 50); // Ensure DOM has rendered completely
@@ -926,6 +927,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Set initial visibility
       content.style.display = panel.classList.contains("collapsed") ? "none" : "block";
     });
+    initializeContextMenuEvents(); // Register permanent context-menu listeners once
     setupGlobalSettingsUI(); // Initialize global settings UI
   });
   
