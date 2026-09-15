@@ -44,7 +44,7 @@
       <input id="prop-give-currency-enabled" type="checkbox"><select id="give-currency-trigger"><option value="click">click</option><option value="touch">touch</option></select><select id="give-currency-list"></select><input id="give-currency-amount"><input id="give-currency-delete-after" type="checkbox">
       <input id="prop-give-object-enabled" type="checkbox"><select id="give-object-trigger"><option value="click">click</option><option value="touch">touch</option></select><select id="give-object-list"></select><input id="give-object-delete-after" type="checkbox">
       <input id="enable-rpg-mechanics" type="checkbox"><div id="rpg-stats-config"></div><input id="enable-toolbar" type="checkbox"><input id="enable-inventory" type="checkbox">
-      <ul id="object-list"></ul><ul id="scene-list"></ul><span id="scene-total"></span><ul id="keybindings-ul"></ul><ul id="editor-currency-list"></ul><ul id="object-library-list"></ul><ul id="object-stat-effects-list"></ul>
+      <ul id="object-list"></ul><ul id="scene-list"></ul><span id="scene-total"></span><ul id="keybindings-ul"></ul><ul id="editor-currency-list"></ul><button id="save-currency-changes" type="button">Save Currency Changes</button><ul id="object-library-list"></ul><ul id="object-stat-effects-list"></ul>
       <textarea id="ascii-input"></textarea><input id="scene-name"><button id="add-ascii-art"></button><button id="save-scene"></button><button id="load-scene"></button><button id="clear-canvas"></button><button id="delete-selected-item"></button><button id="delete-item"></button><button id="save-properties"></button><button id="close-context-menu"></button>
       <input id="global-key-input"><select id="global-action-select"><option value="toggleInventory">toggleInventory</option></select><button id="add-global-keybinding"></button>
       <input id="new-currency-name"><input id="new-currency-value"><button id="add-currency"></button><input id="new-object-name"><button id="add-object-button"></button>
@@ -349,6 +349,56 @@
     document.querySelector('[data-action="load-scene"][data-scene-name="second"]').click();
     equal(state.getWorkspaceState().objects[0].ascii, '2');
     context.cleanup();
+  });
+
+  test('deleting current scene renders its replacement and clears the last workspace', function () {
+    const state = createState({ first: [object({ ascii: '1' })], second: [object({ ascii: '2' })] }, 'first');
+    const context = createEditorContext(state);
+    document.querySelector('[data-action="delete-scene"][data-scene-name="first"]').click();
+    equal(fixture.querySelector('.ascii-art').textContent, '2');
+    document.querySelector('[data-action="delete-scene"][data-scene-name="second"]').click();
+    equal(fixture.querySelector('.ascii-art'), null);
+    equal(state.getProjectState().currentScene, null);
+    context.cleanup();
+  });
+
+  test('Settings navigation preserves saved currency and does not save typed amounts or workspace edits', function () {
+    const state = createState({ room: [object()] }, 'room');
+    const settings = state.getProjectState().persistentSettings; settings.currencies.Gold = 1;
+    state.setPersistentSettings(settings);
+    let atNavigation = null; let writes = 0;
+    const context = createEditorContext(state, { onSave: function () { writes += 1; }, onSilentSave: function () { writes += 1; }, onNavigateToSettings: function () { atNavigation = state.getProjectState(); } });
+    state.updateObject(state.getWorkspaceState().objects[0]._editorId, { ascii: 'unsaved' });
+    const input = document.querySelector('input[data-currency-name="Gold"]');
+    input.value = '5'; input.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById('settings-button').click();
+    equal(writes, 0, 'navigation must not invoke either save callback');
+    equal(atNavigation.persistentSettings.currencies.Gold, 1);
+    document.getElementById('save-currency-changes').click();
+    equal(state.getProjectState().persistentSettings.currencies.Gold, 5);
+    equal(writes, 1, 'only explicit currency save persists the amount');
+    equal(atNavigation.scenes.room[0].ascii, '@');
+    equal(state.getWorkspaceState().dirty, true);
+    context.cleanup();
+  });
+
+  test('New Project and pagehide do not save unconfirmed currency input', function () {
+    const state = createState({ room: [object()] }, 'room');
+    const settings = state.getProjectState().persistentSettings; settings.currencies.Gold = 1; state.setPersistentSettings(settings);
+    const previousStorage = namespace.projectStorage;
+    let cleared = false; let writes = 0;
+    namespace.projectStorage = { clearProject: function () { cleared = true; } };
+    const fakeWindow = new EventTarget();
+    Object.assign(fakeWindow, { alert: function () {}, confirm: function () { return true; },
+      setTimeout: window.setTimeout.bind(window), clearTimeout: window.clearTimeout.bind(window),
+      location: { reload: function () { fakeWindow.dispatchEvent(new Event('pagehide')); } } });
+    const context = createEditorContext(state, { window: fakeWindow, onClearStorage: null, onSilentSave: function () { writes += 1; } });
+    try {
+      const input = document.querySelector('input[data-currency-name="Gold"]');
+      input.value = '8'; input.dispatchEvent(new Event('input', { bubbles: true }));
+      document.getElementById('clear-storage').click();
+      equal(cleared, true); equal(writes, 0, 'old delayed state must not overwrite the newly cleared project');
+    } finally { context.cleanup(); namespace.projectStorage = previousStorage; }
   });
 
   function runTests() {

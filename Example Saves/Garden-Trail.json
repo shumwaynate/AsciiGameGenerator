@@ -1,0 +1,657 @@
+{
+  "schemaVersion": 1,
+  "sceneList": {
+    "Garden": [
+      {
+        "ascii": "GARDEN TRAIL",
+        "left": 230,
+        "top": 30,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "GARDEN TRAIL"
+      },
+      {
+        "ascii": "Walk with WASD or the direction pad.",
+        "left": 110,
+        "top": 65,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Walk with WASD or the direction pad."
+      },
+      {
+        "ascii": "Collect $ and KEY. Walk through the Cabin gate.",
+        "left": 70,
+        "top": 100,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Collect $ and KEY. Walk through the Cabin gate."
+      },
+      {
+        "ascii": "@",
+        "left": 60,
+        "top": 180,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": true,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Explorer"
+      },
+      {
+        "ascii": "###\n###",
+        "left": 230,
+        "top": 155,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": true,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Stone wall (solid)"
+      },
+      {
+        "ascii": "$",
+        "left": 150,
+        "top": 180,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": true,
+          "trigger": "touch",
+          "currency": "Gold",
+          "amount": 5,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Five gold coins"
+      },
+      {
+        "ascii": "KEY",
+        "left": 340,
+        "top": 220,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": true,
+          "trigger": "touch",
+          "object": "Brass key",
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Brass key pickup"
+      },
+      {
+        "ascii": "[ Cabin > ]",
+        "left": 500,
+        "top": 180,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": true,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": true,
+          "trigger": "touch",
+          "target": "Cabin"
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Path to Cabin"
+      },
+      {
+        "ascii": "Inventory: I on keyboard, or the Inventory button.",
+        "left": 65,
+        "top": 330,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Inventory: I on keyboard, or the Inventory button."
+      }
+    ],
+    "Cabin": [
+      {
+        "ascii": "THE CABIN",
+        "left": 250,
+        "top": 30,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "THE CABIN"
+      },
+      {
+        "ascii": "Click or tap the chest for a keepsake.",
+        "left": 100,
+        "top": 75,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Click or tap the chest for a keepsake."
+      },
+      {
+        "ascii": "@",
+        "left": 60,
+        "top": 180,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": true,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Explorer"
+      },
+      {
+        "ascii": "+-------+\n| CHEST |\n+-------+",
+        "left": 285,
+        "top": 180,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": true,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": true,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": true,
+          "trigger": "click",
+          "object": "Garden keepsake",
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Keepsake chest (click)"
+      },
+      {
+        "ascii": "[ Garden > ]",
+        "left": 500,
+        "top": 180,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": true,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": true,
+          "trigger": "touch",
+          "target": "Garden"
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Back to Garden"
+      },
+      {
+        "ascii": "Your coins and items travel between scenes.",
+        "left": 95,
+        "top": 320,
+        "colors": {
+          "default": "#000000",
+          "hover": {
+            "enabled": false,
+            "color": "#000000"
+          },
+          "click": {
+            "enabled": false,
+            "color": "#000000"
+          }
+        },
+        "clickable": false,
+        "visible": true,
+        "mainCharacter": false,
+        "collision": false,
+        "giveCurrency": {
+          "enabled": false,
+          "trigger": "click",
+          "currency": null,
+          "amount": 0,
+          "deleteAfter": true
+        },
+        "switchScene": {
+          "enabled": false,
+          "trigger": "click",
+          "target": null
+        },
+        "giveObject": {
+          "enabled": false,
+          "trigger": "click",
+          "object": null,
+          "deleteAfter": true
+        },
+        "targetScene": null,
+        "targetObjectName": null,
+        "itemName": "Your coins and items travel between scenes."
+      }
+    ]
+  },
+  "saveCurrentScene": "Garden",
+  "saveCustomKeyBindings": {
+    "i": "toggleInventory"
+  },
+  "persistentSettings": {
+    "rpgEnabled": false,
+    "inventory": [],
+    "currencies": {
+      "Gold": 0
+    },
+    "objects": [
+      "Brass key",
+      "Garden keepsake"
+    ],
+    "objectEffects": {},
+    "toolbar": {
+      "enabled": false,
+      "statsToDisplay": []
+    },
+    "playerStats": {
+      "health": 100,
+      "mana": 50,
+      "strength": 10,
+      "agility": 8
+    },
+    "inventoryEnabled": true
+  },
+  "editorSettings": {
+    "screenWidth": 650,
+    "screenHeight": 400,
+    "position": 9,
+    "allowDrag": false
+  }
+}

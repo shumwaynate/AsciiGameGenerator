@@ -1,128 +1,91 @@
 (function (global) {
   'use strict';
+  const namespace = global.AsciiGameGenerator;
+  const storage = namespace.projectStorage;
+  let editorState;
+  let storageBlocked = false;
 
-  const namespace = global.AsciiGameGenerator = global.AsciiGameGenerator || {};
-  let editorState = null;
-  let editorRenderer = null;
-  let editorController = null;
-
-  function createDefaultPersistentSettings() {
-    return namespace.ProjectModel.createDefaultPersistentSettings();
+  function report(message) {
+    const status = document.getElementById('status-message');
+    status.textContent = message;
+    status.hidden = false;
+    if (storageBlocked) {
+      const link = document.createElement('a');
+      link.href = 'settings.html';
+      link.textContent = ' Open Settings';
+      status.appendChild(link);
+    }
   }
 
   function loadGameState() {
-    const savedGameState = global.localStorage.getItem('gameState');
-    if (!savedGameState) {
-      global.alert('No saved game state found.');
-      return {
-        sceneList: {},
-        saveCurrentScene: '',
-        saveCustomKeyBindings: {},
-        persistentSettings: createDefaultPersistentSettings()
-      };
-    }
-
     try {
-      const gameState = JSON.parse(savedGameState);
-      gameState.sceneList = gameState.sceneList || {};
-      gameState.saveCurrentScene = gameState.saveCurrentScene || '';
-      gameState.saveCustomKeyBindings = gameState.saveCustomKeyBindings || {};
-      gameState.persistentSettings = namespace.ProjectModel.normalizePersistentSettings(gameState.persistentSettings);
-      return gameState;
+      const result = storage.readProject();
+      if (result.warnings.length) report(result.warnings.join(' '));
+      try { storage.writeProject(result.project); }
+      catch (error) { report(error.message); }
+      return result.project;
     } catch (error) {
-      console.error('Unable to parse saved game state:', error);
-      global.alert('The saved game state could not be loaded.');
-      return {
-        sceneList: {},
-        saveCurrentScene: '',
-        saveCustomKeyBindings: {},
-        persistentSettings: createDefaultPersistentSettings()
-      };
+      storageBlocked = true;
+      report(error.message + ' Start a New Project or import a valid file in Settings to recover. Stored data is untouched.');
+      return namespace.ProjectStorage.emptyProject();
     }
   }
 
   function currentGameState() {
-    if (!editorState) return null;
     const project = editorState.getProjectState();
     return {
+      schemaVersion: namespace.AppInfo.schemaVersion,
       sceneList: project.scenes,
       saveCurrentScene: project.currentScene,
       saveCustomKeyBindings: project.keyBindings,
-      persistentSettings: project.persistentSettings
+      persistentSettings: project.persistentSettings,
+      editorSettings: storage.readProject().project.editorSettings
     };
   }
 
-  function saveGameState() {
-    const gameState = currentGameState();
-    if (!gameState) return false;
-    global.localStorage.setItem('gameState', JSON.stringify(gameState));
-    global.alert('Saved ' + Object.keys(gameState.sceneList).length + ' scenes to local storage!');
-    return true;
+  function silentSaveGameState() {
+    if (storageBlocked) {
+      report('The unreadable saved project is protected. Start a New Project or import a valid file in Settings first.');
+      return false;
+    }
+    try {
+      storage.writeProject(currentGameState());
+      report('Saved project to this browser. Workspace edits require Save Scene.');
+      return true;
+    } catch (error) { report(error.message); return false; }
   }
 
-  function silentSaveGameState() {
-    const gameState = currentGameState();
-    if (!gameState) return false;
-    global.localStorage.setItem('gameState', JSON.stringify(gameState));
-    return true;
-  }
+  function saveGameState() { return silentSaveGameState(); }
 
   function bootstrapEditor() {
     const gameState = loadGameState();
     editorState = namespace.createEditorState({
-      scenes: gameState.sceneList,
-      currentScene: gameState.saveCurrentScene,
-      keyBindings: gameState.saveCustomKeyBindings,
-      persistentSettings: gameState.persistentSettings
+      scenes: gameState.sceneList, currentScene: gameState.saveCurrentScene,
+      keyBindings: gameState.saveCustomKeyBindings, persistentSettings: gameState.persistentSettings
     });
-
-    global.persistentSettings = editorState.getProjectState().persistentSettings;
-    editorState.subscribe(function (event) {
-      if (event.type === 'persistent:update') {
-        global.persistentSettings = editorState.getProjectState().persistentSettings;
-      }
+    const renderer = namespace.createEditorRenderer({ state: editorState, document: document });
+    const controller = namespace.createEditorController({
+      state: editorState, renderer: renderer, document: document, window: global,
+      onSave: saveGameState, onSilentSave: silentSaveGameState,
+      onNavigateToSettings: function () { global.location.href = 'settings.html'; }
     });
-
-    editorRenderer = namespace.createEditorRenderer({
-      state: editorState,
-      document: document
-    });
-
-    editorController = namespace.createEditorController({
-      state: editorState,
-      renderer: editorRenderer,
-      document: document,
-      window: global,
-      onSave: saveGameState,
-      onSilentSave: silentSaveGameState,
-      onNavigateToSettings: function () {
-        const savedState = global.localStorage.getItem('gameState');
-        console.log('Saved State Before Navigation:', savedState ? JSON.parse(savedState) : null);
-        global.setTimeout(function () {
-          global.location.href = 'settings.html';
-        }, 500);
-      }
-    });
-
-    if (gameState.saveCurrentScene &&
-        !Object.prototype.hasOwnProperty.call(gameState.sceneList, gameState.saveCurrentScene)) {
-      global.alert("Scene '" + gameState.saveCurrentScene + "' does not exist!");
-    }
-
     global.editorState = editorState;
-    global.editorRenderer = editorRenderer;
-    global.editorController = editorController;
-    console.log('Editor initialized. Current scene:', editorState.getProjectState().currentScene);
+    global.editorRenderer = renderer;
+    global.editorController = controller;
+    const help = document.getElementById('editor-help');
+    try { help.hidden = storage.helpDismissed(); } catch (error) { help.hidden = false; }
+    document.getElementById('show-help').addEventListener('click', function () { help.hidden = false; help.scrollIntoView({ block: 'nearest' }); });
+    document.getElementById('dismiss-help').addEventListener('click', function () {
+      help.hidden = true;
+      try { storage.dismissHelp(); } catch (error) { report(error.message); }
+    });
+    document.querySelectorAll('[data-app-version]').forEach(function (element) { element.textContent = namespace.AppInfo.version; });
   }
 
-  global.createDefaultPersistentSettings = createDefaultPersistentSettings;
   global.loadGameState = loadGameState;
   global.saveGameState = saveGameState;
   global.silentSaveGameState = silentSaveGameState;
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootstrapEditor, { once: true });
-  } else {
-    bootstrapEditor();
-  }
+  global.createDefaultPersistentSettings = namespace.ProjectModel.createDefaultPersistentSettings;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootstrapEditor, { once: true });
+  else bootstrapEditor();
 })(window);

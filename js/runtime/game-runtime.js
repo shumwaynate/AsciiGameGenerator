@@ -348,9 +348,11 @@
     }
 
     function switchScene(sceneId) {
+      if (!Object.prototype.hasOwnProperty.call(gameState.sceneList || {}, sceneId)) return false;
       updateMainPlayerPosition();
       gameState.saveCurrentScene = sceneId;
       renderScene(sceneId);
+      return true;
     }
 
     function applyActions(objData, trigger) {

@@ -9,8 +9,26 @@
   }
 
   function finiteNumber(value, fallback) {
+    if (typeof value !== 'number' && typeof value !== 'string') return fallback;
     const number = typeof value === 'string' ? parseFloat(value) : Number(value);
     return Number.isFinite(number) ? number : fallback;
+  }
+
+  function isRecord(value) {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  function safeName(name) {
+    return !['__proto__', 'prototype', 'constructor'].includes(name);
+  }
+
+  function stringList(value) {
+    return Array.isArray(value) ? value.filter(function (entry) { return typeof entry === 'string'; }) : [];
+  }
+
+  function resolveSceneName(scenes, current) {
+    return typeof current === 'string' && Object.prototype.hasOwnProperty.call(scenes, current)
+      ? current : (Object.keys(scenes)[0] || null);
   }
 
   function createDefaultPersistentSettings() {
@@ -33,25 +51,32 @@
 
   function normalizePersistentSettings(input) {
     const defaults = createDefaultPersistentSettings();
-    const source = input && typeof input === 'object' ? input : {};
+    const source = isRecord(input) ? input : {};
+    const currencies = {};
+    Object.entries(isRecord(source.currencies) ? source.currencies : {}).forEach(function (entry) {
+      if (safeName(entry[0])) currencies[entry[0]] = finiteNumber(entry[1], 0);
+    });
+    const playerStats = Object.assign({}, defaults.playerStats);
+    Object.entries(isRecord(source.playerStats) ? source.playerStats : {}).forEach(function (entry) {
+      if (safeName(entry[0])) playerStats[entry[0]] = finiteNumber(entry[1], defaults.playerStats[entry[0]] || 0);
+    });
+    const objectEffects = {};
+    Object.entries(isRecord(source.objectEffects) ? source.objectEffects : {}).forEach(function (entry) {
+      if (safeName(entry[0]) && isRecord(entry[1])) {
+        objectEffects[entry[0]] = { stat: typeof entry[1].stat === 'string' ? entry[1].stat : 'health', amount: finiteNumber(entry[1].amount, 0) };
+      }
+    });
     return {
       rpgEnabled: source.rpgEnabled === true,
-      inventory: Array.isArray(source.inventory) ? deepClone(source.inventory) : defaults.inventory,
-      currencies: source.currencies && typeof source.currencies === 'object'
-        ? deepClone(source.currencies)
-        : defaults.currencies,
-      objects: Array.isArray(source.objects) ? source.objects.slice() : defaults.objects,
-      objectEffects: source.objectEffects && typeof source.objectEffects === 'object'
-        ? deepClone(source.objectEffects)
-        : defaults.objectEffects,
+      inventory: stringList(source.inventory),
+      currencies: currencies,
+      objects: stringList(source.objects).filter(safeName),
+      objectEffects: objectEffects,
       toolbar: {
         enabled: source.toolbar && source.toolbar.enabled === true,
-        statsToDisplay: source.toolbar && Array.isArray(source.toolbar.statsToDisplay)
-          ? source.toolbar.statsToDisplay.slice()
-          : defaults.toolbar.statsToDisplay
+        statsToDisplay: stringList(source.toolbar && source.toolbar.statsToDisplay)
       },
-      playerStats: Object.assign({}, defaults.playerStats,
-        source.playerStats && typeof source.playerStats === 'object' ? deepClone(source.playerStats) : {}),
+      playerStats: playerStats,
       inventoryEnabled: source.inventoryEnabled === true
     };
   }
@@ -122,7 +147,7 @@
       giveCurrency: {
         enabled: giveCurrency.enabled === true,
         trigger: giveCurrency.trigger === 'touch' ? 'touch' : currencyDefaults.trigger,
-        currency: typeof giveCurrency.currency === 'string' ? giveCurrency.currency : currencyDefaults.currency,
+        currency: typeof giveCurrency.currency === 'string' && safeName(giveCurrency.currency) ? giveCurrency.currency : currencyDefaults.currency,
         amount: finiteNumber(giveCurrency.amount, currencyDefaults.amount),
         deleteAfter: giveCurrency.deleteAfter !== false
       },
@@ -186,6 +211,9 @@
   }
 
   namespace.ProjectModel = {
+    isRecord: isRecord,
+    safeName: safeName,
+    resolveSceneName: resolveSceneName,
     createDefaultObject: createDefaultObject,
     createDefaultPersistentSettings: createDefaultPersistentSettings,
     normalizePersistentSettings: normalizePersistentSettings,

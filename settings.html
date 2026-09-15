@@ -103,11 +103,13 @@
         <h1>Editor Settings</h1>
     </header>
     <div class="container">
+        <p id="settings-status" role="status" hidden></p>
+        <p>Projects are saved in this browser. Export a project JSON for a portable backup.</p>
         <div class="section">
             <h2>Export Settings</h2>
             <div class="form-group">
                 <label for="exportFormat">Export Editor Settings</label>
-                <button id="saveExportSettings">Save Export Settings</button>
+                <button id="saveExportSettings">Export Project JSON</button>
             </div>
 
             <div class="form-group">
@@ -125,7 +127,8 @@
                 <input type="file" id="importFile">
             </div>
             <div class="form-group">
-                <button id="importProject">Import Test Project</button>
+                <button id="importProject">Load Example: Garden Trail</button>
+                <button id="restore-backup" disabled>Restore Pre-import Backup</button>
             </div>
         </div>
         <hr />
@@ -182,9 +185,12 @@
         </div>
     </div>
     <footer>
-        <p>ASCII Game Creator &copy; 2025</p>
+        <p>AsciiGameGenerator · <span data-app-version></span></p>
     </footer>
     
+    <script src="js/core/app-info.js"></script>
+    <script src="js/core/project-model.js"></script>
+    <script src="js/core/project-storage.js"></script>
     <script src="js/runtime/game-runtime.js"></script>
     <script src="js/runtime/runtime-builder.js"></script>
     <script src="settings.js" defer></script>

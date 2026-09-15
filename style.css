@@ -369,3 +369,14 @@ button {
     .flashing-border { animation: none; }
 }
 
+#show-help { position: absolute; top: 8px; left: 20px; min-height: 44px; }
+#editor-help { position: absolute; top: 60px; right: 20px; width: 260px; max-height: 75vh; overflow: auto; padding: 12px; background: #fffbe8; border: 1px solid #cfbd75; box-sizing: border-box; z-index: 30; }
+#editor-help li { margin-bottom: 6px; }
+#editor-help ol { padding-left: 22px; }
+#editor-help button { min-height: 44px; }
+#status-message { max-width: 654px; width: 100%; box-sizing: border-box; padding: 8px; overflow-wrap: anywhere; background: #fffbe8; }
+@media (max-width: 1100px) {
+    #show-help { position: static; align-self: flex-end; }
+    #editor-help { position: static; width: 100%; max-width: 654px; max-height: none; }
+}
+

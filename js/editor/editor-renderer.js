@@ -303,6 +303,8 @@
         label.textContent = name;
         const select = documentRef.createElement('select');
         select.dataset.objectEffectName = name;
+        select.disabled = true;
+        select.title = 'Stat effects are not available in this beta.';
         stats.forEach(function (stat) {
           const option = documentRef.createElement('option');
           option.value = stat;
@@ -440,6 +442,7 @@
         renderSelection();
         renderObjectList();
       } else if (event.type.indexOf('scene:') === 0) {
+        if (event.workspaceChanged) { hideContextMenu(); renderWorkspace(); }
         renderSceneList(project);
         populateDropdowns(project);
       } else if (event.type.indexOf('keybinding:') === 0) {

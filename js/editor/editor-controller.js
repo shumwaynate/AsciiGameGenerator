@@ -15,15 +15,16 @@
       windowRef.setTimeout(function () { windowRef.location.href = 'settings.html'; }, 500);
     };
     const onClearStorage = options.onClearStorage || function () {
-      windowRef.localStorage.clear();
-      windowRef.alert('Local storage cleared!');
-      windowRef.location.reload();
+      if (!windowRef.confirm('Start a new project? This clears saved scenes and settings.')) return;
+      try {
+        namespace.projectStorage.clearProject();
+        windowRef.location.reload();
+      } catch (error) { windowRef.alert(error.message); }
     };
 
     if (!state || !renderer) throw new Error('createEditorController requires state and renderer.');
 
     const removers = [];
-    const delayedSettingsUpdates = new Map();
     const canvas = documentRef.getElementById('ascii-display');
     let activePointer = null;
     let suppressDragClick = false;
@@ -58,14 +59,6 @@
       if (saveSilently) onSilentSave();
     }
 
-    function scheduleSettingsUpdate(key, callback) {
-      if (delayedSettingsUpdates.has(key)) windowRef.clearTimeout(delayedSettingsUpdates.get(key));
-      delayedSettingsUpdates.set(key, windowRef.setTimeout(function () {
-        delayedSettingsUpdates.delete(key);
-        callback();
-      }, 500));
-    }
-
     function addObject() {
       const input = byId('ascii-input');
       const ascii = input ? input.value : '';
@@ -89,8 +82,11 @@
         windowRef.alert('Please enter a scene name!');
         return false;
       }
-      state.saveWorkspaceAsScene(name);
-      onSilentSave();
+      if (!state.saveWorkspaceAsScene(name)) {
+        windowRef.alert('Choose a nonempty scene name other than __proto__, prototype, or constructor.');
+        return false;
+      }
+      if (onSilentSave() === false) return false;
       if (input) input.value = '';
       windowRef.alert("Scene '" + name + "' saved!");
       return true;
@@ -170,14 +166,19 @@
       }
     }
 
-    function onCurrencyInput(event) {
-      const input = event.target.closest('[data-currency-name]');
-      if (!input) return;
-      const name = input.dataset.currencyName;
-      const value = parseInt(input.value, 10) || 0;
-      scheduleSettingsUpdate('currency:' + name, function () {
-        updateSettings(function (settings) { settings.currencies[name] = value; }, true);
-      });
+    function saveCurrencyChanges() {
+      const inputs = Array.from(documentRef.querySelectorAll('input[data-currency-name]'));
+      if (inputs.some(function (input) { return input.value.trim() === '' || !Number.isFinite(Number(input.value)); })) {
+        windowRef.alert('Enter a valid amount for every currency before saving.');
+        return;
+      }
+      updateSettings(function (settings) {
+        inputs.forEach(function (input) {
+          if (Object.prototype.hasOwnProperty.call(settings.currencies, input.dataset.currencyName)) {
+            settings.currencies[input.dataset.currencyName] = Number(input.value);
+          }
+        });
+      }, true);
     }
 
     function onObjectEffectsClick(event) {
@@ -185,29 +186,6 @@
       if (!button) return;
       const name = button.dataset.objectName;
       updateSettings(function (settings) { delete settings.objectEffects[name]; }, true);
-    }
-
-    function onObjectEffectsChange(event) {
-      const select = event.target.closest('[data-object-effect-name]');
-      if (!select) return;
-      const name = select.dataset.objectEffectName;
-      updateSettings(function (settings) {
-        settings.objectEffects[name] = settings.objectEffects[name] || {};
-        settings.objectEffects[name].stat = select.value;
-      }, true);
-    }
-
-    function onObjectEffectsInput(event) {
-      const input = event.target.closest('[data-object-effect-amount]');
-      if (!input) return;
-      const name = input.dataset.objectEffectAmount;
-      const value = parseInt(input.value, 10) || 0;
-      scheduleSettingsUpdate('effect:' + name, function () {
-        updateSettings(function (settings) {
-          settings.objectEffects[name] = settings.objectEffects[name] || {};
-          settings.objectEffects[name].amount = value;
-        }, true);
-      });
     }
 
     function onCanvasClick(event) {
@@ -378,10 +356,8 @@
     listen(byId('scene-list'), 'click', onSceneListClick);
     listen(byId('keybindings-ul'), 'click', onKeybindingListClick);
     listen(byId('editor-currency-list'), 'click', onCurrencyListClick);
-    listen(byId('editor-currency-list'), 'input', onCurrencyInput);
+    listen(byId('save-currency-changes'), 'click', saveCurrencyChanges);
     listen(byId('object-stat-effects-list'), 'click', onObjectEffectsClick);
-    listen(byId('object-stat-effects-list'), 'change', onObjectEffectsChange);
-    listen(byId('object-stat-effects-list'), 'input', onObjectEffectsInput);
     listen(canvas, 'click', onCanvasClick);
     listen(canvas, 'pointerover', onCanvasPointerOver);
     listen(canvas, 'pointerout', onCanvasPointerOut);
@@ -438,7 +414,7 @@
       const valueInput = byId('new-currency-value');
       const name = nameInput.value.trim();
       const value = parseInt(valueInput.value, 10);
-      if (!name || Number.isNaN(value)) {
+      if (!name || !namespace.ProjectModel.safeName(name) || Number.isNaN(value)) {
         windowRef.alert('Enter a valid currency name and value.');
         return;
       }
@@ -450,7 +426,7 @@
     listen(byId('add-object-button'), 'click', function () {
       const input = byId('new-object-name');
       const name = input.value.trim();
-      if (!name) {
+      if (!name || !namespace.ProjectModel.safeName(name)) {
         windowRef.alert('Please enter a valid object name.');
         return;
       }
@@ -501,7 +477,6 @@
     });
 
     listen(byId('settings-button'), 'click', function () {
-      onSave();
       onNavigateToSettings();
     });
     listen(byId('clear-storage'), 'click', onClearStorage);
@@ -515,8 +490,6 @@
       destroy: function () {
         if (activePointer) finishPointer({ pointerId: activePointer.pointerId, type: 'pointercancel' });
         removers.splice(0).forEach(function (remove) { remove(); });
-        delayedSettingsUpdates.forEach(function (timer) { windowRef.clearTimeout(timer); });
-        delayedSettingsUpdates.clear();
         activePointer = null;
       }
     };

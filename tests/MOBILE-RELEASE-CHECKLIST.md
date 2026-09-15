@@ -1,5 +1,7 @@
 # Mobile + UX release candidate
 
+This records the mobile-phase checkpoint. See [../RELEASE.md](../RELEASE.md) for current beta test totals and the full release checklist.
+
 ## Automated checks
 
 Serve the repository with any local static HTTP server, then open:

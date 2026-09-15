@@ -3,20 +3,11 @@
 let asciiGamePreviewWindow = null;
 
 function launchGamePreview() {
-  const widthInput = document.getElementById('screenWidth').value;
-  const heightInput = document.getElementById('screenHeight').value;
-
-  localStorage.setItem('userWidth', widthInput);
-  localStorage.setItem('userHeight', heightInput);
-
-  const gameState = JSON.parse(localStorage.getItem('gameState'));
-  if (!gameState) {
-    alert('No game state found in localStorage.');
-    return;
-  }
-
-  const width = parseInt(localStorage.getItem('userWidth') || '650', 10) || 650;
-  const height = parseInt(localStorage.getItem('userHeight') || '400', 10) || 400;
+  let gameState;
+  try { gameState = window.AsciiGameGenerator.prepareGameLaunch(); }
+  catch (error) { alert(error.message); return; }
+  const width = gameState.editorSettings.screenWidth;
+  const height = gameState.editorSettings.screenHeight;
   const scaleFont = ((width / 650) + (height / 400)) / 2;
   const fontSize = 15 * scaleFont;
   const runtimeSource = window.AsciiGameGenerator.buildRuntimeSource({

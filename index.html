@@ -15,6 +15,22 @@
     <h1>ASCII Art Web Creator</h1>
   </header>
 
+  <button id="show-help" type="button">Help</button>
+  <aside id="editor-help" aria-label="Getting started" hidden>
+    <strong>Make your first game</strong>
+    <ol>
+      <li>Type ASCII art and add an object.</li>
+      <li>Select and drag it; use Edit Properties.</li>
+      <li>Optionally mark one object Main Player.</li>
+      <li>Name and Save Scene. Edits are saved only when you do this.</li>
+      <li>Open Settings → Launch Game Preview.</li>
+      <li>Add more scenes, rewards, and interactions.</li>
+    </ol>
+    <p>WASD on desktop; directional buttons on touchscreens.</p>
+    <small>Beta <span data-app-version></span></small>
+    <button id="dismiss-help" type="button">Dismiss help</button>
+  </aside>
+
   <nav class="mobile-navigation" aria-label="Editor sections">
     <button data-editor-target="ascii-container">Canvas</button>
     <button data-editor-target="add-object-section">Add</button>
@@ -46,12 +62,12 @@
 
     <br>
     <div class="navigation-controls" style="display: flex; justify-content: right; gap: 10px;">
-        <button id="clear-storage">Clear Storage</button>
+        <button id="clear-storage">New Project</button>
         <button id="settings-button">Editor Settings + Export & Import</button>
     </div>
   </div>
 
-  <div id="status-message"></div>
+  <div id="status-message" role="status" hidden></div>
 
   <!-- Property Box -->
   <div id="property-box" class="panel-box">
@@ -140,9 +156,9 @@
         <label for="global-action-select">Action:</label>
         <select id="global-action-select">
           <option value="toggleInventory">Toggle Inventory</option>
-          <option value="openMap">Open Map</option>
-          <option value="pauseGame">Pause Game</option>
-          <option value="customAction">Custom Action</option>
+          <option value="openMap" disabled>Open Map (not available)</option>
+          <option value="pauseGame" disabled>Pause binding (not available)</option>
+          <option value="customAction" disabled>Custom Action (not available)</option>
         </select>
         <button id="add-global-keybinding">Add Keybind</button>
       </div>
@@ -209,7 +225,7 @@
 
       <div id="currencies-in-editor">
         <h4>Manage Currencies</h4>
-        <ul id="editor-currency-list"></ul>
+        <ul id="editor-currency-list"></ul><button id="save-currency-changes" type="button">Save Currency Changes</button>
       </div>
       <hr />
 
@@ -220,7 +236,9 @@
     </div>
   </div>
 
+  <script src="js/core/app-info.js"></script>
   <script src="js/core/project-model.js"></script>
+  <script src="js/core/project-storage.js"></script>
   <script src="js/core/editor-state.js"></script>
   <script src="js/editor/editor-renderer.js"></script>
   <script src="js/editor/editor-controller.js"></script>

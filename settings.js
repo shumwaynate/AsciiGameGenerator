@@ -1,131 +1,117 @@
-// file: settings.js
-// Function to save both editor settings and the full game state
+// Settings and imports use the same project API as the editor.
+const projectStorage = window.AsciiGameGenerator.projectStorage;
+let importRequestId = 0;
+
 function readEditorSettingsForm() {
-    return {
-        screenWidth: parseInt(document.getElementById('screenWidth').value, 10),
-        screenHeight: parseInt(document.getElementById('screenHeight').value, 10),
-        position: Number(document.getElementById('positionSelect').value),
-        allowDrag: document.getElementById('allowDragCheckbox').checked
-    };
+  return {
+    screenWidth: Number(document.getElementById('screenWidth').value),
+    screenHeight: Number(document.getElementById('screenHeight').value),
+    position: Number(document.getElementById('positionSelect').value),
+    allowDrag: document.getElementById('allowDragCheckbox').checked
+  };
 }
 
 function showEditorSettings(settings) {
-    document.getElementById('screenWidth').value = settings.screenWidth || '';
-    document.getElementById('screenHeight').value = settings.screenHeight || '';
-    document.getElementById('positionSelect').value = settings.position || 9;
-    document.getElementById('allowDragCheckbox').checked = settings.allowDrag === true;
+  document.getElementById('screenWidth').value = settings.screenWidth;
+  document.getElementById('screenHeight').value = settings.screenHeight;
+  document.getElementById('positionSelect').value = settings.position;
+  document.getElementById('allowDragCheckbox').checked = settings.allowDrag;
+}
+
+function reportSettings(message) {
+  const status = document.getElementById('settings-status');
+  status.textContent = message;
+  status.hidden = false;
+}
+
+function refreshBackupButton() {
+  try { document.getElementById('restore-backup').disabled = !projectStorage.hasBackup(); }
+  catch (error) { document.getElementById('restore-backup').disabled = true; }
 }
 
 function saveEditorSettings() {
-    const settings = readEditorSettingsForm();
-
-    // Get saved game data (scenes, objects, toolbar settings)
-    const gameState = JSON.parse(localStorage.getItem('gameState')) || {};
-    
-    const exportData = {
-        editorSettings: settings,
-        gameState: gameState
-    };
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'exported_project.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    alert('Project exported successfully!');
+  try {
+    const blob = new Blob([projectStorage.exportProject()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'AsciiGameGenerator-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    reportSettings('Exported the saved project. Use Save Screen Size / Location before exporting changes to those fields.');
+  } catch (error) { reportSettings(error.message); }
 }
 
-// Attach event listener to the export button
-document.getElementById('saveExportSettings')?.addEventListener('click', saveEditorSettings);
+function acceptProject(text) {
+  const result = projectStorage.importProject(text);
+  showEditorSettings(result.project.editorSettings);
+  refreshBackupButton();
+  reportSettings('Project imported. Return to Editor to open it. ' + result.warnings.join(' '));
+}
 
-// Function to import editor settings and game state
 function importEditorSettings(event) {
-    const file = event.target.files[0];
-    if (!file) {
-        alert('Please select a file to import.');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        try {
-            const importData = JSON.parse(e.target.result);
-
-            // Restore editor settings
-            if (importData.editorSettings) {
-                showEditorSettings(importData.editorSettings);
-                localStorage.setItem('editorSettings', JSON.stringify(importData.editorSettings));
-            }
-
-            // Restore game state
-            if (importData.gameState) {
-                localStorage.setItem('gameState', JSON.stringify(importData.gameState));
-            }
-
-            alert('Project imported successfully! Click "Return to Editor" to see the restored game.');
-        } catch (error) {
-            console.error('Error importing settings:', error);
-            alert('Invalid file format. Please select a valid exported project file.');
-        }
-    };
-
-    reader.readAsText(file);
+  const file = event.target.files[0];
+  if (!file) return;
+  const requestId = ++importRequestId;
+  const reader = new FileReader();
+  reader.onload = function () {
+    if (requestId !== importRequestId) return;
+    try { acceptProject(reader.result); } catch (error) { reportSettings(error.message); }
+    event.target.value = '';
+  };
+  reader.onerror = function () { if (requestId === importRequestId) reportSettings('The selected file could not be read. The current project is unchanged.'); };
+  reader.readAsText(file);
 }
 
-// Attach event listener to import file input
-document.getElementById('importFile')?.addEventListener('change', importEditorSettings);
-
-// Make the import project button import an example save
-const exampleSave = 'Example Saves/DemoTest-103125.json';
-document.getElementById('importProject').addEventListener('click', () => {
-    fetch(exampleSave)
-        .then(res => res.json())
-        .then(importData => {
-            if (importData.editorSettings) {
-                showEditorSettings(importData.editorSettings);
-                localStorage.setItem('editorSettings', JSON.stringify(importData.editorSettings));
-            }
-            if (importData.gameState) {
-                localStorage.setItem('gameState', JSON.stringify(importData.gameState));
-            }
-            alert('Project imported successfully! Click "Return to Editor" to see the restored game.');
-        })
-        .catch(err => {
-            console.error('Error importing example save:', err);
-            alert('Failed to load example project.');
-        });
+document.getElementById('saveExportSettings').addEventListener('click', saveEditorSettings);
+document.getElementById('importFile').addEventListener('change', importEditorSettings);
+document.getElementById('importProject').addEventListener('click', async function () {
+  const requestId = ++importRequestId;
+  try {
+    const response = await fetch('Example Saves/Garden-Trail.json');
+    if (!response.ok) throw new Error('The example project could not be loaded. Try again from a local web server or the hosted editor.');
+    const text = await response.text();
+    if (requestId === importRequestId) acceptProject(text);
+  } catch (error) { if (requestId === importRequestId) reportSettings(error.message); }
 });
-
-// Function to save screen size settings
-document.getElementById('saveScreenSize')?.addEventListener('click', () => {
-    const screenWidth = parseInt(document.getElementById('screenWidth').value, 10);
-    const screenHeight = parseInt(document.getElementById('screenHeight').value, 10);
-
-    if (Number.isInteger(screenWidth) && Number.isInteger(screenHeight) && screenWidth > 0 && screenHeight > 0) {
-        const settings = readEditorSettingsForm();
-        localStorage.setItem('editorSettings', JSON.stringify(settings));
-        alert('Screen size and placement saved!');
-    } else {
-        alert('Please enter valid screen dimensions.');
-    }
+document.getElementById('restore-backup').addEventListener('click', function () {
+  if (!confirm('Restore the project saved just before the latest import? This replaces the current saved project.')) return;
+  importRequestId += 1;
+  try {
+    const result = projectStorage.restoreBackup();
+    showEditorSettings(result.project.editorSettings);
+    reportSettings('Pre-import backup restored. Return to Editor to open it.');
+  } catch (error) { reportSettings(error.message); }
 });
+document.getElementById('saveScreenSize').addEventListener('click', function () {
+  const settings = readEditorSettingsForm();
+  if (![settings.screenWidth, settings.screenHeight].every(function (value) { return Number.isInteger(value) && value > 0 && value <= 10000; })) {
+    reportSettings('Enter whole-number screen dimensions from 1 to 10000 pixels.');
+    return;
+  }
+  try {
+    projectStorage.updateEditorSettings(settings);
+    reportSettings('Screen size and placement saved.');
+  } catch (error) { reportSettings(error.message); }
+});
+document.getElementById('home-button').addEventListener('click', function () { window.location.href = 'index.html'; });
 
-// Load saved settings on page load
-const savedSettings = localStorage.getItem('editorSettings');
-if (savedSettings) {
-    try {
-        const settings = JSON.parse(savedSettings);
-        showEditorSettings(settings);
-    } catch (error) {
-        console.error('Error loading saved settings:', error);
-    }
+// Shared launch validation; neither adapter ever reads storage directly.
+window.AsciiGameGenerator.prepareGameLaunch = function () {
+  const project = projectStorage.playableProject();
+  project.editorSettings = window.AsciiGameGenerator.ProjectStorage.normalizeEditorSettings(readEditorSettingsForm());
+  return project;
+};
+try {
+  const result = projectStorage.readProject();
+  showEditorSettings(result.project.editorSettings);
+  projectStorage.writeProject(result.project);
+  if (result.warnings.length) reportSettings(result.warnings.join(' '));
+} catch (error) {
+  showEditorSettings(window.AsciiGameGenerator.ProjectStorage.normalizeEditorSettings());
+  reportSettings(error.message + ' Import a valid project to recover.');
 }
-
-// Home button navigation
-document.getElementById('home-button')?.addEventListener('click', () => {
-    console.log("Navigating back to index.html");
-    window.location.href = 'index.html'; 
-});
+refreshBackupButton();
+document.querySelectorAll('[data-app-version]').forEach(function (element) { element.textContent = window.AsciiGameGenerator.AppInfo.version; });

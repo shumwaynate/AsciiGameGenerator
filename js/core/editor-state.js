@@ -20,8 +20,9 @@
     };
 
     Object.keys(inputScenes).forEach(function (name) {
-      projectState.scenes[name] = model.serializeScene(inputScenes[name]);
+      if (model.safeName(name)) projectState.scenes[name] = model.serializeScene(inputScenes[name]);
     });
+    projectState.currentScene = model.resolveSceneName(projectState.scenes, projectState.currentScene);
 
     const workspaceState = {
       sourceSceneName: null,
@@ -168,7 +169,7 @@
     }
 
     function saveWorkspaceAsScene(name) {
-      if (!name) return false;
+      if (typeof name !== 'string' || !name.trim() || !model.safeName(name)) return false;
       projectState.scenes[name] = model.serializeScene(workspaceState.objects);
       projectState.currentScene = name;
       workspaceState.sourceSceneName = name;
@@ -180,13 +181,21 @@
     function deleteScene(name) {
       if (!Object.prototype.hasOwnProperty.call(projectState.scenes, name)) return false;
       delete projectState.scenes[name];
-      notify('scene:delete', { sceneName: name });
+      const workspaceChanged = projectState.currentScene === name;
+      if (workspaceChanged) {
+        projectState.currentScene = model.resolveSceneName(projectState.scenes, null);
+        workspaceState.sourceSceneName = projectState.currentScene;
+        workspaceState.objects = projectState.currentScene === null ? [] : assignEditorIds(model.cloneScene(projectState.scenes[projectState.currentScene]));
+        workspaceState.selectedObjectId = null;
+        workspaceState.dirty = false;
+      }
+      notify('scene:delete', { sceneName: name, workspaceChanged: workspaceChanged });
       return true;
     }
 
     function setKeyBinding(key, action) {
-      if (!key || !action) return false;
-      projectState.keyBindings[key] = action;
+      if (!key || !action || !model.safeName(key.toLowerCase())) return false;
+      projectState.keyBindings[key.toLowerCase()] = action;
       notify('keybinding:set', { key: key });
       return true;
     }

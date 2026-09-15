@@ -3,22 +3,16 @@
 document.getElementById('saveGameExport')?.addEventListener('click', exportGameAsZip);
 
 async function exportGameAsZip() {
-  const gameState = JSON.parse(localStorage.getItem('gameState'));
-  if (!gameState) {
-    alert('No game state found in localStorage.');
-    return;
-  }
-
-  const widthInput = document.getElementById('screenWidth')?.value;
-  const heightInput = document.getElementById('screenHeight')?.value;
-  const screenWidth = parseInt(widthInput || localStorage.getItem('userWidth') || '650', 10) || 650;
-  const screenHeight = parseInt(heightInput || localStorage.getItem('userHeight') || '400', 10) || 400;
-  const scaleFont = ((screenWidth / 650) + (screenHeight / 400)) / 2;
-  const fontSize = 15 * scaleFont;
+  try {
+  const gameState = window.AsciiGameGenerator.prepareGameLaunch();
+  if (typeof JSZip !== 'function') throw new Error('ZIP export could not load. Check your connection and reload Settings.');
+  const editorSettings = gameState.editorSettings;
+  const screenWidth = editorSettings.screenWidth;
+  const screenHeight = editorSettings.screenHeight;
+  const fontSize = 15 * ((screenWidth / 650 + screenHeight / 400) / 2);
   const zip = new JSZip();
-  const editorSettings = JSON.parse(localStorage.getItem('editorSettings')) || {};
-  const position = Number(document.getElementById('positionSelect')?.value || editorSettings.position || 9);
-  const allowDrag = document.getElementById('allowDragCheckbox')?.checked ?? (editorSettings.allowDrag === true);
+  const position = editorSettings.position;
+  const allowDrag = editorSettings.allowDrag;
   const folder = zip.folder('gameInsert');
 
   const css = `
@@ -86,5 +80,6 @@ async function exportGameAsZip() {
   link.href = downloadUrl;
   link.download = 'gameInsert.zip';
   link.click();
-  URL.revokeObjectURL(downloadUrl);
+  setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 1000);
+  } catch (error) { alert(error.message); }
 }
