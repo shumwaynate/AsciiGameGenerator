@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AsciiGameGenerator Editor Tests</title>
+  <style>
+    body { font: 15px/1.4 system-ui, sans-serif; margin: 2rem; }
+    #summary { font-size: 1.1rem; font-weight: 700; }
+    .pass { color: #08752c; }
+    .fail { color: #b00020; }
+    #editorFixture { position: absolute; left: -10000px; top: 0; }
+    #ascii-display { position: relative; width: 650px; height: 400px; }
+    .ascii-art { position: absolute; white-space: pre; font: 15px monospace; touch-action: none; }
+    #selection-overlay { position: absolute; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <h1>Editor architecture tests</h1>
+  <p id="summary">Running…</p>
+  <ol id="results"></ol>
+  <div id="editorFixture" aria-hidden="true"></div>
+  <script src="../js/core/project-model.js"></script>
+  <script src="../js/core/editor-state.js"></script>
+  <script src="../js/editor/editor-renderer.js"></script>
+  <script src="../js/editor/editor-controller.js"></script>
+  <script src="editor-tests.js"></script>
+</body>
+</html>
