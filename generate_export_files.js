@@ -16,6 +16,9 @@ async function exportGameAsZip() {
   const scaleFont = ((screenWidth / 650) + (screenHeight / 400)) / 2;
   const fontSize = 15 * scaleFont;
   const zip = new JSZip();
+  const editorSettings = JSON.parse(localStorage.getItem('editorSettings')) || {};
+  const position = Number(document.getElementById('positionSelect')?.value || editorSettings.position || 9);
+  const allowDrag = document.getElementById('allowDragCheckbox')?.checked ?? (editorSettings.allowDrag === true);
   const folder = zip.folder('gameInsert');
 
   const css = `
@@ -44,23 +47,15 @@ async function exportGameAsZip() {
   color: black;
   cursor: pointer;
 }
-#asciiGameWrapper #inventoryOverlay {
-  display: none;
-  box-sizing: border-box;
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0.95);
-  font-size: ${fontSize}px;
-  padding: 20px;
-  overflow-y: auto;
-  z-index: 10000;
-}`;
+#asciiGameWrapper #inventoryOverlay { display: none; }`;
   folder.file('game_style.css', css);
 
   const runtimeSource = window.AsciiGameGenerator.buildRuntimeSource({
     initialGameState: gameState,
     width: screenWidth,
     height: screenHeight,
+    position: position,
+    allowDrag: allowDrag,
     autoPlay: true,
     rootId: 'asciiGameWrapper',
     exposeAs: 'asciiGameRuntime'

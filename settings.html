@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Editor Settings</title>
     <style>
         body {
@@ -74,7 +74,7 @@
             color: white;
             margin-top: 20px;
             position: relative;
-            padding-bottom: 100%;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
         }
 
         .location-grid {
@@ -88,6 +88,14 @@
             .location-controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
             .location-controls .checkbox { display:flex; gap:6px; align-items:center; }
 
+        * { box-sizing: border-box; }
+        .container { width: calc(100% - 24px); }
+        input, select, button { max-width: 100%; min-height: 44px; font-size: 16px; }
+        input[type="checkbox"] { min-height: 22px; width: 22px; height: 22px; }
+        .location-controls label { min-height: 44px; }
+        .form-group button { margin-bottom: 8px; }
+        body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+        @media (max-width: 480px) { .container { padding: 16px; } h1 { font-size: 26px; } }
     </style>
 </head>
 <body>
@@ -100,13 +108,11 @@
             <div class="form-group">
                 <label for="exportFormat">Export Editor Settings</label>
                 <button id="saveExportSettings">Save Export Settings</button>
-                </select>
             </div>
 
             <div class="form-group">
                 <label for="exportFormat">Export Game</label>
                 <button id="saveGameExport">Save Game</button>
-                </select>
             </div>
 
         </div>
@@ -136,7 +142,8 @@
             </div>
             
             <!-- Visual reference: 3×3 numbered grid -->
-            <h2>Screen Location</h2>
+            <h2>Exported Game Location</h2>
+            <p>Choose where the game sits on its host page. It scales to fit smaller screens.</p>
             <div class="location-grid" aria-label="Game location reference">
                 <div>1</div><div>2</div><div>3</div>
                 <div>4</div><div>5</div><div>6</div>
@@ -160,14 +167,14 @@
 
                 <label class="checkbox">
                 <input type="checkbox" id="allowDragCheckbox" />
-                Allow mouse drag
+                Allow dragging the game (mouse or touch)
                 </label>
 
-                <!-- <button id="saveLocationSettings">Save to Settings</button> -->
+            </div>
 
 
             <div class="form-group">
-                <button id="saveScreenSize">Save Screen Size/Location</button> <br><br>
+                <button id="saveScreenSize">Save Screen Size / Location</button> <br><br>
                 <hr />
                 <button id="home-button">Return To Editor</button>
                 <button onclick="launchGamePreview()">Launch Game Preview</button>

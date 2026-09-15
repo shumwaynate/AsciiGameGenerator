@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>ASCII Game Creator</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -15,15 +15,68 @@
     <h1>ASCII Art Web Creator</h1>
   </header>
 
+  <nav class="mobile-navigation" aria-label="Editor sections">
+    <button data-editor-target="ascii-container">Canvas</button>
+    <button data-editor-target="add-object-section">Add</button>
+    <button data-editor-target="items-in-scene-box">Items / Scenes</button>
+    <button data-editor-target="global-settings-panel">Global</button>
+  </nav>
+
   <!-- Main Display Area -->
   <div id="ascii-container">
-    <div id="ascii-display"></div>
+    <div id="canvas-viewport"><div id="ascii-display" aria-label="Scene canvas"></div></div>
+    <div class="selection-toolbar"><span id="selection-label" aria-live="polite">No object selected</span><button id="edit-selected-properties" disabled>Edit Properties</button></div>
 
+
+  </div>
+
+  <!-- Scene Controls -->
+  <div class="scene-editor" id="add-object-section">
+    <label for="ascii-input">Enter ASCII Art:</label>
+    <textarea id="ascii-input" rows="5" placeholder="Type ASCII art here..."></textarea>
+    <button id="add-ascii-art">Add ASCII Art to Display</button>
+    <button id="clear-canvas">Clear Canvas</button>
+</div>
+
+  <div class="scene-controls" id="scene-controls">
+    <label for="scene-name">Scene Name:</label>
+    <input type="text" id="scene-name" placeholder="Enter scene name" />
+    <button id="save-scene">Save Scene</button>
+    <button id="load-scene">Load Scene</button>
+
+    <br>
+    <div class="navigation-controls" style="display: flex; justify-content: right; gap: 10px;">
+        <button id="clear-storage">Clear Storage</button>
+        <button id="settings-button">Editor Settings + Export & Import</button>
+    </div>
+  </div>
+
+  <div id="status-message"></div>
+
+  <!-- Property Box -->
+  <div id="property-box" class="panel-box">
+    <button type="button" class="panel-header">Properties</button>
+    <div class="panel-content">
+      <button type="button" data-editor-target="ascii-container" class="mobile-only">Back to Canvas</button>
+      <h4>Item Name:</h4><br>
+      <input type="text" id="item-name" placeholder="Enter item name" />
+      <br />
+      <button id="delete-selected-item">Delete Selected</button> <br>
+      <hr />
+
+      <h4>Color Management</h4><br>
+      <label for="default-color">Default Color:</label><br>
+      <input type="color" id="default-color"><br />
+      <label for="hover-color">Hover Color:</label><br>
+      <input type="color" id="hover-color"><br />
+      <label for="click-color">Click Color:</label><br>
+      <input type="color" id="click-color"><br />
+      <br />
     <!-- Context Menu -->
-    <div id="context-menu" style="display: none; position: absolute;">
+    <div id="context-menu" style="display: none;" aria-label="Object functionality">
       <div style="display: flex; justify-content: space-between; align-items: left;">
         <strong style="font-size: 20px;">Functionality</strong>
-        <button id="close-context-menu" style="background: none; border: none; font-size: 12px; cursor: pointer; color: black;margin-top: 0px;">✖</button>
+        <button id="close-context-menu" aria-label="Close functionality" style="background: none; border: none; font-size: 12px; cursor: pointer; color: black;margin-top: 0px;">✖</button>
       </div>
 
       <hr />
@@ -36,7 +89,7 @@
       <div>
         Enable Colors:
         <div id="color-section" style="margin-left: 10px;">
-          <label><input type="checkbox" id="enable-default-color" /> Default</label>
+          <label><input type="checkbox" id="enable-default-color" disabled title="Default color is always enabled" /> Default</label>
           <label><input type="checkbox" id="enable-hover-color" /> Hover</label>
           <label><input type="checkbox" id="enable-click-color" /> Click</label>
         </div>
@@ -53,7 +106,7 @@
 
       <!-- Give Currency -->
       <div>
-        <label><input type="checkbox" id="prop-give-currency-enabled" /> Give Currency(NYI)</label>
+        <label><input type="checkbox" id="prop-give-currency-enabled" /> Give Currency</label>
         Trigger: <select id="give-currency-trigger"><option value="click">Click</option><option value="touch">Touch</option></select><br/>
         Currency: <select id="give-currency-list"></select><br/>
         Amount: <input type="number" id="give-currency-amount" placeholder="Amount" /><br/>
@@ -63,65 +116,22 @@
 
       <!-- Give Object -->
       <div>
-        <label><input type="checkbox" id="prop-give-object-enabled" /> Give Object(NYI)</label>
+        <label><input type="checkbox" id="prop-give-object-enabled" /> Give Object</label>
         Trigger: <select id="give-object-trigger"><option value="click">Click</option><option value="touch">Touch</option></select><br/>
         Object: <select id="give-object-list"></select><br/>
         <label><input type="checkbox" id="give-object-delete-after" checked /> Delete After Giving</label>
       </div>
       <hr />
 
-      <button id="save-properties">Save</button> 
+      <button id="save-properties">Save</button>
       <button id="delete-item">Delete</button>
     </div>
-  </div>
-
-  <!-- Scene Controls -->
-  <div class="scene-editor">
-    <label for="ascii-input">Enter ASCII Art:</label>
-    <textarea id="ascii-input" rows="5" placeholder="Type ASCII art here..."></textarea>
-    <button id="add-ascii-art">Add ASCII Art to Display</button>
-    <button id="clear-canvas">Clear Canvas</button>
-</div>
-
-  <div class="scene-controls">
-    <label for="scene-name">Scene Name:</label>
-    <input type="text" id="scene-name" placeholder="Enter scene name" />
-    <button id="save-scene">Save Scene</button>
-    <button id="load-scene">Load Scene</button>
-    
-    <br>
-    <div style="display: flex; justify-content: right; gap: 10px;">
-        <button id="clear-storage">Clear Storage</button>
-        <button id="settings-button">Editor Settings + Export & Import</button>
-    </div>
-  </div>
-
-  <div id="status-message"></div>
-
-  <!-- Property Box -->
-  <div id="property-box" class="panel-box">
-    <div class="panel-header">Properties</div>
-    <div class="panel-content">
-      <h4>Item Name:</h4><br>
-      <input type="text" id="item-name" placeholder="Enter item name" />
-      <br />
-      <button id="delete-selected-item">Delete Selected</button> <br>
-      <hr />
-
-      <h4>Color Management</h4><br>
-      <label for="default-color">Default Color:</label><br>
-      <input type="color" id="default-color"><br />
-      <label for="hover-color">Hover Color:</label><br>
-      <input type="color" id="hover-color"><br />
-      <label for="click-color">Click Color:</label><br>
-      <input type="color" id="click-color"><br />
-      <br />
     </div>
   </div>
 
   <!-- Global Settings Panel -->
   <div id="global-settings-panel" class="panel-box">
-    <div class="panel-header">Global Settings</div>
+    <button type="button" class="panel-header">Global Settings</button>
     <div class="panel-content">
       <div>
         <h4>Keybind Configuration</h4><br>
@@ -137,7 +147,7 @@
         <button id="add-global-keybinding">Add Keybind</button>
       </div>
       <hr />
-  
+
       <div>
         <h4>RPG Mechanics(NYI)</h4><br>
         <label><input type="checkbox" id="enable-rpg-mechanics" disabled /> Enable RPG Features</label>
@@ -149,7 +159,7 @@
         </div>
       </div>
       <hr />
-  
+
       <div>
         <h4>Currency System</h4><br>
         <label>New Currency: <input type="text" id="new-currency-name" placeholder="e.g. Gold" /></label>
@@ -157,7 +167,7 @@
         <button id="add-currency">Add Currency</button>
       </div>
       <hr />
-  
+
       <div>
         <h4>Object System</h4><br>
         <label for="new-object-name">New Object:</label>
@@ -166,9 +176,9 @@
         <ul id="object-library-list"></ul>
       </div>
       <hr />
-  
+
       <div>
-        <h4>Inventory / Toolbar<br><br>
+        <h4>Inventory / Toolbar</h4><br>
         <label><input type="checkbox" id="enable-inventory" /> Enable Inventory Popup</label><br />
         <label><input type="checkbox" id="enable-toolbar" disabled/> Enable Persistent Toolbar(NYI)</label><br />
       </div><br>
@@ -177,32 +187,32 @@
 
   <!-- Items in Scene Box -->
   <div id="items-in-scene-box" class="panel-box">
-    <div class="panel-header">Items in Scene</div> 
+    <button type="button" class="panel-header">Items &amp; Scenes</button>
     <div class="panel-content">
       <div id="objects-list">
         <h4>Objects in Render Area:</h4><br>
         <ul id="object-list"></ul>
       </div>
       <hr />
-  
+
       <div id="scene-count">
         <h4>Scene Count: <span id="scene-total">0</span></h4> <br>
         <ul id="scene-list"></ul>
       </div>
       <hr />
-  
+
       <div id="keybindings-list">
         <h4>Enabled Keybinds:</h4> <br>
         <ul id="keybindings-ul"></ul>
-      </div> 
+      </div>
       <hr />
-  
+
       <div id="currencies-in-editor">
         <h4>Manage Currencies</h4>
         <ul id="editor-currency-list"></ul>
       </div>
       <hr />
-  
+
       <div id="object-stat-effects">
         <h4>Object Stat Effects(NYI)</h4>
         <ul id="object-stat-effects-list" disable></ul>

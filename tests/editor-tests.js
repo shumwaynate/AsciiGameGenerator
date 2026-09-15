@@ -48,7 +48,7 @@
       <textarea id="ascii-input"></textarea><input id="scene-name"><button id="add-ascii-art"></button><button id="save-scene"></button><button id="load-scene"></button><button id="clear-canvas"></button><button id="delete-selected-item"></button><button id="delete-item"></button><button id="save-properties"></button><button id="close-context-menu"></button>
       <input id="global-key-input"><select id="global-action-select"><option value="toggleInventory">toggleInventory</option></select><button id="add-global-keybinding"></button>
       <input id="new-currency-name"><input id="new-currency-value"><button id="add-currency"></button><input id="new-object-name"><button id="add-object-button"></button>
-      <button id="settings-button"></button><button id="clear-storage"></button>`;
+      <button id="settings-button"></button><button id="clear-storage"></button><button id="edit-selected-properties"></button>`;
   }
 
   function createEditorContext(state, controllerOptions) {
@@ -283,6 +283,71 @@
     document.querySelector('[data-scene-name="second"] button').click();
     equal(silentSaves, 2, 'each delegated delete should invoke one action');
     equal(Object.keys(state.getProjectState().scenes).length, 1);
+    context.cleanup();
+  });
+
+  test('pointercancel and lost capture end drag without accepting a second pointer', function () {
+    const state = createState({ room: [object({ left: 10, top: 10 })] }, 'room');
+    const context = createEditorContext(state);
+    const element = fixture.querySelector('.ascii-art');
+    function pointer(type, id, x) {
+      element.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: 'touch', pointerId: id, clientX: x, clientY: 0 }));
+    }
+    pointer('pointerdown', 1, 0);
+    pointer('pointerdown', 2, 0);
+    pointer('pointermove', 2, 100);
+    equal(state.getWorkspaceState().objects[0].left, 10, 'second finger must not take over');
+    pointer('pointermove', 1, 20);
+    pointer('pointercancel', 1, 20);
+    pointer('pointermove', 1, 100);
+    equal(state.getWorkspaceState().objects[0].left, 30, 'canceled drag must stop');
+    pointer('pointerdown', 3, 0);
+    pointer('lostpointercapture', 3, 0);
+    pointer('pointermove', 3, 100);
+    equal(state.getWorkspaceState().objects[0].left, 30, 'lost capture must stop');
+    context.cleanup();
+  });
+
+  test('scaled drag preserves logical coordinates and pointerup stops movement', function () {
+    const state = createState({ room: [object({ left: 10, top: 10 })] }, 'room');
+    const context = createEditorContext(state);
+    const canvas = document.getElementById('ascii-display');
+    canvas.style.transform = 'scale(0.5)';
+    const element = fixture.querySelector('.ascii-art');
+    element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 4, clientX: 0 }));
+    element.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerId: 4, clientX: 20 }));
+    element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 4, clientX: 20 }));
+    element.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerId: 4, clientX: 80 }));
+    equal(state.getWorkspaceState().objects[0].left, 50, '20 screen pixels should move 40 scene pixels');
+    context.cleanup();
+  });
+
+  test('invisible list selection can drag the overlay and open properties explicitly', function () {
+    const state = createState({ room: [object({ visible: false, left: 10 })] }, 'room');
+    const context = createEditorContext(state);
+    document.querySelector('#object-list li').click();
+    const overlay = document.getElementById('selection-overlay');
+    overlay.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 5, clientX: 0 }));
+    overlay.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerId: 5, clientX: 20 }));
+    overlay.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 5, clientX: 20 }));
+    equal(state.getWorkspaceState().objects[0].left, 30);
+    equal(state.getWorkspaceState().objects[0].visible, false);
+    document.getElementById('edit-selected-properties').click();
+    equal(document.getElementById('context-menu').style.display, 'block');
+    context.cleanup();
+  });
+
+  test('scene list loads a scene and Save Scene persists only when explicitly requested', function () {
+    const state = createState({ first: [object()], second: [object({ ascii: '2' })] }, 'first');
+    let saves = 0;
+    const context = createEditorContext(state, { onSilentSave: function () { saves += 1; } });
+    state.updateObject(state.getWorkspaceState().objects[0]._editorId, { left: 30 });
+    equal(saves, 0, 'editing must not automatically save');
+    document.getElementById('scene-name').value = 'first';
+    document.getElementById('save-scene').click();
+    equal(saves, 1, 'explicit Save Scene must persist the committed scene');
+    document.querySelector('[data-action="load-scene"][data-scene-name="second"]').click();
+    equal(state.getWorkspaceState().objects[0].ascii, '2');
     context.cleanup();
   });
 

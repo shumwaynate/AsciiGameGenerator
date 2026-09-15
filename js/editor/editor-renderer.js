@@ -11,7 +11,25 @@
 
     const objectElements = new Map();
     const canvas = documentRef.getElementById('ascii-display');
+    const viewport = documentRef.getElementById('canvas-viewport');
+    const windowRef = documentRef.defaultView || global;
     let selectionOverlay = null;
+
+    function fitCanvas() {
+      if (!canvas || !viewport) return;
+      const scale = Math.min(1, viewport.clientWidth / canvas.offsetWidth);
+      canvas.style.transform = 'scale(' + scale + ')';
+      canvas.style.setProperty('--object-hit-size', 44 / (scale || 1) + 'px');
+      viewport.style.height = canvas.offsetHeight * scale + 'px';
+      const menu = byId('context-menu');
+      const selectedId = state.getWorkspaceState().selectedObjectId;
+      if (menu && menu.style.display === 'block' && selectedId && !windowRef.matchMedia('(max-width: 1100px)').matches) {
+        showContextMenu(selectedId);
+      }
+    }
+    const resizeObserver = viewport && windowRef.ResizeObserver ? new windowRef.ResizeObserver(fitCanvas) : null;
+    if (resizeObserver) resizeObserver.observe(viewport);
+    windowRef.addEventListener('resize', fitCanvas);
 
     function byId(id) {
       return documentRef.getElementById(id);
@@ -61,6 +79,7 @@
       overlay.style.width = element.offsetWidth + 'px';
       overlay.style.height = element.offsetHeight + 'px';
       overlay.style.display = 'block';
+      overlay.dataset.objectId = object._editorId;
     }
 
     function createObjectElement(object) {
@@ -96,6 +115,10 @@
     function renderSelection(workspaceInput) {
       const workspace = workspaceInput || state.getWorkspaceState();
       const object = selectedObject(workspace);
+      const label = byId('selection-label');
+      if (label) label.textContent = object ? 'Selected: ' + (object.itemName || 'Object') : 'No object selected';
+      const editButton = byId('edit-selected-properties');
+      if (editButton) editButton.disabled = !object;
       objectElements.forEach(function (element, id) {
         const isVisibleSelection = object && id === object._editorId && object.visible !== false;
         element.classList.toggle('flashing-border', Boolean(isVisibleSelection));
@@ -167,6 +190,9 @@
         const item = documentRef.createElement('li');
         item.textContent = object.itemName || 'Object ' + (index + 1);
         item.dataset.objectId = object._editorId;
+        item.tabIndex = 0;
+        item.setAttribute('role', 'button');
+        item.setAttribute('aria-label', 'Select ' + (object.itemName || 'object') + (object.visible === false ? ' (invisible)' : ''));
         item.className = 'scene-item';
         if (object._editorId === workspace.selectedObjectId) item.classList.add('selected-panel-item');
         list.appendChild(item);
@@ -187,6 +213,12 @@
         if (sceneName === project.currentScene) item.classList.add('highlight');
         const label = documentRef.createElement('span');
         label.textContent = sceneName;
+        label.className = 'scene-load';
+        label.dataset.action = 'load-scene';
+        label.dataset.sceneName = sceneName;
+        label.tabIndex = 0;
+        label.setAttribute('role', 'button');
+        label.setAttribute('aria-label', 'Load scene ' + sceneName);
         const button = documentRef.createElement('button');
         button.type = 'button';
         button.textContent = '×';
@@ -337,9 +369,24 @@
       const menu = byId('context-menu');
       if (!element || !menu) return;
       const rect = element.getBoundingClientRect();
-      menu.style.left = rect.left + 10 + 'px';
-      menu.style.top = rect.top + 10 + 'px';
       menu.style.display = 'block';
+      const panel = byId('property-box');
+      if (panel) {
+        panel.classList.remove('collapsed');
+        panel.querySelector('.panel-content').style.display = 'block';
+        panel.querySelector('.panel-header').setAttribute('aria-expanded', 'true');
+      }
+      if (windowRef.matchMedia('(max-width: 1100px)').matches && panel) {
+        panel.scrollIntoView({ block: 'start' });
+      } else {
+        const view = windowRef.visualViewport;
+        const left = view ? view.offsetLeft : 0;
+        const top = view ? view.offsetTop : 0;
+        const width = view ? view.width : windowRef.innerWidth;
+        const height = view ? view.height : windowRef.innerHeight;
+        menu.style.left = Math.max(left + 12, Math.min(rect.left + 10, left + width - menu.offsetWidth - 12)) + 'px';
+        menu.style.top = Math.max(top + 12, Math.min(rect.top + 10, top + height - menu.offsetHeight - 12)) + 'px';
+      }
       renderPropertyFields(selectedObject(state.getWorkspaceState()));
     }
 
@@ -407,6 +454,7 @@
 
     const unsubscribe = state.subscribe(onStateChange);
     renderAll();
+    fitCanvas();
 
     return {
       renderAll: renderAll,
@@ -422,6 +470,8 @@
       updateSelectionOverlay: updateSelectionOverlay,
       getObjectElement: function (id) { return objectElements.get(id) || null; },
       destroy: function () {
+        if (resizeObserver) resizeObserver.disconnect();
+        windowRef.removeEventListener('resize', fitCanvas);
         unsubscribe();
         objectElements.clear();
       }

@@ -1,10 +1,23 @@
 // file: settings.js
 // Function to save both editor settings and the full game state
-function saveEditorSettings() {
-    const settings = {
+function readEditorSettingsForm() {
+    return {
         screenWidth: parseInt(document.getElementById('screenWidth').value, 10),
-        screenHeight: parseInt(document.getElementById('screenHeight').value, 10)
+        screenHeight: parseInt(document.getElementById('screenHeight').value, 10),
+        position: Number(document.getElementById('positionSelect').value),
+        allowDrag: document.getElementById('allowDragCheckbox').checked
     };
+}
+
+function showEditorSettings(settings) {
+    document.getElementById('screenWidth').value = settings.screenWidth || '';
+    document.getElementById('screenHeight').value = settings.screenHeight || '';
+    document.getElementById('positionSelect').value = settings.position || 9;
+    document.getElementById('allowDragCheckbox').checked = settings.allowDrag === true;
+}
+
+function saveEditorSettings() {
+    const settings = readEditorSettingsForm();
 
     // Get saved game data (scenes, objects, toolbar settings)
     const gameState = JSON.parse(localStorage.getItem('gameState')) || {};
@@ -43,8 +56,7 @@ function importEditorSettings(event) {
 
             // Restore editor settings
             if (importData.editorSettings) {
-                document.getElementById('screenWidth').value = importData.editorSettings.screenWidth;
-                document.getElementById('screenHeight').value = importData.editorSettings.screenHeight;
+                showEditorSettings(importData.editorSettings);
                 localStorage.setItem('editorSettings', JSON.stringify(importData.editorSettings));
             }
 
@@ -67,14 +79,13 @@ function importEditorSettings(event) {
 document.getElementById('importFile')?.addEventListener('change', importEditorSettings);
 
 // Make the import project button import an example save
-exampleSave = 'Example Saves/DemoTest-103125.json'
+const exampleSave = 'Example Saves/DemoTest-103125.json';
 document.getElementById('importProject').addEventListener('click', () => {
     fetch(exampleSave)
         .then(res => res.json())
         .then(importData => {
             if (importData.editorSettings) {
-                document.getElementById('screenWidth').value = importData.editorSettings.screenWidth;
-                document.getElementById('screenHeight').value = importData.editorSettings.screenHeight;
+                showEditorSettings(importData.editorSettings);
                 localStorage.setItem('editorSettings', JSON.stringify(importData.editorSettings));
             }
             if (importData.gameState) {
@@ -94,9 +105,9 @@ document.getElementById('saveScreenSize')?.addEventListener('click', () => {
     const screenHeight = parseInt(document.getElementById('screenHeight').value, 10);
 
     if (Number.isInteger(screenWidth) && Number.isInteger(screenHeight) && screenWidth > 0 && screenHeight > 0) {
-        const settings = { screenWidth, screenHeight };
+        const settings = readEditorSettingsForm();
         localStorage.setItem('editorSettings', JSON.stringify(settings));
-        alert('Screen size settings saved!');
+        alert('Screen size and placement saved!');
     } else {
         alert('Please enter valid screen dimensions.');
     }
@@ -107,8 +118,7 @@ const savedSettings = localStorage.getItem('editorSettings');
 if (savedSettings) {
     try {
         const settings = JSON.parse(savedSettings);
-        document.getElementById('screenWidth').value = settings.screenWidth || '';
-        document.getElementById('screenHeight').value = settings.screenHeight || '';
+        showEditorSettings(settings);
     } catch (error) {
         console.error('Error loading saved settings:', error);
     }

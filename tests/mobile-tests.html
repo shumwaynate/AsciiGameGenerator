@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile release checks</title>
+  <style>
+    body { font: 15px system-ui, sans-serif; margin: 16px; }
+    .pass { color: #08752c; } .fail { color: #b00020; }
+    iframe { display: block; border: 1px solid #ccc; margin: 16px 0; }
+  </style>
+</head>
+<body>
+  <h1>Mobile release checks</h1>
+  <p>Serve the repository over HTTP and open this page. Each editor uses isolated in-memory storage.</p>
+  <p id="summary">Running…</p>
+  <ol id="results"></ol>
+  <div id="frames"></div>
+  <script src="mobile-tests.js"></script>
+</body>
+</html>

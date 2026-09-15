@@ -21,6 +21,8 @@
       initialGameState: options.initialGameState || {},
       width: options.width,
       height: options.height,
+      position: options.position,
+      allowDrag: Boolean(options.allowDrag),
       autoPlay: Boolean(options.autoPlay)
     };
     const rootId = options.rootId || 'asciiGameWrapper';
@@ -49,6 +51,8 @@
       initialGameState: ${serializeForScript(runtimeOptions.initialGameState)},
       width: ${serializeForScript(runtimeOptions.width)},
       height: ${serializeForScript(runtimeOptions.height)},
+      position: ${serializeForScript(runtimeOptions.position)},
+      allowDrag: ${serializeForScript(runtimeOptions.allowDrag)},
       autoPlay: ${serializeForScript(runtimeOptions.autoPlay)}
     });
     window[${serializeForScript(exposeAs)}] = runtime;

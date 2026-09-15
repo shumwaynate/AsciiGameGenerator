@@ -37,15 +37,15 @@ function launchGamePreview() {
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>ASCII Game Preview</title>
   <style>
-    body { background: #fff; color: #000; font-family: monospace; padding: 20px; }
-    #previewControls { margin-bottom: 10px; }
-    button { margin: 5px; padding: 10px 15px; font-size: 14px; cursor: pointer; }
-    #asciiGameWrapper { position: relative; width: ${width}px; height: ${height}px; border: 1px solid #ccc; background: #f5f5f5; overflow: hidden; }
-    .ascii-game-area { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    body { margin: 0; background: #fff; color: #000; font-family: monospace; padding: 8px max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+    #previewControls { margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+    #previewControls button { min-width: 60px; min-height: 44px; padding: 8px 12px; font-size: 16px; cursor: pointer; }
+    #asciiGameWrapper { position: relative; border: 1px solid #ccc; background: #f5f5f5; overflow: hidden; }
     .asciiObject { position: absolute; cursor: pointer; white-space: pre; font-size: ${fontSize}px; }
-    #inventoryOverlay { display: none; box-sizing: border-box; position: absolute; inset: 0; background: rgba(255,255,255,0.95); font-size: ${fontSize}px; padding: 20px; overflow-y: auto; z-index: 100; }
+    #inventoryOverlay { display: none; }
   </style>
 </head>
 <body>

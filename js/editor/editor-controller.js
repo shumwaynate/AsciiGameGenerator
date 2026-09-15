@@ -26,13 +26,14 @@
     const delayedSettingsUpdates = new Map();
     const canvas = documentRef.getElementById('ascii-display');
     let activePointer = null;
+    let suppressDragClick = false;
 
     function byId(id) {
       return documentRef.getElementById(id);
     }
 
     function listen(target, type, handler, eventOptions) {
-      if (!target) return;
+      if (!target || !target.addEventListener) return;
       target.addEventListener(type, handler, eventOptions);
       removers.push(function () { target.removeEventListener(type, handler, eventOptions); });
     }
@@ -72,11 +73,11 @@
         windowRef.alert('Please enter some ASCII art!');
         return false;
       }
-      const rect = canvas ? canvas.getBoundingClientRect() : { width: 650, height: 400 };
-      state.createObject(ascii, {
-        left: (rect.width - 100) / 2,
-        top: (rect.height - 50) / 2
+      const created = state.createObject(ascii, {
+        left: ((canvas ? canvas.clientWidth : 650) - 100) / 2,
+        top: ((canvas ? canvas.clientHeight : 400) - 50) / 2
       });
+      state.selectObject(created._editorId);
       if (input) input.value = '';
       return true;
     }
@@ -89,6 +90,7 @@
         return false;
       }
       state.saveWorkspaceAsScene(name);
+      onSilentSave();
       if (input) input.value = '';
       windowRef.alert("Scene '" + name + "' saved!");
       return true;
@@ -134,6 +136,12 @@
     }
 
     function onSceneListClick(event) {
+      const load = event.target.closest('[data-action="load-scene"]');
+      if (load) {
+        state.loadSceneIntoWorkspace(load.dataset.sceneName);
+        onSave();
+        return;
+      }
       const button = event.target.closest('[data-action="delete-scene"]');
       if (!button) return;
       const name = button.dataset.sceneName;
@@ -203,7 +211,8 @@
     }
 
     function onCanvasClick(event) {
-      const element = event.target.closest('.ascii-art[data-object-id]');
+      if (suppressDragClick) { suppressDragClick = false; return; }
+      const element = event.target.closest('[data-object-id]');
       if (!element || !canvas.contains(element)) return;
       event.stopPropagation();
       const id = element.dataset.objectId;
@@ -212,7 +221,7 @@
       if (object && object.clickable && object.colors.click.enabled) {
         element.style.color = object.colors.click.color;
       }
-      renderer.showContextMenu(id);
+      if (event.pointerType !== 'touch' && event.pointerType !== 'pen') renderer.showContextMenu(id);
     }
 
     function onCanvasPointerOver(event) {
@@ -232,20 +241,29 @@
     }
 
     function onPointerDown(event) {
-      const element = event.target.closest('.ascii-art[data-object-id]');
+      if (activePointer || event.button !== 0) return;
+      const element = event.target.closest('[data-object-id]');
       if (!element || !canvas.contains(element)) return;
       event.preventDefault();
       const objectId = element.dataset.objectId;
       state.selectObject(objectId);
-      const elementRect = element.getBoundingClientRect();
+      renderer.hideContextMenu();
+      suppressDragClick = false;
+      const object = selectedObject();
+      const objectElement = renderer.getObjectElement(objectId);
       const canvasRect = canvas.getBoundingClientRect();
       activePointer = {
         pointerId: event.pointerId,
         objectId: objectId,
         element: element,
-        canvasRect: canvasRect,
-        offsetX: event.clientX - elementRect.left,
-        offsetY: event.clientY - elementRect.top
+        scale: canvasRect.width / canvas.offsetWidth || 1,
+        startX: event.clientX,
+        startY: event.clientY,
+        left: object.left,
+        top: object.top,
+        maxLeft: Math.max(0, canvas.clientWidth - objectElement.offsetWidth),
+        maxTop: Math.max(0, canvas.clientHeight - objectElement.offsetHeight),
+        moved: false
       };
       try { element.setPointerCapture(event.pointerId); } catch (error) { /* Synthetic events may not be capturable. */ }
     }
@@ -253,16 +271,21 @@
     function onPointerMove(event) {
       if (!activePointer || event.pointerId !== activePointer.pointerId) return;
       event.preventDefault();
+      const dx = event.clientX - activePointer.startX;
+      const dy = event.clientY - activePointer.startY;
+      if (Math.abs(dx) + Math.abs(dy) > 4) activePointer.moved = true;
       state.updateObject(activePointer.objectId, {
-        left: event.clientX - activePointer.canvasRect.left - activePointer.offsetX,
-        top: event.clientY - activePointer.canvasRect.top - activePointer.offsetY
+        left: Math.max(0, Math.min(activePointer.maxLeft, activePointer.left + dx / activePointer.scale)),
+        top: Math.max(0, Math.min(activePointer.maxTop, activePointer.top + dy / activePointer.scale))
       });
     }
 
     function finishPointer(event) {
       if (!activePointer || event.pointerId !== activePointer.pointerId) return;
-      try { activePointer.element.releasePointerCapture(event.pointerId); } catch (error) { /* Capture may already be released. */ }
+      const pointer = activePointer;
       activePointer = null;
+      suppressDragClick = pointer.moved || event.type === 'pointercancel';
+      try { pointer.element.releasePointerCapture(event.pointerId); } catch (error) { /* Capture may already be released. */ }
     }
 
     function bindSelectedControl(id, eventName, createUpdates) {
@@ -366,6 +389,30 @@
     listen(canvas, 'pointermove', onPointerMove);
     listen(canvas, 'pointerup', finishPointer);
     listen(canvas, 'pointercancel', finishPointer);
+    listen(canvas, 'lostpointercapture', finishPointer);
+    listen(canvas, 'contextmenu', function (event) {
+      const element = event.target.closest('[data-object-id]');
+      if (!element) return;
+      event.preventDefault();
+      state.selectObject(element.dataset.objectId);
+      renderer.showContextMenu(element.dataset.objectId);
+    });
+    listen(byId('edit-selected-properties'), 'click', function (event) {
+      event.stopPropagation();
+      const object = selectedObject();
+      if (object) renderer.showContextMenu(object._editorId);
+    });
+    listen(documentRef, 'keydown', function (event) {
+      if (event.key === 'Escape') renderer.hideContextMenu();
+      if ((event.key === 'Enter' || event.key === ' ') &&
+          event.target.matches('[role="button"]')) {
+        event.preventDefault();
+        event.target.click();
+      }
+    });
+    listen(windowRef, 'blur', function () {
+      if (activePointer) finishPointer({ pointerId: activePointer.pointerId, type: 'pointercancel' });
+    });
 
     bindPropertyControls();
 
@@ -430,10 +477,26 @@
       const header = panel.querySelector('.panel-header');
       const content = panel.querySelector('.panel-content');
       if (!header || !content) return;
+      if (windowRef.matchMedia && windowRef.matchMedia('(max-width: 1100px)').matches) panel.classList.add('collapsed');
       content.style.display = panel.classList.contains('collapsed') ? 'none' : 'block';
+      header.setAttribute('aria-expanded', String(!panel.classList.contains('collapsed')));
       listen(header, 'click', function () {
         panel.classList.toggle('collapsed');
         content.style.display = panel.classList.contains('collapsed') ? 'none' : 'block';
+        header.setAttribute('aria-expanded', String(!panel.classList.contains('collapsed')));
+      });
+    });
+
+    documentRef.querySelectorAll('[data-editor-target]').forEach(function (button) {
+      listen(button, 'click', function () {
+        const target = byId(button.dataset.editorTarget);
+        if (!target) return;
+        if (target.classList.contains('panel-box')) {
+          target.classList.remove('collapsed');
+          target.querySelector('.panel-content').style.display = 'block';
+          target.querySelector('.panel-header').setAttribute('aria-expanded', 'true');
+        }
+        target.scrollIntoView({ block: 'start' });
       });
     });
 
@@ -450,6 +513,7 @@
       deleteSelected: deleteSelected,
       clearCanvas: clearCanvas,
       destroy: function () {
+        if (activePointer) finishPointer({ pointerId: activePointer.pointerId, type: 'pointercancel' });
         removers.splice(0).forEach(function (remove) { remove(); });
         delayedSettingsUpdates.forEach(function (timer) { windowRef.clearTimeout(timer); });
         delayedSettingsUpdates.clear();

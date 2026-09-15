@@ -21,8 +21,8 @@ AsciiGameGenerator is a browser-based ASCII game editor that supports scene crea
 - Keep changes focused and avoid unrelated refactoring.
 - Before making broad structural changes, explain the proposed approach.
 - Do not remove an existing feature merely because its implementation is incomplete.
-- Mobile editor support is planned, so prefer Pointer Events and responsive-compatible approaches for future input and layout work.
+- Mobile editor support is an active requirement. Keep phone, tablet, and desktop layouts usable and use Pointer Events for shared input handling.
 - Treat "touch" in existing object actions as player collision/contact, not necessarily a browser touchscreen gesture.
 - When changing save-state behavior, preserve the current scene, scenes, keybindings, persistent settings, currencies, inventory configuration, and object properties.
-- Preview and export runtime code currently differ; changes affecting gameplay must account for both until a shared runtime is created.
+- Preview and exported games use the shared runtime in js/runtime/game-runtime.js. Keep gameplay and touch controls in that runtime so both remain consistent.
 - After every implementation task, summarize changed files and provide manual testing steps.
