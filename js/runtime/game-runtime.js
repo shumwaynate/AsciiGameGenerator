@@ -5,7 +5,8 @@
   function createAsciiGameRuntime(options) {
     const BASE_WIDTH = 650;
     const BASE_HEIGHT = 400;
-    const MOVEMENT_SPEED = 3;
+    const MOVEMENT_SPEED_PX_PER_SECOND = 90;
+    const MAX_FRAME_DELTA_MS = 50;
     const TOUCH_COOLDOWN_MS = 1000;
 
     function deepClone(value) {
@@ -43,6 +44,7 @@
     let playing = false;
     let destroyed = false;
     let animationFrameId = null;
+    let lastFrameTime = null;
     let mainPlayerObj = null;
     let sceneObjects = [];
     let touchMemory = new Map();
@@ -525,18 +527,25 @@
       }
     }
 
-    function gameLoop() {
+    function gameLoop(frameTime) {
       animationFrameId = null;
       if (!playing || destroyed) return;
+
+      const currentFrameTime = Number.isFinite(frameTime) ? frameTime : now();
+      const elapsedMs = lastFrameTime === null
+        ? 0
+        : Math.max(0, Math.min(currentFrameTime - lastFrameTime, MAX_FRAME_DELTA_MS));
+      lastFrameTime = currentFrameTime;
+      const movementStep = MOVEMENT_SPEED_PX_PER_SECOND * (elapsedMs / 1000);
 
       let dx = 0;
       let dy = 0;
       const activeKeys = new Set(keysPressed);
       touchPointers.forEach(function (pointer) { activeKeys.add(pointer.key); });
-      if (activeKeys.has('w')) dy -= MOVEMENT_SPEED;
-      if (activeKeys.has('s')) dy += MOVEMENT_SPEED;
-      if (activeKeys.has('a')) dx -= MOVEMENT_SPEED;
-      if (activeKeys.has('d')) dx += MOVEMENT_SPEED;
+      if (activeKeys.has('w')) dy -= movementStep;
+      if (activeKeys.has('s')) dy += movementStep;
+      if (activeKeys.has('a')) dx -= movementStep;
+      if (activeKeys.has('d')) dx += movementStep;
       if (dx || dy) moveMainPlayer(dx, dy);
       scheduleFrame();
     }
@@ -544,12 +553,14 @@
     function play() {
       if (destroyed || playing) return;
       playing = true;
+      lastFrameTime = now();
       syncTouchControls();
       scheduleFrame();
     }
 
     function pause() {
       playing = false;
+      lastFrameTime = null;
       clearInputs();
       syncTouchControls();
       if (animationFrameId !== null) {

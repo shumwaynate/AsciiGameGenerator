@@ -294,11 +294,19 @@
 
   function controlledRuntime(state) {
     let frame = null;
+    let frameTime = 0;
     const context = createRuntime(state || fixtures.oneMain, {
       requestAnimationFrame: function (callback) { frame = callback; return 1; },
-      cancelAnimationFrame: function () { frame = null; }
+      cancelAnimationFrame: function () { frame = null; },
+      now: function () { return frameTime; }
     });
-    context.tick = function () { if (frame) { const callback = frame; frame = null; callback(); } };
+    context.tick = function (elapsedMs) {
+      if (!frame) return;
+      frameTime += elapsedMs === undefined ? (1000 / 60) : elapsedMs;
+      const callback = frame;
+      frame = null;
+      callback(frameTime);
+    };
     context.pointer = function (type, id, key) {
       const button = context.root.querySelector('[data-direction="' + (key || 'd') + '"]');
       button.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerType: 'touch', pointerId: id }));
@@ -311,14 +319,14 @@
     context.runtime.play();
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }));
     context.tick();
-    equal(context.runtime.getSnapshot().activePlayer.x, 3);
+    equal(context.runtime.getSnapshot().activePlayer.x, 1.5);
     context.runtime.pause();
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }));
     context.tick();
     equal(context.runtime.getSnapshot().pressedKeys.length, 0);
     context.runtime.play();
     context.tick();
-    equal(context.runtime.getSnapshot().activePlayer.x, 3, 'paused input must not resume later');
+    equal(context.runtime.getSnapshot().activePlayer.x, 1.5, 'paused input must not resume later');
     context.cleanup();
   });
 
@@ -350,14 +358,14 @@
     context.runtime.play();
     context.pointer('pointerdown', 1);
     context.tick(); context.tick();
-    equal(context.runtime.getSnapshot().activePlayer.x, 6);
+    equal(context.runtime.getSnapshot().activePlayer.x, 3);
     context.pointer('pointerup', 1);
     context.tick();
-    equal(context.runtime.getSnapshot().activePlayer.x, 6);
+    equal(context.runtime.getSnapshot().activePlayer.x, 3);
     context.pointer('pointerdown', 2);
     context.pointer('pointercancel', 2);
     context.tick();
-    equal(context.runtime.getSnapshot().activePlayer.x, 6);
+    equal(context.runtime.getSnapshot().activePlayer.x, 3);
     equal(context.runtime.getSnapshot().touchPointerCount, 0);
     context.cleanup();
   });
@@ -369,15 +377,37 @@
     context.pointer('pointerdown', 2);
     context.pointer('pointerup', 1);
     context.tick();
-    equal(context.runtime.getSnapshot().activePlayer.x, 3, 'second finger still holds direction');
+    equal(context.runtime.getSnapshot().activePlayer.x, 1.5, 'second finger still holds direction');
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }));
     context.pointer('pointercancel', 2);
     context.tick();
-    equal(context.runtime.getSnapshot().activePlayer.x, 6, 'keyboard still holds direction');
+    equal(context.runtime.getSnapshot().activePlayer.x, 3, 'keyboard still holds direction');
     document.dispatchEvent(new KeyboardEvent('keyup', { key: 'd' }));
     context.tick();
-    equal(context.runtime.getSnapshot().activePlayer.x, 6);
+    equal(context.runtime.getSnapshot().activePlayer.x, 3);
     context.cleanup();
+  });
+
+  test('held movement speed is frame-rate independent', function () {
+    const sixtyHz = controlledRuntime();
+    sixtyHz.runtime.play();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }));
+    for (let i = 0; i < 60; i += 1) sixtyHz.tick(1000 / 60);
+    document.dispatchEvent(new KeyboardEvent('keyup', { key: 'd' }));
+    const sixtyHzX = sixtyHz.runtime.getSnapshot().activePlayer.x;
+    sixtyHz.cleanup();
+
+    const oneTwentyHz = controlledRuntime();
+    oneTwentyHz.runtime.play();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }));
+    for (let i = 0; i < 120; i += 1) oneTwentyHz.tick(1000 / 120);
+    document.dispatchEvent(new KeyboardEvent('keyup', { key: 'd' }));
+    const oneTwentyHzX = oneTwentyHz.runtime.getSnapshot().activePlayer.x;
+    oneTwentyHz.cleanup();
+
+    assert(Math.abs(sixtyHzX - 90) < 0.001, '60 Hz movement should be about 90 px/sec');
+    assert(Math.abs(oneTwentyHzX - 90) < 0.001, '120 Hz movement should be about 90 px/sec');
+    assert(Math.abs(sixtyHzX - oneTwentyHzX) < 0.001, 'movement should not depend on refresh rate');
   });
 
   test('paused touch cannot move or remain held after Play', function () {
